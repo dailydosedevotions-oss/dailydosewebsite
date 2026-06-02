@@ -50,3 +50,40 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   const emptyMsg = document.getElementById('noDevotionsMessage');
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
+
+
+// Subscribe form: sends new subscribers to Brevo through Cloudflare Pages Functions.
+(function () {
+  const form = document.getElementById('subscribeForm');
+  const status = document.getElementById('subscribeStatus');
+  if (!form) return;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
+
+    if (button) button.disabled = true;
+    if (status) status.textContent = 'Subscribing...';
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Something went wrong. Please try again.');
+      }
+
+      form.reset();
+      if (status) status.textContent = 'Thank you for subscribing. Please check your inbox for the Welcome Pack.';
+    } catch (error) {
+      if (status) status.textContent = error.message || 'Something went wrong. Please try again.';
+    } finally {
+      if (button) button.disabled = false;
+    }
+  });
+})();

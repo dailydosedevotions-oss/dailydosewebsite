@@ -57,9 +57,7 @@
           </div>
         </div>
 
-        <form class="subscribe-card reveal" id="subscribeForm" action="https://formsubmit.co/dailydosedevotions@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="New Daily Dose subscription">
-          <input type="hidden" name="_template" value="table">
+        <form class="subscribe-card reveal" id="subscribeForm" action="/api/subscribe" method="POST">
           <div>
             <h2>Subscribe Free</h2>
             <p>Receive devotions straight to your inbox</p>
@@ -69,7 +67,7 @@
           <textarea name="message" placeholder="Any message or prayer request (optional)"></textarea>
           <input type="hidden" name="form_type" value="Subscription request">
           <button class="btn primary full" type="submit">Subscribe to Daily Dose</button>
-          <small>No pressure. No cost. Just Scripture and encouragement.</small>
+          <small id="subscribeStatus">No pressure. No cost. Just Scripture and encouragement.</small>
         </form>
       </div>
     </section>
