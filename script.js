@@ -4,7 +4,7 @@ const menuBtn = document.getElementById('menuBtn');
 const closeBtn = document.getElementById('closeBtn');
 
 window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 40);
 });
 
 menuBtn?.addEventListener('click', () => menu.classList.add('open'));
@@ -58,12 +58,26 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   const status = document.getElementById('subscribeStatus');
   if (!form) return;
 
+  form.setAttribute('action', '#');
+  form.setAttribute('novalidate', 'novalidate');
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    event.stopPropagation();
+
     const button = form.querySelector('button[type="submit"]');
     const formData = new FormData(form);
+    const email = String(formData.get('email') || '').trim();
 
-    if (button) button.disabled = true;
+    if (!email || !email.includes('@')) {
+      if (status) status.textContent = 'Please enter a valid email address.';
+      return false;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Subscribing...';
+    }
     if (status) status.textContent = 'Subscribing...';
 
     try {
@@ -74,16 +88,25 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
       const result = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
+      if (!response.ok || !result.success) {
         throw new Error(result.error || 'Something went wrong. Please try again.');
       }
 
       form.reset();
       if (status) status.textContent = 'Thank you for subscribing. Please check your inbox for the Welcome Pack.';
+      if (button) button.textContent = 'Subscribed';
     } catch (error) {
       if (status) status.textContent = error.message || 'Something went wrong. Please try again.';
+      if (button) button.textContent = 'Subscribe to Daily Dose';
     } finally {
-      if (button) button.disabled = false;
+      if (button) {
+        setTimeout(() => {
+          button.disabled = false;
+          if (button.textContent === 'Subscribed') button.textContent = 'Subscribe to Daily Dose';
+        }, 2500);
+      }
     }
+
+    return false;
   });
 })();
