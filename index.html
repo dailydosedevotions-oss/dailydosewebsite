@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Dose Devotions</title>
+  <meta name="description" content="Daily Dose is a space for Scripture, reflection and real life. Scripture-rooted, honest, personal devotions pointing people back to Christ." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="#home">DAILY DOSE</a>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about-full">About</a>
+        <a href="#devotions">Devotions</a>
+        <a href="#series">Series</a>
+        <a href="#prayer">Prayer</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+    <a href="#home">Home</a>
+    <a href="#about-full">About</a>
+    <a href="#devotions">Devotions</a>
+    <a href="#series">Series</a>
+    <a href="#prayer">Prayer</a>
+    <a href="#contact">Contact</a>
+    <div class="mobile-note">
+      <p>Daily Dose Devotions</p>
+      <span>Scripture · Reflection · Real Life</span>
+    </div>
+  </div>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <h1>WORD.<br>REFLECTION.<br><span>REAL LIFE.</span></h1>
+          <p>Daily Dose is a space for Scripture, reflection and real life. Each devotion points people back toward Christ through honest faith, encouragement and daily reflection.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="devotions.html">Read Devotions</a>
+            <a class="btn outline" href="#prayer">Submit a Prayer</a>
+          </div>
+          <div class="tags">
+            <span>SCRIPTURE-ROOTED</span><i></i><span>HONEST</span><i></i><span>PERSONAL</span>
+          </div>
+        </div>
+
+        <form class="subscribe-card reveal" id="subscribeForm" action="https://formsubmit.co/dailydosedevotions@gmail.com" method="POST">
+          <input type="hidden" name="_subject" value="New Daily Dose subscription">
+          <input type="hidden" name="_template" value="table">
+          <div>
+            <h2>Subscribe Free</h2>
+            <p>Receive devotions straight to your inbox</p>
+          </div>
+          <input name="name" placeholder="Your Name" required>
+          <input name="email" type="email" placeholder="Email Address" required>
+          <textarea name="message" placeholder="Any message or prayer request (optional)"></textarea>
+          <input type="hidden" name="form_type" value="Subscription request">
+          <button class="btn primary full" type="submit">Subscribe to Daily Dose</button>
+          <small>No pressure. No cost. Just Scripture and encouragement.</small>
+        </form>
+      </div>
+    </section>
+
+    <section id="devotions" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">What We Offer</p>
+          <h2>Three Pillars of Daily Dose</h2>
+          <div class="line"></div>
+        </div>
+        <div class="cards">
+          <article class="card reveal">
+            <div class="icon">📖</div>
+            <p class="eyebrow">Daily Devotions</p>
+            <h3>Daily Dose</h3>
+            <p>Scripture-rooted reflections written to meet you wherever you are — whether strong in faith, finding your way back, or simply trying to get through the day.</p>
+            <a class="btn outline small" href="devotions.html">Read Devotions</a>
+          </article>
+          <article class="card reveal">
+            <div class="icon">☰</div>
+            <p class="eyebrow">Featured Reflections</p>
+            <h3>Series</h3>
+            <p>A section for longer reflection series and themed writing. This is where future series can sit without including FORMED as the featured item right now.</p>
+            <a class="btn outline small" href="#series">Explore Series</a>
+          </article>
+          <article class="card reveal">
+            <div class="icon">🔥</div>
+            <p class="eyebrow">Prayer Requests</p>
+            <h3>The Sanctuary</h3>
+            <p>A quiet space to share what you are carrying. Whether for yourself or someone you love — you do not have to carry it alone.</p>
+            <a class="btn outline small" href="#prayer">Submit a Prayer</a>
+          </article>
+        </div>
+
+        <div class="archive-panel reveal">
+          <p class="eyebrow">Devotion Archive</p>
+          <h3>Daily Dose #1–#39 are now available</h3>
+          <p>The full archive from April 21, 2026 to May 29, 2026 is ready to read on the website.</p>
+          <a class="btn primary small" href="devotions.html">Open Devotion Archive</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section split-section">
+      <div class="container split">
+        <div class="image-card reveal">
+          <img src="https://media.base44.com/images/public/6a1e90e9afeaee4e0a0198e2/e7b158545_generated_fb58f30f.png" alt="Journal and fountain pen in candlelight">
+        </div>
+        <div class="reveal">
+          <p class="eyebrow">The Story Behind Daily Dose</p>
+          <h2>Born in a<br><span>Broken Place</span></h2>
+          <p>Daily Dose did not begin as a project or an idea to gain attention. It was born in a very broken place — during recovery from years of addiction and hopelessness. Through the Word of God, preached consistently, everything began to change. Those notes became reflections. Those reflections became Daily Dose.</p>
+          <ul class="checks">
+            <li>Born from genuine brokenness and recovery — not theory</li>
+            <li>Scripture-centred, not opinion-driven</li>
+            <li>Written for real people in real struggles</li>
+            <li>Consistent daily encouragement since day one</li>
+            <li>No pressure, no performance — just honest faith</li>
+          </ul>
+          <a class="btn primary" href="#about-full">Read the Full Story</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="about-full" class="section about-full">
+      <div class="container narrow reveal">
+        <p class="eyebrow">About Daily Dose</p>
+        <h2>Why Daily Dose Exists</h2>
+        <p>Daily Dose did not begin as a project, a brand, or an idea to gain attention.</p>
+        <p>It was born in a very broken place.</p>
+        <p>There was a time in my life where addiction completely consumed me. Years of destruction, hopelessness, confusion and emptiness left me in a place where I genuinely did not know who I was anymore or where my life was heading. Like many people trapped in addiction, I spent years searching for relief, meaning and escape in the wrong places, while internally becoming more lost.</p>
+        <p>But during treatment, something began to change.</p>
+        <p>Every time I sat in church and listened to the Word of God being preached, it felt personal. It did not feel distant or religious. It felt like God was speaking directly into the condition of my life. Things I had buried, ignored, run from or tried to numb began surfacing through Scripture and through hearing truth consistently.</p>
+        <p>So I started taking notes.</p>
+        <p>Notes upon notes.</p>
+        <p>Not because I was planning to create anything one day, but because I was trying to hold onto every piece of truth that was helping pull me out of darkness and helping me understand who God was, who I was, and what real transformation actually looked like.</p>
+        <p>Over time, those notes became deeply personal reflections. They carried moments of conviction, healing, surrender, restoration and learning how to genuinely walk with God one day at a time. And eventually, there came a point where I realised I did not want to keep those things to myself.</p>
+        <p>I wanted other people to experience the same hope, truth and encouragement that had impacted me so deeply.</p>
+        <p>That is where Daily Dose was born.</p>
+        <p>Daily Dose was never meant to be polished, perfect or performative Christianity. It was created from a genuine place of wanting to point people back toward Christ through Scripture, reflection and honest faith. Especially people who feel broken, lost, exhausted, stuck, addicted, ashamed or spiritually distant.</p>
+        <p>Because I know what it feels like to sit in hopelessness and wonder if change is even possible.</p>
+        <p>And I also know what it feels like for God to begin rebuilding a life slowly, patiently and faithfully over time.</p>
+        <p>Daily Dose exists because the Word of God changed my life.</p>
+        <p>And if these reflections can help even one person keep going, return to God, find hope again, or realise they are not too far gone for His grace, then it is worth it.</p>
+      </div>
+    </section>
+
+    <section id="series" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Our Work</p>
+          <h2>The Series Collection</h2>
+          <div class="line"></div>
+        </div>
+        <div class="series-panel reveal">
+          <p class="eyebrow">Coming Soon</p>
+          <h3>Featured Series</h3>
+          <p>This section is ready for long-form Daily Dose series and themed reflections. FORMED has not been included here, so this can stay open and clean for future series content.</p>
+          <a class="btn outline small" href="#contact">Ask About Series</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="prayer" class="section split-section">
+      <div class="container narrow">
+        <div class="section-head reveal">
+          <p class="eyebrow">Prayer Requests</p>
+          <h2>You Are Not Alone</h2>
+          <div class="line"></div>
+          <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through — you are welcome to share it.</p>
+        </div>
+        <form class="contact-card reveal" id="prayerForm" action="https://formsubmit.co/dailydosedevotions@gmail.com" method="POST">
+          <input type="hidden" name="_subject" value="New Daily Dose prayer request">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="form_type" value="Prayer request">
+          <input name="name" placeholder="Your Name" required>
+          <input name="email" type="email" placeholder="Email Address">
+          <textarea name="message" placeholder="Your prayer request..." required></textarea>
+          <label class="check-row"><input type="checkbox" name="private" value="Yes"> Please keep this private</label>
+          <input type="hidden" name="_captcha" value="false">
+          <button class="btn primary full" type="submit">Submit Prayer Request</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="contact" class="section final">
+      <div class="container narrow reveal">
+        <div class="vertical-line"></div>
+        <p>Whether you are strong in your faith, trying to find your way back to God, new to faith, recovering, struggling, or simply trying to get through the day — Daily Dose exists to help you pause, reflect and turn your focus back to Jesus.</p>
+        <div class="hero-actions center">
+          <a class="btn primary" href="#home">Subscribe Free</a>
+          <a class="btn outline" href="mailto:dailydosedevotions@gmail.com">Get In Touch</a>
+        </div>
+        <div class="vertical-line"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <h3>DAILY DOSE</h3>
+        <p>Scripture-Rooted. Honest. Personal.</p>
+        <small>Each devotion is written to point people back toward Christ through the Word of God, honest faith, encouragement, challenge and daily reflection.</small>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="#devotions">Daily Devotions</a>
+        <a href="#series">The Series</a>
+        <a href="#prayer">Prayer Requests</a>
+        <a href="#about-full">About Daily Dose</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <p>dailydosedevotions.ie</p>
+        <p>dailydosedevotions@gmail.com</p>
+        <small>Ireland & Worldwide</small>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <small>© 2025 Daily Dose Devotions LLC. All rights reserved.</small>
+      <small>SCRIPTURE · REFLECTION · REAL LIFE</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
