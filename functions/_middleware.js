@@ -23,18 +23,44 @@ const schedule = {
   "61": "2026-06-24T06:00:00Z"
 };
 
+const formedSchedule = {
+  "1": "2026-06-07T18:00:00Z",
+  "2": "2026-06-14T18:00:00Z",
+  "3": "2026-06-21T18:00:00Z",
+  "4": "2026-06-28T18:00:00Z",
+  "5": "2026-07-05T18:00:00Z",
+  "6": "2026-07-12T18:00:00Z",
+  "7": "2026-07-19T18:00:00Z",
+  "8": "2026-07-26T18:00:00Z"
+};
+
+
+function scheduledResponse(eyebrow, title, message, backHref, backText) {
+  return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><link rel="stylesheet" href="/styles.css"></head><body><main class="devotion-shell"><div class="container"><article class="devotion-article reveal visible"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p>${message}</p><p><a class="btn primary small" href="${backHref}">${backText}</a></p></article></div></main></body></html>`, {
+    status: 403,
+    headers: { 'content-type': 'text/html; charset=UTF-8' }
+  });
+}
+
 export async function onRequest(context) {
   const url = new URL(context.request.url);
-  const match = url.pathname.match(/^\/devotions\/daily-dose-(\d+)\.html$/);
-  if (match && schedule[match[1]]) {
-    const now = new Date();
-    const publishAt = new Date(schedule[match[1]]);
+  const now = new Date();
+
+  const devotionMatch = url.pathname.match(/^\/devotions\/daily-dose-(\d+)\.html$/);
+  if (devotionMatch && schedule[devotionMatch[1]]) {
+    const publishAt = new Date(schedule[devotionMatch[1]]);
     if (now < publishAt) {
-      return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Scheduled Devotion</title><link rel="stylesheet" href="/styles.css"></head><body><main class="devotion-shell"><div class="container"><article class="devotion-article reveal visible"><p class="eyebrow">Daily Dose</p><h1>Scheduled Devotion</h1><p>This devotion is scheduled and will become available at 7am on its release date.</p><p><a class="btn primary small" href="/devotions.html">Back to Devotions</a></p></article></div></main></body></html>`, {
-        status: 403,
-        headers: { 'content-type': 'text/html; charset=UTF-8' }
-      });
+      return scheduledResponse('Daily Dose', 'Scheduled Devotion', 'This devotion is scheduled and will become available at 7am on its release date.', '/devotions.html', 'Back to Devotions');
     }
   }
+
+  const formedMatch = url.pathname.match(/^\/series\/formed-part-(\d+)\.html$/);
+  if (formedMatch && formedSchedule[formedMatch[1]]) {
+    const publishAt = new Date(formedSchedule[formedMatch[1]]);
+    if (now < publishAt) {
+      return scheduledResponse('Daily Dose: FORMED', 'Scheduled Series Part', 'This FORMED part is scheduled and will become available at 7pm on its Sunday release date.', '/series.html', 'Back to FORMED');
+    }
+  }
+
   return context.next();
 }

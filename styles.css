@@ -114,3 +114,7 @@ footer p, footer a{display:block;color:rgba(232,225,214,.42);font-size:14px;marg
 
 
 .scripture-heading{margin-top:28px;color:var(--primary);font-family:var(--font-heading);font-size:22px;letter-spacing:.04em}.devotion-body blockquote{margin:10px 0 22px;padding:18px 22px;border-left:3px solid var(--primary);background:rgba(198,160,90,.08);color:#f4efe6;border-radius:12px}.scheduled-warning{margin:22px 0;padding:18px 20px;border:1px solid rgba(198,160,90,.45);border-radius:16px;background:rgba(198,160,90,.08);color:#f4efe6}
+
+
+/* FORMED series additions */
+.series-grid{margin-top:34px}.series-card h3{font-size:24px}.formed-list{margin:0 0 24px 20px;color:#ded6c9;font-size:18px;line-height:1.8}.formed-list li{margin-bottom:8px}.formed-body blockquote{margin:18px 0 26px;padding:18px 22px;border-left:3px solid var(--primary);background:rgba(198,160,90,.08);color:#f4efe6;border-radius:12px;font-family:var(--font-heading);font-size:24px;line-height:1.45}.series-shell .devotion-meta{margin-bottom:32px}

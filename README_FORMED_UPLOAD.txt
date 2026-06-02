@@ -1,0 +1,1 @@
+Upload the extracted contents of this ZIP to GitHub repo dailydosewebsite using Add file > Upload files. Commit directly to main. Cloudflare will deploy automatically. FORMED releases weekly Sundays at 7PM Irish time, starting Sunday June 7, 2026.
