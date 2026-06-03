@@ -1,0 +1,41 @@
+DAILY DOSE WEBSITE — REMOVE ARCHIVE SECTION
+
+WHAT TO REMOVE:
+Delete the entire section that says:
+
+DEVOTION ARCHIVE
+Daily Dose #1–#39 are now available
+OPEN DEVOTION ARCHIVE
+
+STEP BY STEP:
+
+1. Open GitHub repository:
+dailydosedevotions-oss/dailydosewebsite
+
+2. Open:
+index.html
+
+3. Search for:
+DEVOTION ARCHIVE
+
+4. Delete the entire block/section connected to:
+- Daily Dose #1–#39 are now available
+- The full archive from April 21, 2026...
+- OPEN DEVOTION ARCHIVE button
+
+5. Save changes.
+
+6. Commit message:
+Remove outdated archive section
+
+7. Click:
+Commit changes
+
+8. Cloudflare will redeploy automatically.
+
+RESULT:
+- Cleaner homepage
+- No outdated numbering
+- Devotions page becomes the single archive
+- Scheduled devotions remain untouched
+- Brevo/email setup remains untouched
