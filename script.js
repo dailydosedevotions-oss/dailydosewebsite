@@ -110,3 +110,78 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     return false;
   });
 })();
+
+
+// Share buttons: automatically share the current page URL for homepage, devotions, and series pages.
+(function () {
+  function getShareTitle() {
+    const h1 = document.querySelector('h1');
+    return (h1?.textContent || document.title || 'Daily Dose Devotions').trim();
+  }
+
+  function getShareUrl() {
+    return window.location.href.split('#')[0];
+  }
+
+  function buildShareBlock(label) {
+    const url = getShareUrl();
+    const title = getShareTitle();
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(title + ' — Daily Dose Devotions');
+    const encodedSubject = encodeURIComponent(title);
+    const encodedBody = encodeURIComponent('I wanted to share this from Daily Dose Devotions:\n\n' + title + '\n' + url);
+
+    const wrapper = document.createElement('section');
+    wrapper.className = 'share-box scheduled-sensitive';
+    wrapper.innerHTML = `
+      <p class="eyebrow">Share</p>
+      <h3>${label}</h3>
+      <div class="share-buttons">
+        <a class="share-btn" href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noopener">Facebook</a>
+        <a class="share-btn" href="mailto:?subject=${encodedSubject}&body=${encodedBody}">Email</a>
+        <button class="share-btn copy-share" type="button">Copy Link</button>
+      </div>
+      <p class="share-note">For Instagram or TikTok, tap Copy Link and paste it into your story, caption, bio, or status.</p>
+      <p class="copy-status" aria-live="polite"></p>
+    `;
+
+    const copyBtn = wrapper.querySelector('.copy-share');
+    const copyStatus = wrapper.querySelector('.copy-status');
+    copyBtn?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        copyStatus.textContent = 'Link copied.';
+      } catch (error) {
+        copyStatus.textContent = url;
+      }
+    });
+
+    return wrapper;
+  }
+
+  function addAfterArticle() {
+    const article = document.querySelector('.devotion-article');
+    if (!article || document.querySelector('.share-box')) return;
+    const isSeries = document.body.classList.contains('series-page') || document.querySelector('.series-shell');
+    article.insertAdjacentElement('afterend', buildShareBlock(isSeries ? 'Share This Series Reflection' : 'Share This Devotion'));
+  }
+
+  function addToArchivePage() {
+    if (document.querySelector('.share-box')) return;
+    const hero = document.querySelector('.page-hero .container');
+    if (!hero) return;
+    const path = window.location.pathname;
+    if (path.endsWith('/devotions.html') || path.endsWith('/series.html') || path === '/' || path.endsWith('/index.html')) {
+      const label = path.endsWith('/series.html') ? 'Share This Series Page' : path.endsWith('/devotions.html') ? 'Share The Devotions Archive' : 'Share Daily Dose Devotions';
+      hero.appendChild(buildShareBlock(label));
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { addAfterArticle(); addToArchivePage(); });
+  } else {
+    addAfterArticle();
+    addToArchivePage();
+  }
+})();
