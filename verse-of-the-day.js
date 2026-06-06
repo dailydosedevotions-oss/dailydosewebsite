@@ -1,5 +1,6 @@
 (function () {
-  const DATA_URL = "/verses-of-the-day.json?v=4";
+  const DATA_URL = "/verses-of-the-day.json?v=5";
+  const TRACK_URL = "/api/votd-interaction";
 
   function todayKeyLocal() {
     const now = new Date();
@@ -7,6 +8,16 @@
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  }
+
+  function visitorId() {
+    const key = "dailyDoseVisitorId";
+    let id = localStorage.getItem(key);
+    if (!id) {
+      id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(key, id);
+    }
+    return id;
   }
 
   function formatDate(value, longFormat = true) {
@@ -108,7 +119,8 @@
         font-style: italic;
       }
 
-      .verse-feature-card .verse-actions {
+      .verse-feature-card .verse-actions,
+      .verse-feature-card .verse-social-actions {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
@@ -116,10 +128,6 @@
       }
 
       .verse-feature-card .verse-social-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 12px;
         margin: 10px 0 26px;
       }
 
@@ -216,34 +224,89 @@
     return `Verse of the Day — ${verse.reference}\n\n“${verse.text}”\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
+  async function getStats(verse) {
+    try {
+      const response = await fetch(`${TRACK_URL}?date=${encodeURIComponent(verse.date)}&reference=${encodeURIComponent(verse.reference)}&v=5`);
+      const data = await response.json();
+      return data && data.success ? data : { likes: 0, shares: 0 };
+    } catch {
+      return { likes: 0, shares: 0 };
+    }
+  }
+
+  async function recordInteraction(type, verse) {
+    const response = await fetch(TRACK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type,
+        date: verse.date,
+        reference: verse.reference,
+        text: verse.text,
+        page: "https://dailydosedevotions.ie/#verse-of-the-day",
+        visitorId: visitorId()
+      })
+    });
+
+    return response.json();
+  }
+
+  function updateLikeButton(likeBtn, count, liked) {
+    if (!likeBtn) return;
+    likeBtn.classList.toggle("liked", liked);
+    likeBtn.textContent = liked ? `♥ Liked (${count})` : `♡ Like Verse (${count})`;
+  }
+
   function wireVerseButtons(verse) {
     const shareBtn = document.getElementById("shareVerseBtn");
     const likeBtn = document.getElementById("likeVerseBtn");
     const status = document.getElementById("verseShareStatus");
-    const likeKey = `dailyDoseLikedVerse:${verse.date}`;
+    const likeKey = `dailyDoseLikedVerse:${verse.date}:${verse.reference}`;
+    let localLiked = localStorage.getItem(likeKey) === "true";
+    let likeCount = 0;
+
+    getStats(verse).then(stats => {
+      likeCount = Number(stats.likes || 0);
+      updateLikeButton(likeBtn, likeCount, localLiked);
+    });
 
     if (likeBtn) {
-      if (localStorage.getItem(likeKey) === "true") {
-        likeBtn.classList.add("liked");
-        likeBtn.textContent = "♥ Liked";
-      }
+      updateLikeButton(likeBtn, likeCount, localLiked);
 
-      likeBtn.addEventListener("click", () => {
-        const liked = localStorage.getItem(likeKey) === "true";
-        if (liked) {
-          localStorage.removeItem(likeKey);
-          likeBtn.classList.remove("liked");
-          likeBtn.textContent = "♡ Like Verse";
-        } else {
-          localStorage.setItem(likeKey, "true");
-          likeBtn.classList.add("liked");
-          likeBtn.textContent = "♥ Liked";
+      likeBtn.addEventListener("click", async () => {
+        if (localLiked) {
+          if (status) status.textContent = "You already liked today’s verse.";
+          return;
+        }
+
+        localLiked = true;
+        localStorage.setItem(likeKey, "true");
+        likeCount += 1;
+        updateLikeButton(likeBtn, likeCount, true);
+
+        try {
+          const result = await recordInteraction("like", verse);
+          if (result && result.success) {
+            likeCount = Number(result.likes || likeCount);
+            updateLikeButton(likeBtn, likeCount, true);
+          }
+          if (status) status.textContent = "Thank you. Your encouragement was recorded.";
+        } catch {
+          if (status) status.textContent = "Liked on this device. Server recording failed.";
         }
       });
     }
 
     if (shareBtn) {
       shareBtn.addEventListener("click", async () => {
+        try {
+          await recordInteraction("share", verse);
+        } catch {
+          // Sharing still continues even if tracking fails.
+        }
+
         const text = shareText(verse);
         const shareData = {
           title: `Verse of the Day — ${verse.reference}`,
@@ -254,15 +317,15 @@
         try {
           if (navigator.share) {
             await navigator.share(shareData);
-            if (status) status.textContent = "Verse ready to share.";
+            if (status) status.textContent = "Share recorded.";
           } else if (navigator.clipboard) {
             await navigator.clipboard.writeText(text);
-            if (status) status.textContent = "Verse copied. Paste it into WhatsApp, Instagram, Facebook, or a message.";
+            if (status) status.textContent = "Share recorded. Verse copied to clipboard.";
           } else {
-            if (status) status.textContent = "Copy this verse from the page to share it.";
+            if (status) status.textContent = "Share recorded. Copy the verse from the page.";
           }
-        } catch (error) {
-          if (status) status.textContent = "Share cancelled.";
+        } catch {
+          if (status) status.textContent = "Share opened but was cancelled.";
         }
       });
     }
@@ -284,7 +347,7 @@
 
           <div class="verse-social-actions">
             <button class="verse-action-btn" id="shareVerseBtn" type="button">Share Verse</button>
-            <button class="verse-action-btn" id="likeVerseBtn" type="button">♡ Like Verse</button>
+            <button class="verse-action-btn" id="likeVerseBtn" type="button">♡ Like Verse (0)</button>
           </div>
 
           <div class="verse-actions">
