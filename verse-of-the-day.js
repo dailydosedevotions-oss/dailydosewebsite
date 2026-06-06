@@ -1,5 +1,5 @@
 (function () {
-  const DATA_URL = "/verses-of-the-day.json?v=3";
+  const DATA_URL = "/verses-of-the-day.json?v=4";
 
   function todayKeyLocal() {
     const now = new Date();
@@ -115,6 +115,47 @@
         gap: 14px;
       }
 
+      .verse-feature-card .verse-social-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin: 10px 0 26px;
+      }
+
+      .verse-action-btn {
+        appearance: none;
+        border: 1px solid rgba(198,160,90,.35);
+        background: rgba(255,255,255,.035);
+        color: #f4ead4;
+        border-radius: 999px;
+        padding: 11px 18px;
+        font-size: 13px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform .2s ease, border-color .2s ease, background .2s ease;
+      }
+
+      .verse-action-btn:hover {
+        transform: translateY(-2px);
+        border-color: rgba(198,160,90,.75);
+        background: rgba(198,160,90,.12);
+      }
+
+      .verse-action-btn.liked {
+        background: rgba(198,160,90,.18);
+        border-color: rgba(198,160,90,.85);
+        color: #ffd98a;
+      }
+
+      .verse-share-status {
+        min-height: 20px;
+        margin-top: 12px;
+        color: var(--primary, #c6a05a);
+        font-size: 13px;
+      }
+
       .votd-library-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -148,11 +189,13 @@
           padding: 36px 22px;
         }
 
-        .verse-feature-card .verse-actions {
+        .verse-feature-card .verse-actions,
+        .verse-feature-card .verse-social-actions {
           flex-direction: column;
         }
 
-        .verse-feature-card .btn {
+        .verse-feature-card .btn,
+        .verse-action-btn {
           width: 100%;
         }
       }
@@ -163,14 +206,65 @@
   function placeVerseSection() {
     const section = document.getElementById("verse-of-the-day");
     const devotions = document.getElementById("devotions");
-    const home = document.getElementById("home");
 
     if (section && devotions && section.nextElementSibling !== devotions) {
       devotions.parentNode.insertBefore(section, devotions);
     }
+  }
 
-    if (section && home && section.compareDocumentPosition(home) & Node.DOCUMENT_POSITION_FOLLOWING) {
-      // Safety only; normal placement is handled above.
+  function shareText(verse) {
+    return `Verse of the Day — ${verse.reference}\n\n“${verse.text}”\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+  }
+
+  function wireVerseButtons(verse) {
+    const shareBtn = document.getElementById("shareVerseBtn");
+    const likeBtn = document.getElementById("likeVerseBtn");
+    const status = document.getElementById("verseShareStatus");
+    const likeKey = `dailyDoseLikedVerse:${verse.date}`;
+
+    if (likeBtn) {
+      if (localStorage.getItem(likeKey) === "true") {
+        likeBtn.classList.add("liked");
+        likeBtn.textContent = "♥ Liked";
+      }
+
+      likeBtn.addEventListener("click", () => {
+        const liked = localStorage.getItem(likeKey) === "true";
+        if (liked) {
+          localStorage.removeItem(likeKey);
+          likeBtn.classList.remove("liked");
+          likeBtn.textContent = "♡ Like Verse";
+        } else {
+          localStorage.setItem(likeKey, "true");
+          likeBtn.classList.add("liked");
+          likeBtn.textContent = "♥ Liked";
+        }
+      });
+    }
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", async () => {
+        const text = shareText(verse);
+        const shareData = {
+          title: `Verse of the Day — ${verse.reference}`,
+          text,
+          url: "https://dailydosedevotions.ie/#verse-of-the-day"
+        };
+
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+            if (status) status.textContent = "Verse ready to share.";
+          } else if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+            if (status) status.textContent = "Verse copied. Paste it into WhatsApp, Instagram, Facebook, or a message.";
+          } else {
+            if (status) status.textContent = "Copy this verse from the page to share it.";
+          }
+        } catch (error) {
+          if (status) status.textContent = "Share cancelled.";
+        }
+      });
     }
   }
 
@@ -187,13 +281,23 @@
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
           <h3 id="votdReference">${escapeHtml(verse.reference)}</h3>
           <p class="verse-text" id="votdText">“${escapeHtml(verse.text)}”</p>
+
+          <div class="verse-social-actions">
+            <button class="verse-action-btn" id="shareVerseBtn" type="button">Share Verse</button>
+            <button class="verse-action-btn" id="likeVerseBtn" type="button">♡ Like Verse</button>
+          </div>
+
           <div class="verse-actions">
             <a class="btn primary" href="devotions.html">Read Devotions</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
           </div>
+
+          <div class="verse-share-status" id="verseShareStatus"></div>
         </article>
       </div>
     `;
+
+    wireVerseButtons(verse);
   }
 
   function renderLibrary(verses, todayKey) {
