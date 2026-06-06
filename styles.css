@@ -129,3 +129,39 @@ footer p, footer a{display:block;color:rgba(232,225,214,.42);font-size:14px;marg
 .share-btn:hover{transform:translateY(-2px);border-color:rgba(198,160,90,.8);background:rgba(198,160,90,.16)}
 .share-note{margin:16px auto 0;color:#bfb4a4;font-size:14px;max-width:620px}.copy-status{margin:10px 0 0;color:var(--primary);font-size:14px;min-height:20px}
 @media (max-width:620px){.share-buttons{flex-direction:column}.share-btn{width:100%}}
+/* VERSE OF THE DAY */
+
+.verse-of-the-day-section {
+  padding: 80px 20px;
+}
+
+.verse-of-the-day-card {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  background: #121212;
+  border: 1px solid rgba(198,160,90,.2);
+  border-radius: 16px;
+  padding: 40px;
+}
+
+.verse-of-the-day-card .date {
+  color: #c6a05a;
+  font-size: .9rem;
+  margin-bottom: 10px;
+}
+
+.verse-of-the-day-card h2 {
+  margin-bottom: 20px;
+}
+
+.verse-text {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.verse-reference {
+  color: #c6a05a;
+  font-weight: 600;
+}
