@@ -1,0 +1,97 @@
+DAILY DOSE #62–92 — GITHUB UPLOAD INSTRUCTIONS
+
+WHAT IS INSIDE THIS PACK
+
+1. devotions folder
+   - daily-dose-62.html through daily-dose-92.html
+
+2. functions folder
+   - _middleware.js with Daily Dose #40–92 schedule included
+
+3. DEVOTIONS_HTML_CARDS_62_TO_92_PASTE_ABOVE_61.html
+   - cards to paste into devotions.html above the current #61 card
+
+4. SCHEDULE_CHECK_62_TO_92.txt
+   - title/date/reference check list
+
+IMPORTANT SCHEDULE
+
+Daily Dose #62 starts:
+June 25, 2026 at 7:00am Ireland time
+
+Daily Dose #92 ends:
+July 25, 2026 at 7:00am Ireland time
+
+PART 1 — UPLOAD DEVOTION PAGES
+
+1. Open GitHub:
+   dailydosedevotions-oss / dailydosewebsite
+
+2. Open the folder:
+   devotions
+
+3. Click:
+   Add file → Upload files
+
+4. Upload all files from this pack's devotions folder:
+   daily-dose-62.html through daily-dose-92.html
+
+5. Commit message:
+   Add Daily Dose 62 to 92 pages
+
+6. Commit directly to main branch.
+
+PART 2 — UPDATE MIDDLEWARE SCHEDULE
+
+1. Go back to the main repository.
+
+2. Open:
+   functions
+
+3. Upload/replace:
+   _middleware.js
+
+   Use the _middleware.js from this pack's functions folder.
+
+4. Commit message:
+   Schedule Daily Dose 62 to 92
+
+5. Commit directly to main branch.
+
+PART 3 — ADD CARDS TO DEVOTIONS PAGE
+
+1. Open:
+   devotions.html
+
+2. Click the pencil/edit icon.
+
+3. Find the first card for Daily Dose #61.
+
+4. Paste the full contents of:
+   DEVOTIONS_HTML_CARDS_62_TO_92_PASTE_ABOVE_61.html
+
+   directly ABOVE the #61 card.
+
+5. Commit message:
+   Add Daily Dose 62 to 92 archive cards
+
+6. Commit directly to main branch.
+
+PART 4 — WAIT FOR CLOUDFLARE
+
+Wait 1–2 minutes for Cloudflare to redeploy.
+
+PART 5 — TEST
+
+Test this page first:
+https://dailydosedevotions.ie/devotions/daily-dose-62.html
+
+Before release time it should say:
+Scheduled Devotion
+
+After June 25 at 7:00am Ireland time it should open.
+
+Also check:
+https://dailydosedevotions.ie/devotions.html
+
+The new cards should appear in the archive list.
