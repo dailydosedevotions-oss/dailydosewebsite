@@ -18,12 +18,25 @@ export default {
       if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
         return json({
           ok: false,
-          message: "Add ?confirm=SEND to send today's devotion to the Brevo list.",
+          message: "Add ?confirm=SEND to send only today's daily devotion to the Brevo list.",
           sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
         }, 400);
       }
 
-      const result = await sendToday(env, { force: true });
+      const result = await sendManualDaily(env);
+      return json(result);
+    }
+
+    if (url.pathname === "/send-due-now") {
+      if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+        return json({
+          ok: false,
+          message: "Add ?confirm=SEND to send all currently due daily/series devotions.",
+          sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
+        }, 400);
+      }
+
+      const result = await sendDueDevotions(env, { manual: true });
       return json(result);
     }
 
@@ -31,39 +44,30 @@ export default {
       ok: true,
       message: "Daily Dose Auto Email Worker is live",
       check: "/check",
-      sendNow: "/send-daily-now?confirm=SEND"
+      sendTodayOnly: "/send-daily-now?confirm=SEND",
+      sendAllDue: "/send-due-now?confirm=SEND"
     });
   },
 
   async scheduled(_event, env, ctx) {
-    ctx.waitUntil(sendToday(env));
+    ctx.waitUntil(sendDueDevotions(env));
   }
 };
 
 async function checkToday(env) {
-  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin");
+  const now = new Date();
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
+  const candidates = await loadTodayCandidates(env, local.date);
 
-  try {
-    const devotion = await getDevotionFromGitHub(env, local.date);
-    return json({
-      ok: true,
-      worker: "Daily Dose Auto Email Worker is live",
-      date: local.date,
-      latestDailyDose: {
-        title: devotion.title,
-        scripture: devotion.scripture || null,
-        url: devotion.url || `${getSiteUrl(env)}/devotions/${local.date}`
-      }
-    });
-  } catch (error) {
-    return json({
-      ok: false,
-      worker: "Daily Dose Auto Email Worker is live",
-      date: local.date,
-      latestDailyDose: null,
-      error: String(error && error.message ? error.message : error)
-    }, 500);
-  }
+  return json({
+    ok: true,
+    worker: "Daily Dose Auto Email Worker is live",
+    date: local.date,
+    localTime: local.time,
+    latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now),
+    latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now),
+    note: "Scheduled sends only happen when a devotion is due and has not already been sent."
+  });
 }
 
 async function subscribe(request, env) {
@@ -99,39 +103,105 @@ async function subscribe(request, env) {
   return json({ ok: true });
 }
 
-async function sendToday(env, options = {}) {
-  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin");
+async function sendManualDaily(env) {
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
+  const daily = await loadDevotionCandidate(env, "daily", local.date);
 
-  if (!options.force && local.hour !== 7) {
-    return { skipped: true, reason: `Local hour is ${local.hour}, not 7.`, date: local.date };
+  if (!daily) {
+    return { ok: false, date: local.date, message: "No daily devotion file found for today." };
   }
 
-  const sentKey = `sent:${local.date}`;
+  await sendDevotionCampaign(env, daily);
+  await markSent(env, daily);
 
-  if (env.SENT_DEVOTIONS) {
-    const existing = await env.SENT_DEVOTIONS.get(sentKey);
-
-    if (existing && !options.force) {
-      return { skipped: true, reason: "Already sent today.", date: local.date };
-    }
-  }
-
-  const devotion = await getDevotionFromGitHub(env, local.date);
-  await sendDevotionCampaign(env, devotion, local.date);
-
-  if (env.SENT_DEVOTIONS) {
-    await env.SENT_DEVOTIONS.put(sentKey, new Date().toISOString());
-  }
-
-  return { ok: true, date: local.date, title: devotion.title };
+  return {
+    ok: true,
+    sent: [{ collection: daily.collection, date: daily.date, title: daily.devotion.title }],
+    note: "Only today's daily devotion was sent."
+  };
 }
 
-async function getDevotionFromGitHub(env, date) {
+async function sendDueDevotions(env, options = {}) {
+  const now = new Date();
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
+  const candidates = await loadTodayCandidates(env, local.date);
+  const sent = [];
+  const skipped = [];
+
+  for (const candidate of candidates) {
+    if (!isDue(candidate, now)) {
+      skipped.push({
+        collection: candidate.collection,
+        date: candidate.date,
+        title: candidate.devotion.title,
+        reason: "Not live yet",
+        publishAt: getPublishAt(candidate).toISOString()
+      });
+      continue;
+    }
+
+    if (!options.manual && await wasSent(env, candidate)) {
+      skipped.push({
+        collection: candidate.collection,
+        date: candidate.date,
+        title: candidate.devotion.title,
+        reason: "Already sent"
+      });
+      continue;
+    }
+
+    await sendDevotionCampaign(env, candidate);
+    await markSent(env, candidate);
+    sent.push({ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title });
+  }
+
+  return { ok: true, date: local.date, sent, skipped };
+}
+
+async function loadTodayCandidates(env, date) {
+  const candidates = [];
+  const daily = await loadDevotionCandidate(env, "daily", date);
+  const series = await loadDevotionCandidate(env, "series", date);
+
+  if (daily) candidates.push(daily);
+  if (series) candidates.push(series);
+
+  return candidates;
+}
+
+async function loadDevotionCandidate(env, collection, date) {
+  const template = getPathTemplate(env, collection);
+
+  if (!template) {
+    return null;
+  }
+
+  const path = template.replaceAll("{date}", date);
+
+  try {
+    const devotion = await getDevotionFromGitHub(env, path);
+    return { collection, date, path, devotion };
+  } catch (error) {
+    if (String(error && error.message ? error.message : error).includes("404")) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+function getPathTemplate(env, collection) {
+  if (collection === "daily") {
+    return env.GITHUB_DAILY_DEVOTION_PATH_TEMPLATE || env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
+  }
+
+  return env.GITHUB_SERIES_DEVOTION_PATH_TEMPLATE || "series/{date}.json";
+}
+
+async function getDevotionFromGitHub(env, path) {
   const owner = env.GITHUB_OWNER || "dailydosedevotions-oss";
   const repo = env.GITHUB_REPO || "dailydosewebsite";
   const branch = env.GITHUB_BRANCH || "main";
-  const template = env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
-  const path = template.replaceAll("{date}", date);
   const apiUrl = new URL(`/repos/${owner}/${repo}/contents/${path}`, "https://api.github.com");
   apiUrl.searchParams.set("ref", branch);
 
@@ -159,9 +229,10 @@ async function getDevotionFromGitHub(env, date) {
   return devotion;
 }
 
-async function sendDevotionCampaign(env, devotion, date) {
-  const html = renderDevotionHtml(env, devotion, date);
-  const text = renderDevotionText(env, devotion, date);
+async function sendDevotionCampaign(env, candidate) {
+  const { devotion, date, collection } = candidate;
+  const html = renderDevotionHtml(env, candidate);
+  const text = renderDevotionText(env, candidate);
   const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
 
   if (!senderEmail) {
@@ -171,8 +242,8 @@ async function sendDevotionCampaign(env, devotion, date) {
   const createResponse = await brevoFetch(env, "/emailCampaigns", {
     method: "POST",
     body: JSON.stringify({
-      name: `Daily Dose Devotion ${date}`,
-      subject: devotion.title,
+      name: `Daily Dose ${collection} ${date}`,
+      subject: devotion.emailSubject || devotion.title,
       sender: {
         name: env.BREVO_SENDER_NAME || "Daily Dose Devotions",
         email: senderEmail
@@ -200,8 +271,9 @@ async function sendDevotionCampaign(env, devotion, date) {
   }
 }
 
-function renderDevotionHtml(env, devotion, date) {
-  const devotionUrl = devotion.url || `${getSiteUrl(env)}/devotions/${date}`;
+function renderDevotionHtml(env, candidate) {
+  const { devotion, date, collection } = candidate;
+  const devotionUrl = devotion.url || `${getSiteUrl(env)}/${collection === "series" ? "series" : "devotions"}/${date}`;
   const paragraphs = devotion.body
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
@@ -222,8 +294,9 @@ function renderDevotionHtml(env, devotion, date) {
 </html>`;
 }
 
-function renderDevotionText(env, devotion, date) {
-  const devotionUrl = devotion.url || `${getSiteUrl(env)}/devotions/${date}`;
+function renderDevotionText(env, candidate) {
+  const { devotion, date, collection } = candidate;
+  const devotionUrl = devotion.url || `${getSiteUrl(env)}/${collection === "series" ? "series" : "devotions"}/${date}`;
 
   return [
     `Daily Dose Devotions - ${date}`,
@@ -233,6 +306,63 @@ function renderDevotionText(env, devotion, date) {
     devotion.prayer ? `Prayer\n${devotion.prayer}` : undefined,
     `Read on the website: ${devotionUrl}`
   ].filter(Boolean).join("\n\n");
+}
+
+function summarizeCandidate(candidate, now) {
+  if (!candidate) {
+    return null;
+  }
+
+  const publishAt = getPublishAt(candidate);
+
+  return {
+    title: candidate.devotion.title,
+    scripture: candidate.devotion.scripture || null,
+    url: candidate.devotion.url || null,
+    publishAt: publishAt.toISOString(),
+    due: now >= publishAt
+  };
+}
+
+function getPublishAt(candidate) {
+  const configured = candidate.devotion.publishAt || candidate.devotion.releaseAt || candidate.devotion.liveAt;
+
+  if (configured) {
+    return new Date(configured);
+  }
+
+  return localDateTimeToUtc(candidate.date, "07:00", "Europe/Dublin");
+}
+
+function isDue(candidate, now) {
+  const publishAt = getPublishAt(candidate);
+  return Number.isFinite(publishAt.getTime()) && now >= publishAt;
+}
+
+async function wasSent(env, candidate) {
+  const store = getSentStore(env);
+
+  if (!store) {
+    return false;
+  }
+
+  return Boolean(await store.get(sentKey(candidate)));
+}
+
+async function markSent(env, candidate) {
+  const store = getSentStore(env);
+
+  if (store) {
+    await store.put(sentKey(candidate), new Date().toISOString());
+  }
+}
+
+function getSentStore(env) {
+  return env.SENT_DEVOTIONS || env.EMAIL_SENT_LOG || null;
+}
+
+function sentKey(candidate) {
+  return `sent:${candidate.collection}:${candidate.path}`;
 }
 
 async function brevoFetch(env, path, init) {
@@ -256,22 +386,33 @@ function getSiteUrl(env) {
   return (env.SITE_URL || "https://dailydosedevotions.ie").replace(/\/$/, "");
 }
 
-function getLocalParts(timeZone) {
+function getLocalParts(timeZone, date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
+    minute: "2-digit",
     hour12: false
-  }).formatToParts(new Date());
+  }).formatToParts(date);
 
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
 
   return {
     date: `${values.year}-${values.month}-${values.day}`,
+    time: `${values.hour}:${values.minute}`,
     hour: Number(values.hour)
   };
+}
+
+function localDateTimeToUtc(date, time, timeZone) {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  const localParts = getLocalParts(timeZone, utcGuess);
+  const offsetMinutes = (Number(localParts.hour) - hour) * 60 + (Number(localParts.time.slice(3, 5)) - minute);
+  return new Date(utcGuess.getTime() - offsetMinutes * 60 * 1000);
 }
 
 function isEmail(email) {
