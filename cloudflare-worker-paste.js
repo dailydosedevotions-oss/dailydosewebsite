@@ -2,51 +2,58 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return json(null, 204);
-    }
-
-    if (url.pathname === "/check") {
-      return checkToday(env);
-    }
-
-    if (url.pathname === "/subscribe" && request.method === "POST") {
-      return subscribe(request, env);
-    }
-
-    if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
-      if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
-        return json({
-          ok: false,
-          message: "Add ?confirm=SEND to send only today's daily devotion to the Brevo list.",
-          sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
-        }, 400);
+    try {
+      if (request.method === "OPTIONS") {
+        return json(null, 204);
       }
 
-      const result = await sendManualDaily(env);
-      return json(result);
-    }
-
-    if (url.pathname === "/send-due-now") {
-      if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
-        return json({
-          ok: false,
-          message: "Add ?confirm=SEND to send all currently due daily/series devotions.",
-          sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
-        }, 400);
+      if (url.pathname === "/check") {
+        return checkToday(env);
       }
 
-      const result = await sendDueDevotions(env, { manual: true });
-      return json(result);
-    }
+      if (url.pathname === "/subscribe" && request.method === "POST") {
+        return subscribe(request, env);
+      }
 
-    return json({
-      ok: true,
-      message: "Daily Dose Auto Email Worker is live",
-      check: "/check",
-      sendTodayOnly: "/send-daily-now?confirm=SEND",
-      sendAllDue: "/send-due-now?confirm=SEND"
-    });
+      if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
+        if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+          return json({
+            ok: false,
+            message: "Add ?confirm=SEND to send only today's daily devotion to the Brevo list.",
+            sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
+          }, 400);
+        }
+
+        const result = await sendManualDaily(env);
+        return json(result);
+      }
+
+      if (url.pathname === "/send-due-now") {
+        if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+          return json({
+            ok: false,
+            message: "Add ?confirm=SEND to send all currently due daily/series devotions.",
+            sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
+          }, 400);
+        }
+
+        const result = await sendDueDevotions(env, { manual: true });
+        return json(result);
+      }
+
+      return json({
+        ok: true,
+        message: "Daily Dose Auto Email Worker is live",
+        check: "/check",
+        sendTodayOnly: "/send-daily-now?confirm=SEND",
+        sendAllDue: "/send-due-now?confirm=SEND"
+      });
+    } catch (error) {
+      return json({
+        ok: false,
+        error: String(error && error.message ? error.message : error)
+      }, 500);
+    }
   },
 
   async scheduled(_event, env, ctx) {
