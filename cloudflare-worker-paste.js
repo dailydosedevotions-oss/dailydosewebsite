@@ -3,17 +3,9 @@ export default {
     const url = new URL(request.url);
 
     try {
-      if (request.method === "OPTIONS") {
-        return json(null, 204);
-      }
-
-      if (url.pathname === "/check") {
-        return checkToday(env);
-      }
-
-      if (url.pathname === "/subscribe" && request.method === "POST") {
-        return subscribe(request, env);
-      }
+      if (request.method === "OPTIONS") return json(null, 204);
+      if (url.pathname === "/check") return checkToday(env);
+      if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
       if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
         if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
@@ -24,8 +16,7 @@ export default {
           }, 400);
         }
 
-        const result = await sendManualDaily(env);
-        return json(result);
+        return json(await sendManualDaily(env));
       }
 
       if (url.pathname === "/send-due-now") {
@@ -37,8 +28,7 @@ export default {
           }, 400);
         }
 
-        const result = await sendDueDevotions(env, { manual: true });
-        return json(result);
+        return json(await sendDueDevotions(env, { manual: true }));
       }
 
       return json({
@@ -49,10 +39,7 @@ export default {
         sendAllDue: "/send-due-now?confirm=SEND"
       });
     } catch (error) {
-      return json({
-        ok: false,
-        error: String(error && error.message ? error.message : error)
-      }, 500);
+      return json({ ok: false, error: String(error && error.message ? error.message : error) }, 500);
     }
   },
 
@@ -71,8 +58,8 @@ async function checkToday(env) {
     worker: "Daily Dose Auto Email Worker is live",
     date: local.date,
     localTime: local.time,
-    latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now),
-    latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now),
+    latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now, env),
+    latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now, env),
     note: "Scheduled sends only happen when a devotion is due and has not already been sent."
   });
 }
@@ -89,9 +76,7 @@ async function subscribe(request, env) {
   const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
   const name = typeof input.name === "string" ? input.name.trim() : "";
 
-  if (!isEmail(email)) {
-    return json({ error: "Please enter a valid email address." }, 400);
-  }
+  if (!isEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
 
   const response = await brevoFetch(env, "/contacts", {
     method: "POST",
@@ -103,9 +88,7 @@ async function subscribe(request, env) {
     })
   });
 
-  if (!response.ok) {
-    return brevoError(response);
-  }
+  if (!response.ok) return brevoError(response);
 
   return json({ ok: true });
 }
@@ -114,9 +97,7 @@ async function sendManualDaily(env) {
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
   const daily = await loadDevotionCandidate(env, "daily", local.date);
 
-  if (!daily) {
-    return { ok: false, date: local.date, message: "No daily devotion file found for today." };
-  }
+  if (!daily) return { ok: false, date: local.date, message: "No daily devotion file found for today." };
 
   await sendDevotionCampaign(env, daily);
   await markSent(env, daily);
@@ -148,12 +129,7 @@ async function sendDueDevotions(env, options = {}) {
     }
 
     if (!options.manual && await wasSent(env, candidate)) {
-      skipped.push({
-        collection: candidate.collection,
-        date: candidate.date,
-        title: candidate.devotion.title,
-        reason: "Already sent"
-      });
+      skipped.push({ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title, reason: "Already sent" });
       continue;
     }
 
@@ -178,10 +154,7 @@ async function loadTodayCandidates(env, date) {
 
 async function loadDevotionCandidate(env, collection, date) {
   const template = getPathTemplate(env, collection);
-
-  if (!template) {
-    return null;
-  }
+  if (!template) return null;
 
   const path = template.replaceAll("{date}", date);
 
@@ -189,10 +162,7 @@ async function loadDevotionCandidate(env, collection, date) {
     const devotion = await getDevotionFromGitHub(env, path);
     return { collection, date, path, devotion };
   } catch (error) {
-    if (String(error && error.message ? error.message : error).includes("404")) {
-      return null;
-    }
-
+    if (String(error && error.message ? error.message : error).includes("404")) return null;
     throw error;
   }
 }
@@ -217,21 +187,14 @@ async function getDevotionFromGitHub(env, path) {
     "User-Agent": "daily-dose-devotions-worker"
   };
 
-  if (env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
-  }
+  if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
 
   const response = await fetch(apiUrl, { headers });
 
-  if (!response.ok) {
-    throw new Error(`Could not load devotion ${path} from GitHub: ${response.status} ${await response.text()}`);
-  }
+  if (!response.ok) throw new Error(`Could not load devotion ${path} from GitHub: ${response.status} ${await response.text()}`);
 
   const devotion = await response.json();
-
-  if (!devotion.title || !devotion.body) {
-    throw new Error(`Devotion ${path} must include at least title and body.`);
-  }
+  if (!devotion.title || !devotion.body) throw new Error(`Devotion ${path} must include at least title and body.`);
 
   return devotion;
 }
@@ -242,9 +205,7 @@ async function sendDevotionCampaign(env, candidate) {
   const text = renderDevotionText(env, candidate);
   const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
 
-  if (!senderEmail) {
-    throw new Error("Set BREVO_SENDER_EMAIL or NOTIFY_EMAIL in Cloudflare variables.");
-  }
+  if (!senderEmail) throw new Error("Set BREVO_SENDER_EMAIL or NOTIFY_EMAIL in Cloudflare variables.");
 
   const createResponse = await brevoFetch(env, "/emailCampaigns", {
     method: "POST",
@@ -258,29 +219,21 @@ async function sendDevotionCampaign(env, candidate) {
       type: "classic",
       htmlContent: html,
       textContent: text,
-      recipients: {
-        listIds: [Number(env.BREVO_LIST_ID)]
-      }
+      recipients: { listIds: [Number(env.BREVO_LIST_ID)] }
     })
   });
 
-  if (!createResponse.ok) {
-    throw new Error(`Brevo campaign create failed: ${createResponse.status} ${await createResponse.text()}`);
-  }
+  if (!createResponse.ok) throw new Error(`Brevo campaign create failed: ${createResponse.status} ${await createResponse.text()}`);
 
   const created = await createResponse.json();
-  const sendResponse = await brevoFetch(env, `/emailCampaigns/${created.id}/sendNow`, {
-    method: "POST"
-  });
+  const sendResponse = await brevoFetch(env, `/emailCampaigns/${created.id}/sendNow`, { method: "POST" });
 
-  if (!sendResponse.ok) {
-    throw new Error(`Brevo campaign send failed: ${sendResponse.status} ${await sendResponse.text()}`);
-  }
+  if (!sendResponse.ok) throw new Error(`Brevo campaign send failed: ${sendResponse.status} ${await sendResponse.text()}`);
 }
 
 function renderDevotionHtml(env, candidate) {
-  const { devotion, date, collection } = candidate;
-  const devotionUrl = devotion.url || `${getSiteUrl(env)}/${collection === "series" ? "series" : "devotions"}/${date}`;
+  const { devotion, date } = candidate;
+  const devotionUrl = getDevotionUrl(env, candidate);
   const paragraphs = devotion.body
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
@@ -295,15 +248,15 @@ function renderDevotionHtml(env, candidate) {
       ${devotion.scripture ? `<p style="font-weight:700;color:#365e53;">${escapeHtml(devotion.scripture)}</p>` : ""}
       <div style="font-size:17px;line-height:1.65;">${paragraphs}</div>
       ${devotion.prayer ? `<h2 style="font-size:20px;margin-top:28px;">Prayer</h2><p style="font-size:17px;line-height:1.65;">${escapeHtml(devotion.prayer)}</p>` : ""}
-      <p style="margin-top:32px;"><a href="${escapeHtml(devotionUrl)}" style="color:#365e53;font-weight:700;">Read on the website</a></p>
+      <p style="margin-top:32px;"><a href="${escapeHtml(devotionUrl)}" style="color:#365e53;font-weight:700;">${escapeHtml(getFooterLinkText(candidate))}</a></p>
     </main>
   </body>
 </html>`;
 }
 
 function renderDevotionText(env, candidate) {
-  const { devotion, date, collection } = candidate;
-  const devotionUrl = devotion.url || `${getSiteUrl(env)}/${collection === "series" ? "series" : "devotions"}/${date}`;
+  const { devotion, date } = candidate;
+  const devotionUrl = getDevotionUrl(env, candidate);
 
   return [
     `Daily Dose Devotions - ${date}`,
@@ -311,21 +264,29 @@ function renderDevotionText(env, candidate) {
     devotion.scripture,
     devotion.body,
     devotion.prayer ? `Prayer\n${devotion.prayer}` : undefined,
-    `Read on the website: ${devotionUrl}`
+    `${getFooterLinkText(candidate)}: ${devotionUrl}`
   ].filter(Boolean).join("\n\n");
 }
 
-function summarizeCandidate(candidate, now) {
-  if (!candidate) {
-    return null;
-  }
+function getDevotionUrl(env, candidate) {
+  if (candidate.devotion.url) return candidate.devotion.url;
+  const siteUrl = getSiteUrl(env);
+  return candidate.collection === "series" ? `${siteUrl}/series.html` : `${siteUrl}/devotions.html`;
+}
+
+function getFooterLinkText(candidate) {
+  return candidate.collection === "series" ? "Open the Series page" : "Open Daily Devotions";
+}
+
+function summarizeCandidate(candidate, now, env) {
+  if (!candidate) return null;
 
   const publishAt = getPublishAt(candidate);
 
   return {
     title: candidate.devotion.title,
     scripture: candidate.devotion.scripture || null,
-    url: candidate.devotion.url || null,
+    url: getDevotionUrl(env, candidate),
     publishAt: publishAt.toISOString(),
     due: now >= publishAt
   };
@@ -333,11 +294,7 @@ function summarizeCandidate(candidate, now) {
 
 function getPublishAt(candidate) {
   const configured = candidate.devotion.publishAt || candidate.devotion.releaseAt || candidate.devotion.liveAt;
-
-  if (configured) {
-    return new Date(configured);
-  }
-
+  if (configured) return new Date(configured);
   return localDateTimeToUtc(candidate.date, "07:00", "Europe/Dublin");
 }
 
@@ -348,20 +305,13 @@ function isDue(candidate, now) {
 
 async function wasSent(env, candidate) {
   const store = getSentStore(env);
-
-  if (!store) {
-    return false;
-  }
-
+  if (!store) return false;
   return Boolean(await store.get(sentKey(candidate)));
 }
 
 async function markSent(env, candidate) {
   const store = getSentStore(env);
-
-  if (store) {
-    await store.put(sentKey(candidate), new Date().toISOString());
-  }
+  if (store) await store.put(sentKey(candidate), new Date().toISOString());
 }
 
 function getSentStore(env) {
