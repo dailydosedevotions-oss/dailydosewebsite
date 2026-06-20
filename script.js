@@ -7,15 +7,15 @@ window.addEventListener('scroll', () => {
   if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 40);
 });
 
-menuBtn?.addEventListener('click', () => menu.classList.add('open'));
-closeBtn?.addEventListener('click', () => menu.classList.remove('open'));
+menuBtn?.addEventListener('click', () => menu?.classList.add('open'));
+closeBtn?.addEventListener('click', () => menu?.classList.remove('open'));
 
 document.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', e => {
     const target = document.querySelector(link.getAttribute('href'));
     if (target) {
       e.preventDefault();
-      menu.classList.remove('open');
+      menu?.classList.remove('open');
       target.scrollIntoView({ behavior: 'smooth' });
     }
   });
@@ -45,6 +45,16 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         document.querySelectorAll('.scheduled-sensitive').forEach(link => link.remove());
       }
     }
+  });
+  document.querySelectorAll('a.scheduled-sensitive[href]').forEach(link => {
+    const url = new URL(link.getAttribute('href'), window.location.href);
+    fetch(url.href)
+      .then(response => response.text())
+      .then(html => {
+        const match = html.match(/<body[^>]*data-publish-at=["']([^"']+)["']/i);
+        if (match && now < new Date(match[1])) link.remove();
+      })
+      .catch(() => {});
   });
   const archiveGrid = document.getElementById('archiveGrid');
   const emptyMsg = document.getElementById('noDevotionsMessage');
