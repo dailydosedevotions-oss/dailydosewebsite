@@ -1,16 +1,17 @@
 export interface Env {
-  APP_TIME_ZONE: string;
+  APP_TIME_ZONE?: string;
   BREVO_API_KEY: string;
   BREVO_LIST_ID: string;
-  BREVO_SENDER_EMAIL: string;
-  BREVO_SENDER_NAME: string;
-  GITHUB_OWNER: string;
-  GITHUB_REPO: string;
-  GITHUB_BRANCH: string;
-  GITHUB_DEVOTION_PATH_TEMPLATE: string;
+  BREVO_SENDER_EMAIL?: string;
+  BREVO_SENDER_NAME?: string;
+  NOTIFY_EMAIL?: string;
+  GITHUB_OWNER?: string;
+  GITHUB_REPO?: string;
+  GITHUB_BRANCH?: string;
+  GITHUB_DEVOTION_PATH_TEMPLATE?: string;
   GITHUB_TOKEN?: string;
-  SITE_URL: string;
-  SENT_DEVOTIONS: KVNamespace;
+  SITE_URL?: string;
+  SENT_DEVOTIONS?: KVNamespace;
 }
 
 type Devotion = {
@@ -80,33 +81,40 @@ async function subscribe(request: Request, env: Env): Promise<Response> {
 }
 
 async function sendToday(env: Env, options: { force?: boolean } = {}) {
-  const local = getLocalParts(env.APP_TIME_ZONE);
+  const local = getLocalParts(env.APP_TIME_ZONE ?? "Europe/Dublin");
 
   if (!options.force && local.hour !== 7) {
     return { skipped: true, reason: `Local hour is ${local.hour}, not 7.`, date: local.date };
   }
 
   const sentKey = `sent:${local.date}`;
-  const existing = await env.SENT_DEVOTIONS.get(sentKey);
 
-  if (existing && !options.force) {
-    return { skipped: true, reason: "Already sent today.", date: local.date };
+  if (env.SENT_DEVOTIONS) {
+    const existing = await env.SENT_DEVOTIONS.get(sentKey);
+
+    if (existing && !options.force) {
+      return { skipped: true, reason: "Already sent today.", date: local.date };
+    }
   }
 
   const devotion = await getDevotionFromGitHub(env, local.date);
   await sendDevotionCampaign(env, devotion, local.date);
-  await env.SENT_DEVOTIONS.put(sentKey, new Date().toISOString());
+
+  if (env.SENT_DEVOTIONS) {
+    await env.SENT_DEVOTIONS.put(sentKey, new Date().toISOString());
+  }
 
   return { ok: true, date: local.date, title: devotion.title };
 }
 
 async function getDevotionFromGitHub(env: Env, date: string): Promise<Devotion> {
-  const path = env.GITHUB_DEVOTION_PATH_TEMPLATE.replaceAll("{date}", date);
-  const apiUrl = new URL(
-    `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${path}`,
-    "https://api.github.com"
-  );
-  apiUrl.searchParams.set("ref", env.GITHUB_BRANCH);
+  const owner = env.GITHUB_OWNER ?? "dailydosedevotions-oss";
+  const repo = env.GITHUB_REPO ?? "dailydosewebsite";
+  const branch = env.GITHUB_BRANCH ?? "main";
+  const template = env.GITHUB_DEVOTION_PATH_TEMPLATE ?? "devotions/{date}.json";
+  const path = template.replaceAll("{date}", date);
+  const apiUrl = new URL(`/repos/${owner}/${repo}/contents/${path}`, "https://api.github.com");
+  apiUrl.searchParams.set("ref", branch);
 
   const headers: HeadersInit = {
     Accept: "application/vnd.github.raw+json",
@@ -135,6 +143,7 @@ async function getDevotionFromGitHub(env: Env, date: string): Promise<Devotion> 
 async function sendDevotionCampaign(env: Env, devotion: Devotion, date: string): Promise<void> {
   const html = renderDevotionHtml(env, devotion, date);
   const text = renderDevotionText(env, devotion, date);
+  const senderEmail = getSenderEmail(env);
 
   const createResponse = await brevoFetch(env, "/emailCampaigns", {
     method: "POST",
@@ -142,8 +151,8 @@ async function sendDevotionCampaign(env: Env, devotion: Devotion, date: string):
       name: `Daily Dose Devotion ${date}`,
       subject: devotion.title,
       sender: {
-        name: env.BREVO_SENDER_NAME,
-        email: env.BREVO_SENDER_EMAIL
+        name: env.BREVO_SENDER_NAME ?? "Daily Dose Devotions",
+        email: senderEmail
       },
       type: "classic",
       htmlContent: html,
@@ -170,7 +179,7 @@ async function sendDevotionCampaign(env: Env, devotion: Devotion, date: string):
 }
 
 function renderDevotionHtml(env: Env, devotion: Devotion, date: string): string {
-  const devotionUrl = devotion.url ?? `${env.SITE_URL.replace(/\/$/, "")}/devotions/${date}`;
+  const devotionUrl = devotion.url ?? `${getSiteUrl(env)}/devotions/${date}`;
   const paragraphs = devotion.body
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
@@ -192,7 +201,7 @@ function renderDevotionHtml(env: Env, devotion: Devotion, date: string): string 
 }
 
 function renderDevotionText(env: Env, devotion: Devotion, date: string): string {
-  const devotionUrl = devotion.url ?? `${env.SITE_URL.replace(/\/$/, "")}/devotions/${date}`;
+  const devotionUrl = devotion.url ?? `${getSiteUrl(env)}/devotions/${date}`;
 
   return [
     `Daily Dose Devotions - ${date}`,
@@ -219,6 +228,20 @@ async function brevoFetch(env: Env, path: string, init: RequestInit): Promise<Re
 async function brevoErrorResponse(response: Response): Promise<Response> {
   const body = await response.text();
   return corsResponse(JSON.stringify({ error: "Brevo request failed.", status: response.status, details: body }), 502, "application/json");
+}
+
+function getSenderEmail(env: Env): string {
+  const senderEmail = env.BREVO_SENDER_EMAIL ?? env.NOTIFY_EMAIL;
+
+  if (!senderEmail) {
+    throw new Error("Set BREVO_SENDER_EMAIL or NOTIFY_EMAIL in Cloudflare variables.");
+  }
+
+  return senderEmail;
+}
+
+function getSiteUrl(env: Env): string {
+  return (env.SITE_URL ?? "https://yourdomain.com").replace(/\/$/, "");
 }
 
 function getLocalParts(timeZone: string): { date: string; hour: number } {
