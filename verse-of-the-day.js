@@ -113,7 +113,7 @@
       .verse-feature-card .verse-text {
         max-width: 780px;
         margin: 0 auto 30px;
-        color: #ded6c9;
+        color: #f4ede2;
         font-size: clamp(17px, 2vw, 22px);
         line-height: 1.75;
         font-style: italic;
@@ -134,7 +134,7 @@
       .verse-action-btn {
         appearance: none;
         border: 1px solid rgba(198,160,90,.35);
-        background: rgba(255,255,255,.035);
+        background: #171512;
         color: #f4ead4;
         border-radius: 999px;
         padding: 11px 18px;
@@ -149,12 +149,6 @@
         transform: translateY(-2px);
         border-color: rgba(198,160,90,.75);
         background: rgba(198,160,90,.12);
-      }
-
-      .verse-action-btn.liked {
-        background: rgba(198,160,90,.18);
-        border-color: rgba(198,160,90,.85);
-        color: #ffd98a;
       }
 
       .verse-share-status {
@@ -224,16 +218,6 @@
     return `Verse of the Day — ${verse.reference}\n\n“${verse.text}”\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
-  async function getStats(verse) {
-    try {
-      const response = await fetch(`${TRACK_URL}?date=${encodeURIComponent(verse.date)}&reference=${encodeURIComponent(verse.reference)}&v=5`);
-      const data = await response.json();
-      return data && data.success ? data : { likes: 0, shares: 0 };
-    } catch {
-      return { likes: 0, shares: 0 };
-    }
-  }
-
   async function recordInteraction(type, verse) {
     const response = await fetch(TRACK_URL, {
       method: "POST",
@@ -253,51 +237,9 @@
     return response.json();
   }
 
-  function updateLikeButton(likeBtn, count, liked) {
-    if (!likeBtn) return;
-    likeBtn.classList.toggle("liked", liked);
-    likeBtn.textContent = liked ? `♥ Liked (${count})` : `♡ Like Verse (${count})`;
-  }
-
   function wireVerseButtons(verse) {
     const shareBtn = document.getElementById("shareVerseBtn");
-    const likeBtn = document.getElementById("likeVerseBtn");
     const status = document.getElementById("verseShareStatus");
-    const likeKey = `dailyDoseLikedVerse:${verse.date}:${verse.reference}`;
-    let localLiked = localStorage.getItem(likeKey) === "true";
-    let likeCount = 0;
-
-    getStats(verse).then(stats => {
-      likeCount = Number(stats.likes || 0);
-      updateLikeButton(likeBtn, likeCount, localLiked);
-    });
-
-    if (likeBtn) {
-      updateLikeButton(likeBtn, likeCount, localLiked);
-
-      likeBtn.addEventListener("click", async () => {
-        if (localLiked) {
-          if (status) status.textContent = "You already liked today’s verse.";
-          return;
-        }
-
-        localLiked = true;
-        localStorage.setItem(likeKey, "true");
-        likeCount += 1;
-        updateLikeButton(likeBtn, likeCount, true);
-
-        try {
-          const result = await recordInteraction("like", verse);
-          if (result && result.success) {
-            likeCount = Number(result.likes || likeCount);
-            updateLikeButton(likeBtn, likeCount, true);
-          }
-          if (status) status.textContent = "Thank you. Your encouragement was recorded.";
-        } catch {
-          if (status) status.textContent = "Liked on this device. Server recording failed.";
-        }
-      });
-    }
 
     if (shareBtn) {
       shareBtn.addEventListener("click", async () => {
@@ -347,7 +289,6 @@
 
           <div class="verse-social-actions">
             <button class="verse-action-btn" id="shareVerseBtn" type="button">Share Verse</button>
-            <button class="verse-action-btn" id="likeVerseBtn" type="button">♡ Like Verse (0)</button>
           </div>
 
           <div class="verse-actions">

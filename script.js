@@ -121,6 +121,116 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   });
 })();
 
+// Prayer wall: public submissions appear on the page; private ones email Daily Dose only.
+(function () {
+  const form = document.getElementById('prayerForm');
+  const status = document.getElementById('prayerStatus');
+  const refreshBtn = document.getElementById('refreshPrayers');
+  const prayerList = document.getElementById('publicPrayerList');
+  const answeredList = document.getElementById('answeredPrayerList');
+
+  if (!form || !prayerList || !answeredList) return;
+
+  function setStatus(message, type) {
+    if (!status) return;
+    status.textContent = message;
+    status.className = type === 'error' ? 'prayer-status-error' : 'prayer-status-success';
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function formatDate(value) {
+    try {
+      return new Date(value).toLocaleDateString('en-IE', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return '';
+    }
+  }
+
+  function renderItems(container, items, emptyText, answered) {
+    if (!items.length) {
+      container.innerHTML = `<p class="empty-state">${emptyText}</p>`;
+      return;
+    }
+
+    container.innerHTML = items.map(item => `
+      <article class="prayer-item">
+        <p>${escapeHtml(item.message)}</p>
+        <footer>
+          <span>${escapeHtml(item.name || 'Anonymous')}</span>
+          <span>${answered ? '<span class="answered-label">Answered</span> · ' : ''}${formatDate(item.createdAt)}</span>
+        </footer>
+      </article>
+    `).join('');
+  }
+
+  async function loadPrayers() {
+    try {
+      const response = await fetch('/api/prayers');
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Could not load prayer wall.');
+      renderItems(prayerList, data.prayers || [], 'No public prayer requests yet.', false);
+      renderItems(answeredList, data.answered || [], 'No answered prayers shared yet.', true);
+    } catch (error) {
+      prayerList.innerHTML = '<p class="empty-state">Prayer wall could not load right now.</p>';
+      answeredList.innerHTML = '<p class="empty-state">Answered prayers could not load right now.</p>';
+    }
+  }
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
+    const payload = {
+      type: String(formData.get('type') || 'prayer'),
+      name: String(formData.get('name') || '').trim(),
+      email: String(formData.get('email') || '').trim(),
+      message: String(formData.get('message') || '').trim(),
+      private: formData.get('private') === 'Yes'
+    };
+
+    if (!payload.message) {
+      setStatus('Please enter your prayer request or answered prayer.', 'error');
+      return;
+    }
+
+    if (button) button.disabled = true;
+    setStatus('Submitting...', 'success');
+
+    try {
+      const response = await fetch('/api/prayers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'Submission failed.');
+
+      form.reset();
+      setStatus(result.private ? 'Sent privately to Daily Dose. It will not appear on the page.' : 'Shared on the prayer wall. Thank you for letting others pray with you.', 'success');
+      await loadPrayers();
+    } catch (error) {
+      setStatus(error.message || 'Something went wrong. Please try again.', 'error');
+    } finally {
+      if (button) button.disabled = false;
+    }
+  });
+
+  refreshBtn?.addEventListener('click', loadPrayers);
+  loadPrayers();
+})();
+
 
 // Share buttons: automatically share the current page URL for homepage, devotions, and series pages.
 (function () {

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=warm-readable-1" />
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -181,18 +181,44 @@
           <div class="line"></div>
           <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through — you are welcome to share it.</p>
         </div>
-        <form class="contact-card reveal" id="prayerForm" action="https://formsubmit.co/dailydosedevotions@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="New Daily Dose prayer request">
-          <input type="hidden" name="_template" value="table">
-          <input type="hidden" name="form_type" value="Prayer request">
+        <form class="contact-card reveal" id="prayerForm" action="/api/prayers" method="POST">
+          <input type="hidden" name="form_type" value="Prayer wall submission">
+          <label class="field-label" for="prayerType">I am sharing</label>
+          <select id="prayerType" name="type" required>
+            <option value="prayer">A prayer request</option>
+            <option value="answered">An answered prayer</option>
+          </select>
           <input name="name" placeholder="Your Name" required>
           <input name="email" type="email" placeholder="Email Address">
           <textarea name="message" placeholder="Your prayer request..." required></textarea>
-          <label class="check-row"><input type="checkbox" name="private" value="Yes"> Please keep this private</label>
-          <small>Your prayer request is sent privately to Daily Dose Devotions. Your email is optional and only used if a reply is needed.</small>
-          <input type="hidden" name="_captcha" value="false">
-          <button class="btn primary full" type="submit">Submit Prayer Request</button>
+          <label class="check-row"><input type="checkbox" name="private" value="Yes"> Keep this private and send it only to Daily Dose</label>
+          <small id="prayerPrivacyNote">Unticked requests may appear below so others can pray with you. Private requests are emailed only to Daily Dose Devotions.</small>
+          <button class="btn primary full" type="submit">Submit</button>
+          <small id="prayerStatus" aria-live="polite"></small>
         </form>
+        <div class="prayer-wall reveal" id="prayerWall">
+          <div class="prayer-wall-head">
+            <div>
+              <p class="eyebrow">Prayer Wall</p>
+              <h3>Pray With Others</h3>
+            </div>
+            <button class="btn outline small" type="button" id="refreshPrayers">Refresh</button>
+          </div>
+          <div class="prayer-wall-grid">
+            <section>
+              <h4>Prayer Requests</h4>
+              <div class="prayer-list" id="publicPrayerList">
+                <p class="empty-state">Loading prayer requests...</p>
+              </div>
+            </section>
+            <section>
+              <h4>Answered Prayer</h4>
+              <div class="prayer-list" id="answeredPrayerList">
+                <p class="empty-state">Loading answered prayers...</p>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -237,7 +263,7 @@
     </div>
   </footer>
 
-  <script src="script.js?v=brevo-fix-2"></script>
-        <script src="/verse-of-the-day.js?v=2"></script>
+  <script src="script.js?v=prayer-wall-1"></script>
+        <script src="/verse-of-the-day.js?v=verse-share-1"></script>
 </body>
 </html>
