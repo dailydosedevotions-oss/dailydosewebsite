@@ -16,7 +16,7 @@ GITHUB_OWNER = "dailydosedevotions-oss"
 GITHUB_REPO = "dailydosewebsite"
 GITHUB_BRANCH = "main"
 GITHUB_DEVOTION_PATH_TEMPLATE = "devotions/{date}.json"
-SITE_URL = "https://yourdomain.com"
+SITE_URL = "https://dailydosedevotions.ie"
 
 # Existing Cloudflare secret expected:
 # BREVO_API_KEY
