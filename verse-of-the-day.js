@@ -313,7 +313,7 @@
       .sort((a, b) => b.date.localeCompare(a.date));
 
     if (!pastVerses.length) {
-      libraryContainer.innerHTML = '<p class="thanks-note">Previous verses will appear here after each day passes.</p>';
+      libraryContainer.innerHTML = '<p class="thanks-note">No previous verses are available yet.</p>';
       return;
     }
 

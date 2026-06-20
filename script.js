@@ -232,7 +232,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 })();
 
 
-// Share buttons: automatically share the current page URL for homepage, devotions, and series pages.
+// Share buttons use the current page URL for homepage, devotions, and series pages.
 (function () {
   function getShareTitle() {
     const h1 = document.querySelector('h1');
