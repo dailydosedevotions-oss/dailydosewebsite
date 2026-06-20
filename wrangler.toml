@@ -7,14 +7,10 @@ compatibility_date = "2026-06-19"
 [triggers]
 crons = ["0 * * * *"]
 
-[[kv_namespaces]]
-binding = "SENT_DEVOTIONS"
-id = "replace-with-your-kv-namespace-id"
-
 [vars]
 APP_TIME_ZONE = "Europe/Dublin"
-BREVO_LIST_ID = "replace-with-your-brevo-list-id"
-BREVO_SENDER_EMAIL = "hello@yourdomain.com"
+BREVO_LIST_ID = "2"
+NOTIFY_EMAIL = "dailydosedevotions@gmail.com"
 BREVO_SENDER_NAME = "Daily Dose Devotions"
 GITHUB_OWNER = "dailydosedevotions-oss"
 GITHUB_REPO = "dailydosewebsite"
@@ -22,6 +18,11 @@ GITHUB_BRANCH = "main"
 GITHUB_DEVOTION_PATH_TEMPLATE = "devotions/{date}.json"
 SITE_URL = "https://yourdomain.com"
 
-# Add secrets with:
-# wrangler secret put BREVO_API_KEY
-# wrangler secret put GITHUB_TOKEN
+# Existing Cloudflare secret expected:
+# BREVO_API_KEY
+#
+# Optional if your GitHub devotion files are in a private repo:
+# GITHUB_TOKEN
+#
+# Optional anti-duplicate KV binding:
+# SENT_DEVOTIONS
