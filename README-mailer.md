@@ -22,17 +22,10 @@ NOTIFY_EMAIL = dailydosedevotions@gmail.com
 
 The Worker uses `NOTIFY_EMAIL` as the sender email unless you add a separate `BREVO_SENDER_EMAIL` variable.
 
-## Still needed
-
-Set this Cloudflare plaintext variable to your real website address:
+## Current site setup
 
 ```txt
-SITE_URL = https://your-real-website-domain.com
-```
-
-Optional variables:
-
-```txt
+SITE_URL = https://dailydosedevotions.ie
 BREVO_SENDER_NAME = Daily Dose Devotions
 APP_TIME_ZONE = Europe/Dublin
 GITHUB_OWNER = dailydosedevotions-oss
@@ -61,7 +54,7 @@ Example: `devotions/2026-06-20.json`
   "scripture": "Psalm 46:1",
   "body": "God is our refuge and strength...\n\nA second paragraph can go here.",
   "prayer": "Lord, help me trust You today.",
-  "url": "https://yourdomain.com/devotions/2026-06-20"
+  "url": "https://dailydosedevotions.ie/devotions/2026-06-20"
 }
 ```
 
