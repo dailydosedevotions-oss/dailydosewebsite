@@ -29,6 +29,10 @@ export async function onRequest(context) {
     }
 
     if (request.method === "GET") {
+      if (!canViewStats(request, env)) {
+        return json({ success: false, error: "PWA stats are private." }, 403, corsHeaders);
+      }
+
       const totals = await getJson(store, "pwa-stats:totals", defaultStats());
       const todayKey = dayKey(new Date());
       const today = await getJson(store, todayKey, defaultStats());
@@ -68,6 +72,17 @@ export async function onRequest(context) {
 
 function getStore(env) {
   return env.PWA_STATS || env.VOTD_STATS || env.PRAYER_WALL;
+}
+
+function canViewStats(request, env) {
+  const expectedToken = clean(env.PWA_STATS_TOKEN);
+  if (!expectedToken) return false;
+
+  const url = new URL(request.url);
+  const queryToken = clean(url.searchParams.get("token"));
+  const headerToken = clean(request.headers.get("x-pwa-stats-token"));
+
+  return queryToken === expectedToken || headerToken === expectedToken;
 }
 
 async function updateStats(store, key, event, now, details) {
