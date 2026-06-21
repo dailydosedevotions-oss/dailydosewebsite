@@ -15,7 +15,18 @@ export default {
             sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
           }, 400);
         }
-        return json(await sendManualDaily(env));
+        return json(await sendManualCollection(env, "daily", "Only today's daily devotion was sent."));
+      }
+
+      if (url.pathname === "/send-series-now") {
+        if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+          return json({
+            ok: false,
+            message: "Add ?confirm=SEND to send only today's series devotion to the Brevo list.",
+            sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
+          }, 400);
+        }
+        return json(await sendManualCollection(env, "series", "Only today's series devotion was sent."));
       }
 
       if (url.pathname === "/send-due-now") {
@@ -34,6 +45,7 @@ export default {
         message: "Daily Dose Auto Email Worker is live",
         check: "/check",
         sendTodayOnly: "/send-daily-now?confirm=SEND",
+        sendSeriesOnly: "/send-series-now?confirm=SEND",
         sendAllDue: "/send-due-now?confirm=SEND"
       });
     } catch (error) {
@@ -42,7 +54,7 @@ export default {
   },
 
   async scheduled(_event, env, ctx) {
-    ctx.waitUntil(sendDueDevotions(env));
+    ctx.waitUntil(sendScheduledForLocalTime(env));
   }
 };
 
@@ -58,7 +70,7 @@ async function checkToday(env) {
     localTime: local.time,
     latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now, env),
     latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now, env),
-    note: "Scheduled sends only happen when a devotion is due and has not already been sent."
+    note: "Scheduled sends only happen at local 7am for daily devotions and local 7pm for series devotions."
   });
 }
 
@@ -90,20 +102,43 @@ async function subscribe(request, env) {
   return json({ ok: true });
 }
 
-async function sendManualDaily(env) {
+async function sendManualCollection(env, collection, note) {
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
-  const daily = await loadDevotionCandidate(env, "daily", local.date);
+  const candidate = await loadDevotionCandidate(env, collection, local.date);
 
-  if (!daily) return { ok: false, date: local.date, message: "No daily devotion found for today." };
+  if (!candidate) return { ok: false, date: local.date, message: `No ${collection} devotion found for today.` };
+  if (!isDue(candidate, new Date())) {
+    return {
+      ok: false,
+      date: local.date,
+      message: `${collection} devotion is not due yet.`,
+      publishAt: getPublishAt(candidate).toISOString()
+    };
+  }
 
-  await sendDevotionCampaign(env, daily);
-  await markSent(env, daily);
+  await sendDevotionCampaign(env, candidate);
+  await markSent(env, candidate);
 
   return {
     ok: true,
-    sent: [{ collection: daily.collection, date: daily.date, title: daily.devotion.title, source: daily.source }],
-    note: "Only today's daily devotion was sent."
+    sent: [{ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title, source: candidate.source }],
+    note
   };
+}
+
+async function sendScheduledForLocalTime(env) {
+  const now = new Date();
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
+
+  if (local.hour === 7) {
+    return sendDueDevotions(env, { collections: ["daily"] });
+  }
+
+  if (local.hour === 19) {
+    return sendDueDevotions(env, { collections: ["series"] });
+  }
+
+  return { ok: true, skipped: true, localTime: local.time, reason: "Not the local 7am or 7pm send window." };
 }
 
 async function sendDueDevotions(env, options = {}) {
@@ -114,6 +149,11 @@ async function sendDueDevotions(env, options = {}) {
   const skipped = [];
 
   for (const candidate of candidates) {
+    if (options.collections && !options.collections.includes(candidate.collection)) {
+      skipped.push({ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title, reason: "Not in this send window" });
+      continue;
+    }
+
     if (!isDue(candidate, now)) {
       skipped.push({
         collection: candidate.collection,
@@ -219,13 +259,7 @@ function parseDevotionPage(html, collection, path, env) {
 
   if (!title || !body) throw new Error(`Could not parse devotion page ${path}.`);
 
-  return {
-    title,
-    scripture: scripture || undefined,
-    body,
-    publishAt: publishAt || undefined,
-    url: pageUrl
-  };
+  return { title, scripture: scripture || undefined, body, publishAt: publishAt || undefined, url: pageUrl };
 }
 
 function extractReadableBody(bodyHtml) {
@@ -242,16 +276,13 @@ function extractReadableBody(bodyHtml) {
 }
 
 function getJsonPathTemplate(env, collection) {
-  if (collection === "daily") {
-    return env.GITHUB_DAILY_DEVOTION_PATH_TEMPLATE || env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
-  }
+  if (collection === "daily") return env.GITHUB_DAILY_DEVOTION_PATH_TEMPLATE || env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
   return env.GITHUB_SERIES_DEVOTION_PATH_TEMPLATE || "series/{date}.json";
 }
 
 async function getJsonFromGitHub(env, path) {
   const text = await getTextFromGitHub(env, path);
   const devotion = JSON.parse(text);
-
   if (!devotion.title || !devotion.body) throw new Error(`Devotion ${path} must include at least title and body.`);
   return devotion;
 }
@@ -263,11 +294,7 @@ async function getTextFromGitHub(env, path) {
   const apiUrl = new URL(`/repos/${owner}/${repo}/contents/${path}`, "https://api.github.com");
   apiUrl.searchParams.set("ref", branch);
 
-  const headers = {
-    Accept: "application/vnd.github.raw+json",
-    "User-Agent": "daily-dose-devotions-worker"
-  };
-
+  const headers = { Accept: "application/vnd.github.raw+json", "User-Agent": "daily-dose-devotions-worker" };
   if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
 
   const response = await fetch(apiUrl, { headers });
@@ -288,10 +315,7 @@ async function sendDevotionCampaign(env, candidate) {
     body: JSON.stringify({
       name: `Daily Dose ${collection} ${date}`,
       subject: devotion.emailSubject || devotion.title,
-      sender: {
-        name: env.BREVO_SENDER_NAME || "Daily Dose Devotions",
-        email: senderEmail
-      },
+      sender: { name: env.BREVO_SENDER_NAME || "Daily Dose Devotions", email: senderEmail },
       type: "classic",
       htmlContent: html,
       textContent: text,
@@ -310,10 +334,7 @@ async function sendDevotionCampaign(env, candidate) {
 function renderDevotionHtml(env, candidate) {
   const { devotion, date } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
-  const paragraphs = devotion.body
-    .split(/\n{2,}/)
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`)
-    .join("");
+  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
 
   return `<!doctype html>
 <html>
@@ -333,13 +354,7 @@ function renderDevotionText(env, candidate) {
   const { devotion, date } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
 
-  return [
-    `Daily Dose Devotions - ${date}`,
-    devotion.title,
-    devotion.scripture,
-    devotion.body,
-    `${getFooterLinkText(candidate)}: ${devotionUrl}`
-  ].filter(Boolean).join("\n\n");
+  return [`Daily Dose Devotions - ${date}`, devotion.title, devotion.scripture, devotion.body, `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
 }
 
 function getDevotionUrl(env, candidate) {
@@ -354,17 +369,8 @@ function getFooterLinkText(candidate) {
 
 function summarizeCandidate(candidate, now, env) {
   if (!candidate) return null;
-
   const publishAt = getPublishAt(candidate);
-
-  return {
-    title: candidate.devotion.title,
-    scripture: candidate.devotion.scripture || null,
-    url: getDevotionUrl(env, candidate),
-    publishAt: publishAt.toISOString(),
-    due: now >= publishAt,
-    source: candidate.source
-  };
+  return { title: candidate.devotion.title, scripture: candidate.devotion.scripture || null, url: getDevotionUrl(env, candidate), publishAt: publishAt.toISOString(), due: now >= publishAt, source: candidate.source };
 }
 
 function getPublishAt(candidate) {
@@ -400,12 +406,7 @@ function sentKey(candidate) {
 async function brevoFetch(env, path, init) {
   return fetch(`https://api.brevo.com/v3${path}`, {
     ...init,
-    headers: {
-      "api-key": env.BREVO_API_KEY,
-      "content-type": "application/json",
-      accept: "application/json",
-      ...init.headers
-    }
+    headers: { "api-key": env.BREVO_API_KEY, "content-type": "application/json", accept: "application/json", ...init.headers }
   });
 }
 
@@ -457,23 +458,9 @@ function decodeHtml(value) {
 }
 
 function getLocalParts(timeZone, date) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).formatToParts(date);
-
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(date);
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-
-  return {
-    date: `${values.year}-${values.month}-${values.day}`,
-    time: `${values.hour}:${values.minute}`,
-    hour: Number(values.hour)
-  };
+  return { date: `${values.year}-${values.month}-${values.day}`, time: `${values.hour}:${values.minute}`, hour: Number(values.hour) };
 }
 
 function localDateTimeToUtc(date, time, timeZone) {
@@ -494,22 +481,12 @@ function isEmail(email) {
 }
 
 function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
 
 function json(data, status = 200) {
   return new Response(data === null ? null : JSON.stringify(data, null, 2), {
     status,
-    headers: {
-      "access-control-allow-origin": "*",
-      "access-control-allow-methods": "GET, POST, OPTIONS",
-      "access-control-allow-headers": "content-type",
-      "content-type": "application/json"
-    }
+    headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type", "content-type": "application/json" }
   });
 }
