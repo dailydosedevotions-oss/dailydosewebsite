@@ -17,6 +17,28 @@ export async function onRequest(context) {
       if (!store) return json({ success: true, prayers: [], answered: [] }, 200, corsHeaders);
 
       const url = new URL(request.url);
+      const emailAction = clean(url.searchParams.get("moderate"));
+      const emailId = clean(url.searchParams.get("id"));
+
+      if (emailAction || emailId) {
+        if (!canModerate(request, env)) {
+          return htmlMessage("Prayer Review", "This prayer review link is private or has expired.", 403);
+        }
+
+        const result = await moderatePrayer(store, emailId, emailAction);
+        if (!result.success) {
+          return htmlMessage("Prayer Review", result.error, result.status || 400);
+        }
+
+        return htmlMessage(
+          "Prayer Review",
+          result.action === "approve"
+            ? "This prayer has been approved and is now on the prayer wall."
+            : "This prayer has been declined and will not appear on the prayer wall.",
+          200
+        );
+      }
+
       if (url.searchParams.get("pending") === "true") {
         if (!canModerate(request, env)) {
           return json({ success: false, error: "Prayer moderation is private." }, 403, corsHeaders);
@@ -68,7 +90,7 @@ export async function onRequest(context) {
         await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
       }
 
-      await sendPrayerNotification(env, { ...item, email });
+      await sendPrayerNotification(env, { ...item, email }, request.url);
 
       return json({
         success: true,
@@ -91,20 +113,8 @@ export async function onRequest(context) {
         return json({ success: false, error: "Choose approve or reject for a pending prayer." }, 400, corsHeaders);
       }
 
-      const pending = await getPendingItems(store);
-      const item = pending.find(entry => entry.id === id);
-      const remaining = pending.filter(entry => entry.id !== id);
-
-      if (!item) return json({ success: false, error: "Pending prayer was not found." }, 404, corsHeaders);
-
-      if (action === "approve") {
-        const publicItems = await getPublicItems(store);
-        publicItems.unshift(publicItem(item));
-        await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
-      }
-
-      await store.put("prayer-wall:pending", JSON.stringify(remaining));
-      return json({ success: true, action, item: publicItem(item), pending: remaining }, 200, corsHeaders);
+      const result = await moderatePrayer(store, id, action);
+      return json(result, result.success ? 200 : result.status || 400, corsHeaders);
     }
 
     return json({ success: false, error: "Method not allowed" }, 405, corsHeaders);
@@ -135,6 +145,31 @@ async function getPublicItems(store) {
 async function getPendingItems(store) {
   const existing = await store.get("prayer-wall:pending", { type: "json" });
   return Array.isArray(existing) ? existing : [];
+}
+
+async function moderatePrayer(store, id, action) {
+  const normalizedAction = action === "decline" ? "reject" : action;
+
+  if (!id || !["approve", "reject"].includes(normalizedAction)) {
+    return { success: false, error: "Choose approve or decline for a pending prayer.", status: 400 };
+  }
+
+  const pending = await getPendingItems(store);
+  const item = pending.find(entry => entry.id === id);
+  const remaining = pending.filter(entry => entry.id !== id);
+
+  if (!item) {
+    return { success: false, error: "Pending prayer was not found. It may already have been reviewed.", status: 404 };
+  }
+
+  if (normalizedAction === "approve") {
+    const publicItems = await getPublicItems(store);
+    publicItems.unshift(publicItem(item));
+    await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
+  }
+
+  await store.put("prayer-wall:pending", JSON.stringify(remaining));
+  return { success: true, action: normalizedAction, item: publicItem(item), pending: remaining };
 }
 
 function publicItem(item) {
@@ -172,13 +207,42 @@ function json(data, status = 200, headers = {}) {
   });
 }
 
-async function sendPrayerNotification(env, item) {
+function htmlMessage(title, message, status = 200) {
+  return new Response(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body{margin:0;background:#0a0a0a;color:#f4ede2;font-family:Arial,sans-serif;line-height:1.6;padding:40px}
+    main{max-width:680px;margin:0 auto;background:#11100e;border:1px solid rgba(198,160,90,.35);padding:32px;border-radius:10px}
+    h1{color:#c6a05a}
+    a{color:#c6a05a}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>${escapeHtml(title)}</h1>
+    <p>${escapeHtml(message)}</p>
+    <p><a href="/prayer-admin.html">Open Prayer Review</a></p>
+  </main>
+</body>
+</html>`, {
+    status,
+    headers: { "Content-Type": "text/html; charset=UTF-8" }
+  });
+}
+
+async function sendPrayerNotification(env, item, requestUrl) {
   if (!env.BREVO_API_KEY || !env.NOTIFY_EMAIL) return;
 
   const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
   const senderName = env.SENDER_NAME || "Daily Dose Devotions";
   const kind = item.type === "answered" ? "Answered prayer" : "Prayer request";
   const visibility = item.private ? "Private - not shown on the website" : "Pending review - not shown publicly until approved";
+  const reviewLinks = buildReviewLinks(env, item, requestUrl);
 
   await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -204,9 +268,76 @@ async function sendPrayerNotification(env, item) {
         `Name: ${item.name}`,
         item.email ? `Email: ${item.email}` : "Email: not provided",
         `Submitted: ${item.createdAt}`,
+        ...reviewLinks.textLines,
         "",
         item.message
-      ].join("\n")
+      ].join("\n"),
+      htmlContent: buildPrayerEmailHtml({ item, kind, visibility, reviewLinks })
     })
   });
+}
+
+function buildReviewLinks(env, item, requestUrl) {
+  const token = clean(env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
+  if (item.private || !token) return { approveUrl: "", rejectUrl: "", textLines: [] };
+
+  const baseUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
+  const approveUrl = new URL("/api/prayers", baseUrl);
+  approveUrl.searchParams.set("moderate", "approve");
+  approveUrl.searchParams.set("id", item.id);
+  approveUrl.searchParams.set("token", token);
+
+  const rejectUrl = new URL("/api/prayers", baseUrl);
+  rejectUrl.searchParams.set("moderate", "decline");
+  rejectUrl.searchParams.set("id", item.id);
+  rejectUrl.searchParams.set("token", token);
+
+  return {
+    approveUrl: approveUrl.toString(),
+    rejectUrl: rejectUrl.toString(),
+    textLines: [
+      "",
+      "Review:",
+      `Approve: ${approveUrl.toString()}`,
+      `Decline: ${rejectUrl.toString()}`
+    ]
+  };
+}
+
+function buildPrayerEmailHtml({ item, kind, visibility, reviewLinks }) {
+  const hasReviewLinks = Boolean(reviewLinks.approveUrl && reviewLinks.rejectUrl);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;background:#0a0a0a;color:#f4ede2;font-family:Arial,sans-serif;line-height:1.6;padding:24px;">
+  <div style="max-width:680px;margin:0 auto;background:#11100e;border:1px solid rgba(198,160,90,.35);border-radius:10px;padding:28px;">
+    <p style="margin:0 0 8px;color:#c6a05a;text-transform:uppercase;font-size:12px;letter-spacing:2px;">Daily Dose</p>
+    <h1 style="margin:0 0 12px;color:#ffffff;font-size:28px;">${escapeHtml(kind)}</h1>
+    <p style="margin:0 0 20px;color:#d9cbb8;">${escapeHtml(visibility)}</p>
+    <div style="border-top:1px solid rgba(198,160,90,.25);border-bottom:1px solid rgba(198,160,90,.25);padding:18px 0;margin:18px 0;">
+      <p><strong>Name:</strong> ${escapeHtml(item.name)}</p>
+      <p><strong>Email:</strong> ${item.email ? escapeHtml(item.email) : "not provided"}</p>
+      <p><strong>Submitted:</strong> ${escapeHtml(item.createdAt)}</p>
+      <p><strong>Message:</strong></p>
+      <p style="white-space:pre-wrap;color:#fffaf2;">${escapeHtml(item.message)}</p>
+    </div>
+    ${hasReviewLinks ? `
+      <p style="margin:0 0 16px;color:#f4ede2;">Choose whether this should appear on the public prayer wall:</p>
+      <p style="margin:0 0 8px;">
+        <a href="${escapeHtml(reviewLinks.approveUrl)}" style="display:inline-block;background:#c6a05a;color:#0a0a0a;text-decoration:none;padding:12px 18px;border-radius:4px;font-weight:bold;margin:0 8px 10px 0;">Approve</a>
+        <a href="${escapeHtml(reviewLinks.rejectUrl)}" style="display:inline-block;border:1px solid #c6a05a;color:#c6a05a;text-decoration:none;padding:11px 18px;border-radius:4px;font-weight:bold;margin:0 0 10px 0;">Decline</a>
+      </p>
+    ` : ""}
+  </div>
+</body>
+</html>`;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
