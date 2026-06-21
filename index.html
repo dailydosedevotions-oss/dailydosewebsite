@@ -11,10 +11,16 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <title>Daily Dose Devotions</title>
   <meta name="description" content="Daily Dose is a space for Scripture, reflection and real life. Scripture-rooted, honest, personal devotions pointing people back to Christ." />
+  <meta property="og:title" content="Daily Dose Devotions" />
+  <meta property="og:description" content="Scripture-rooted, honest, personal devotions pointing people back to Christ." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dailydosedevotions.ie/" />
+  <meta property="og:image" content="https://dailydosedevotions.ie/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=warm-readable-4" />
+  <link rel="stylesheet" href="styles.css?v=warm-readable-5" />
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -22,19 +28,21 @@
       <a class="brand" href="#home">DAILY DOSE</a>
       <div class="nav-links">
         <a href="#home">Home</a>
+        <a href="start-here.html">Start Here</a>
         <a href="#about-full">About</a>
         <a href="#devotions">Devotions</a>
         <a href="series.html">Series</a>
         <a href="#prayer">Prayer</a>
         <a href="#contact">Contact</a>
       </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
     </div>
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button>
     <a href="#home">Home</a>
+    <a href="start-here.html">Start Here</a>
     <a href="#about-full">About</a>
     <a href="#devotions">Devotions</a>
     <a href="series.html">Series</a>
@@ -42,7 +50,7 @@
     <a href="#contact">Contact</a>
     <div class="mobile-note">
       <p>Daily Dose Devotions</p>
-      <span>Scripture · Reflection · Real Life</span>
+      <span>Scripture &middot; Reflection &middot; Real Life</span>
     </div>
   </div>
 
@@ -81,6 +89,13 @@
 
     <section id="devotions" class="section">
       <div class="container">
+        <div class="start-strip reveal">
+          <div>
+            <p class="eyebrow">New Here?</p>
+            <h2>Start with Scripture, prayer, or the current series.</h2>
+          </div>
+          <a class="btn primary small" href="start-here.html">Start Here</a>
+        </div>
         <div class="section-head reveal">
           <p class="eyebrow">What We Offer</p>
           <h2>Three Pillars of Daily Dose</h2>
@@ -88,24 +103,24 @@
         </div>
         <div class="cards">
           <article class="card reveal">
-            <div class="icon">📖</div>
+            <div class="icon">&#128214;</div>
             <p class="eyebrow">Daily Devotions</p>
             <h3>Daily Dose</h3>
-            <p>Scripture-rooted reflections written to meet you wherever you are — whether strong in faith, finding your way back, or simply trying to get through the day.</p>
+            <p>Scripture-rooted reflections written to meet you wherever you are &mdash; whether strong in faith, finding your way back, or simply trying to get through the day.</p>
             <a class="btn outline small" href="devotions.html">Read Devotions</a>
           </article>
           <article class="card reveal">
-            <div class="icon">☰</div>
+            <div class="icon">&#9776;</div>
             <p class="eyebrow">Featured Reflections</p>
             <h3>Series</h3>
             <p>Scripture-rooted collections that explore faith, formation, obedience, prayer, and walking with Christ in everyday life.</p>
             <a class="btn outline small" href="series.html">Explore Series</a>
           </article>
           <article class="card reveal">
-            <div class="icon">🔥</div>
+            <div class="icon">&#128293;</div>
             <p class="eyebrow">Prayer Requests</p>
             <h3>The Sanctuary</h3>
-            <p>A quiet space to share what you are carrying. Whether for yourself or someone you love — you do not have to carry it alone.</p>
+            <p>A quiet space to share what you are carrying. Whether for yourself or someone you love &mdash; you do not have to carry it alone.</p>
             <a class="btn outline small" href="#prayer">Submit a Prayer</a>
           </article>
         </div>
@@ -113,7 +128,7 @@
   <div class="container">
     <div class="verse-of-the-day-card reveal visible">
       <p class="eyebrow">Verse of the Day</p>
-      <div class="date" id="votdDate">Loading today’s verse...</div>
+      <div class="date" id="votdDate">Loading today&rsquo;s verse...</div>
       <h2 id="votdReference">Verse of the Day</h2>
       <p class="verse-text" id="votdText">Loading...</p>
       <a class="btn outline small" href="verse-library.html">View Verse Library</a>
@@ -128,15 +143,15 @@
         <div class="reveal">
           <p class="eyebrow">The Story Behind Daily Dose</p>
           <h2>Born in a<br><span>Broken Place</span></h2>
-          <p>Daily Dose did not begin as a project or an idea to gain attention. It was born in a very broken place — during recovery from years of addiction and hopelessness. Through the Word of God, preached consistently, everything began to change. Those notes became reflections. Those reflections became Daily Dose.</p>
+          <p>Daily Dose did not begin as a project or an idea to gain attention. It was born in a very broken place &mdash; during recovery from years of addiction and hopelessness. Through the Word of God, preached consistently, everything began to change. Those notes became reflections. Those reflections became Daily Dose.</p>
           <ul class="checks">
-            <li>Born from genuine brokenness and recovery — not theory</li>
+            <li>Born from genuine brokenness and recovery &mdash; not theory</li>
             <li>Scripture-centred, not opinion-driven</li>
             <li>Written for real people in real struggles</li>
             <li>Consistent daily encouragement since day one</li>
-            <li>No pressure, no performance — just honest faith</li>
+            <li>No pressure, no performance &mdash; just honest faith</li>
           </ul>
-          <a class="btn primary" href="#about-full">Read the Full Story</a>
+          <a class="btn primary" href="story.html">Read the Full Story</a>
         </div>
       </div>
     </section>
@@ -186,7 +201,7 @@
           <p class="eyebrow">Prayer Requests</p>
           <h2>You Are Not Alone</h2>
           <div class="line"></div>
-          <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through — you are welcome to share it.</p>
+          <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through &mdash; you are welcome to share it.</p>
         </div>
         <form class="contact-card reveal" id="prayerForm" action="/api/prayers" method="POST">
           <input type="hidden" name="form_type" value="Prayer wall submission">
@@ -199,7 +214,7 @@
           <input name="email" type="email" placeholder="Email Address">
           <textarea name="message" placeholder="Your prayer request..." required></textarea>
           <label class="check-row"><input type="checkbox" name="private" value="Yes"> Keep this private and send it only to Daily Dose</label>
-          <small id="prayerPrivacyNote">Unticked requests may appear below so others can pray with you. Private requests are emailed only to Daily Dose Devotions.</small>
+          <small id="prayerPrivacyNote">Unticked requests are sent to Daily Dose for review before appearing below. Private requests are emailed only to Daily Dose Devotions.</small>
           <button class="btn primary full" type="submit">Submit</button>
           <small id="prayerStatus" aria-live="polite"></small>
         </form>
@@ -251,10 +266,14 @@
       </div>
       <div>
         <h4>Quick Links</h4>
+        <a href="start-here.html">Start Here</a>
         <a href="#devotions">Daily Devotions</a>
         <a href="#series">The Series</a>
         <a href="#prayer">Prayer Requests</a>
         <a href="#about-full">About Daily Dose</a>
+        <a href="what-we-believe.html">What We Believe</a>
+        <a href="need-help-now.html">Need Help Now</a>
+        <a href="privacy.html">Privacy Policy</a>
         <a href="#contact">Contact</a>
       </div>
       <div>
@@ -268,7 +287,7 @@
     </div>
   </footer>
 
-  <script src="script.js?v=prayer-wall-1"></script>
+  <script src="script.js?v=prayer-wall-2"></script>
         <script src="/verse-of-the-day.js?v=verse-share-2"></script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>

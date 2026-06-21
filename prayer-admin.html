@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Prayer Review | Daily Dose</title>
+  <meta name="description" content="Private Daily Dose prayer moderation." />
+  <link rel="stylesheet" href="/styles.css?v=warm-readable-5" />
+</head>
+<body>
+  <nav class="navbar scrolled"><div class="nav-inner"><a class="brand" href="/index.html#home">DAILY DOSE</a></div></nav>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Private</p>
+        <h1>Prayer Review</h1>
+        <p>Approve public prayer requests before they appear on the prayer wall.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div class="stats-panel">
+          <div class="stats-token-row">
+            <label class="field-label" for="adminToken">Private token</label>
+            <input id="adminToken" type="password" autocomplete="off" placeholder="Paste your private token">
+            <button class="btn primary small" type="button" id="loadPending">Load Pending</button>
+          </div>
+          <p class="thanks-note" id="adminStatus">Use the same private token you use for PWA stats, unless a separate prayer admin token is configured.</p>
+          <div class="prayer-list" id="pendingPrayerList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const tokenInput = document.getElementById('adminToken');
+    const loadButton = document.getElementById('loadPending');
+    const statusEl = document.getElementById('adminStatus');
+    const list = document.getElementById('pendingPrayerList');
+    const params = new URLSearchParams(window.location.search);
+    const queryToken = params.get('token');
+    const savedToken = localStorage.getItem('daily-dose-prayer-admin-token') || localStorage.getItem('daily-dose-pwa-stats-token');
+
+    if (queryToken) {
+      localStorage.setItem('daily-dose-prayer-admin-token', queryToken);
+      tokenInput.value = queryToken;
+      history.replaceState(null, '', '/prayer-admin.html');
+    } else if (savedToken) {
+      tokenInput.value = savedToken;
+    }
+
+    loadButton.addEventListener('click', loadPending);
+    if (tokenInput.value) loadPending();
+
+    async function loadPending() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        statusEl.textContent = 'Paste your private token first.';
+        return;
+      }
+      localStorage.setItem('daily-dose-prayer-admin-token', token);
+      statusEl.textContent = 'Loading pending prayers...';
+      const response = await fetch('/api/prayers?pending=true', { headers: { 'x-prayer-admin-token': token } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        list.innerHTML = '';
+        statusEl.textContent = data.error || 'Unable to load pending prayers.';
+        return;
+      }
+      renderPending(data.pending || []);
+    }
+
+    function renderPending(items) {
+      if (!items.length) {
+        list.innerHTML = '<p class="empty-state">No pending prayer requests.</p>';
+        statusEl.textContent = 'Prayer review is clear.';
+        return;
+      }
+      statusEl.textContent = `${items.length} pending request${items.length === 1 ? '' : 's'}.`;
+      list.innerHTML = items.map(item => `
+        <article class="prayer-item">
+          <p>${escapeHtml(item.message)}</p>
+          <footer>
+            <span>${escapeHtml(item.name || 'Anonymous')} &middot; ${escapeHtml(item.type || 'prayer')}</span>
+            <span>${new Date(item.createdAt).toLocaleString()}</span>
+          </footer>
+          <div class="hero-actions">
+            <button class="btn primary small" type="button" data-action="approve" data-id="${item.id}">Approve</button>
+            <button class="btn outline small" type="button" data-action="reject" data-id="${item.id}">Reject</button>
+          </div>
+        </article>
+      `).join('');
+      list.querySelectorAll('button[data-action]').forEach(button => {
+        button.addEventListener('click', () => moderate(button.dataset.id, button.dataset.action));
+      });
+    }
+
+    async function moderate(id, action) {
+      const token = tokenInput.value.trim();
+      const response = await fetch('/api/prayers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'x-prayer-admin-token': token },
+        body: JSON.stringify({ id, action })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        statusEl.textContent = data.error || 'Unable to update prayer.';
+        return;
+      }
+      await loadPending();
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+  </script>
+</body>
+</html>

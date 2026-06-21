@@ -215,7 +215,7 @@
   }
 
   function shareText(verse) {
-    return `Verse of the Day — ${verse.reference}\n\n“${verse.text}”\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+    return `Verse of the Day - ${verse.reference}\n\n"${verse.text}"\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
   async function recordInteraction(type, verse) {
@@ -251,7 +251,7 @@
 
         const text = shareText(verse);
         const shareData = {
-          title: `Verse of the Day — ${verse.reference}`,
+          title: `Verse of the Day - ${verse.reference}`,
           text,
           url: "https://dailydosedevotions.ie/#verse-of-the-day"
         };
@@ -281,11 +281,11 @@
     section.innerHTML = `
       <div class="container verse-feature-wrap">
         <article class="verse-feature-card reveal visible">
-          <div class="icon">📖</div>
+              <div class="icon">&#128214;</div>
           <p class="eyebrow">Verse of the Day</p>
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
           <h3 id="votdReference">${escapeHtml(verse.reference)}</h3>
-          <p class="verse-text" id="votdText">“${escapeHtml(verse.text)}”</p>
+          <p class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
 
           <div class="verse-social-actions">
             <button class="verse-action-btn" id="shareVerseBtn" type="button">Share Verse</button>
@@ -321,7 +321,7 @@
       <article class="votd-library-card">
         <div class="date">${escapeHtml(formatDate(v.date, false))}</div>
         <h3>${escapeHtml(v.reference)}</h3>
-        <p>“${escapeHtml(v.text)}”</p>
+        <p>&ldquo;${escapeHtml(v.text)}&rdquo;</p>
       </article>
     `).join("");
   }
@@ -353,10 +353,10 @@
         section.innerHTML = `
           <div class="container verse-feature-wrap">
             <article class="verse-feature-card reveal visible">
-              <div class="icon">📖</div>
+          <div class="icon">&#128214;</div>
               <p class="eyebrow">Verse of the Day</p>
               <h3>Verse of the Day</h3>
-              <p class="verse-text">Unable to load today’s verse at the moment.</p>
+              <p class="verse-text">Unable to load today&rsquo;s verse at the moment.</p>
             </article>
           </div>
         `;

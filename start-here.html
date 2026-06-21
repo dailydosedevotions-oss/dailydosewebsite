@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Daily Dose" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>Start Here | Daily Dose</title>
+  <meta name="description" content="A simple starting point for Daily Dose Devotions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=warm-readable-5" />
+</head>
+<body>
+  <nav class="navbar scrolled" id="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="/index.html#home">DAILY DOSE</a>
+      <div class="nav-links"><a href="/index.html#home">Home</a><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/index.html#prayer">Prayer</a></div>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button>
+    <a href="/index.html#home">Home</a>
+    <a href="/start-here.html">Start Here</a>
+    <a href="/devotions.html">Devotions</a>
+    <a href="/series.html">Series</a>
+    <a href="/verse-library.html">Verse Library</a>
+    <a href="/index.html#prayer">Prayer</a>
+    <div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Reflection &middot; Real Life</span></div>
+  </div>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">New to Daily Dose</p>
+        <h1>Start Here</h1>
+        <p>A simple path into Scripture-rooted encouragement, prayer, and daily reflection.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div class="cards trust-cards">
+          <article class="card reveal visible">
+            <p class="eyebrow">Today</p>
+            <h3>Read a Devotion</h3>
+            <p>Begin with the latest Daily Dose reflection and take a few quiet minutes with Scripture.</p>
+            <a class="btn outline small" href="/devotions.html">Open Devotions</a>
+          </article>
+          <article class="card reveal visible">
+            <p class="eyebrow">Community</p>
+            <h3>Share a Prayer</h3>
+            <p>Send a private request to Daily Dose or share a moderated request so others can pray with you.</p>
+            <a class="btn outline small" href="/index.html#prayer">Prayer Requests</a>
+          </article>
+          <article class="card reveal visible">
+            <p class="eyebrow">Formation</p>
+            <h3>Explore FORMED</h3>
+            <p>Walk through the current series on obedience, prayer, discipline, and being formed in Christ.</p>
+            <a class="btn outline small" href="/series.html">Series Library</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/script.js?v=prayer-wall-2"></script>
+  <script src="/pwa.js?v=pwa-4"></script>
+</body>
+</html>

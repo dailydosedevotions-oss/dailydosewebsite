@@ -61,6 +61,29 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
+// Devotion archive search.
+(function () {
+  const search = document.getElementById('devotionSearch');
+  const grid = document.getElementById('archiveGrid');
+  const empty = document.getElementById('noSearchResults');
+  if (!search || !grid) return;
+
+  const cards = Array.from(grid.querySelectorAll('.devotion-card'));
+
+  search.addEventListener('input', () => {
+    const term = search.value.trim().toLowerCase();
+    let shown = 0;
+
+    cards.forEach(card => {
+      const matches = !term || card.textContent.toLowerCase().includes(term);
+      card.hidden = !matches;
+      if (matches) shown += 1;
+    });
+
+    if (empty) empty.hidden = shown !== 0;
+  });
+})();
+
 
 // Subscribe form: sends new subscribers to Brevo through Cloudflare Pages Functions.
 (function () {
@@ -121,7 +144,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   });
 })();
 
-// Prayer wall: public submissions appear on the page; private ones email Daily Dose only.
+// Prayer wall: public submissions are reviewed before appearing; private ones email Daily Dose only.
 (function () {
   const form = document.getElementById('prayerForm');
   const status = document.getElementById('prayerStatus');
@@ -169,7 +192,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         <p>${escapeHtml(item.message)}</p>
         <footer>
           <span>${escapeHtml(item.name || 'Anonymous')}</span>
-          <span>${answered ? '<span class="answered-label">Answered</span> · ' : ''}${formatDate(item.createdAt)}</span>
+          <span>${answered ? '<span class="answered-label">Answered</span> &middot; ' : ''}${formatDate(item.createdAt)}</span>
         </footer>
       </article>
     `).join('');
@@ -218,7 +241,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       if (!response.ok || !result.success) throw new Error(result.error || 'Submission failed.');
 
       form.reset();
-      setStatus(result.private ? 'Sent privately to Daily Dose. It will not appear on the page.' : 'Shared on the prayer wall. Thank you for letting others pray with you.', 'success');
+      setStatus(result.private ? 'Sent privately to Daily Dose. It will not appear on the page.' : 'Sent to Daily Dose for review. If approved, it may appear on the prayer wall.', 'success');
       await loadPrayers();
     } catch (error) {
       setStatus(error.message || 'Something went wrong. Please try again.', 'error');
@@ -247,7 +270,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     const url = getShareUrl();
     const title = getShareTitle();
     const encodedUrl = encodeURIComponent(url);
-    const encodedText = encodeURIComponent(title + ' — Daily Dose Devotions');
+    const encodedText = encodeURIComponent(title + ' - Daily Dose Devotions');
     const encodedSubject = encodeURIComponent(title);
     const encodedBody = encodeURIComponent('I wanted to share this from Daily Dose Devotions:\n\n' + title + '\n' + url);
 

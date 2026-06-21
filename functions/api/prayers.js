@@ -3,8 +3,8 @@ export async function onRequest(context) {
 
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, x-prayer-admin-token"
   };
 
   if (request.method === "OPTIONS") {
@@ -15,6 +15,18 @@ export async function onRequest(context) {
     if (request.method === "GET") {
       const store = getStore(env);
       if (!store) return json({ success: true, prayers: [], answered: [] }, 200, corsHeaders);
+
+      const url = new URL(request.url);
+      if (url.searchParams.get("pending") === "true") {
+        if (!canModerate(request, env)) {
+          return json({ success: false, error: "Prayer moderation is private." }, 403, corsHeaders);
+        }
+
+        return json({
+          success: true,
+          pending: await getPendingItems(store)
+        }, 200, corsHeaders);
+      }
 
       const items = await getPublicItems(store);
       return json({
@@ -51,9 +63,9 @@ export async function onRequest(context) {
           return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
         }
 
-        const items = await getPublicItems(store);
-        items.unshift(publicItem(item));
-        await store.put("prayer-wall:public", JSON.stringify(items.slice(0, 60)));
+        const pending = await getPendingItems(store);
+        pending.unshift({ ...publicItem(item), email });
+        await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
       }
 
       await sendPrayerNotification(env, { ...item, email });
@@ -61,8 +73,38 @@ export async function onRequest(context) {
       return json({
         success: true,
         private: isPrivate,
-        item: isPrivate ? null : publicItem(item)
+        pending: !isPrivate,
+        item: null
       }, 200, corsHeaders);
+    }
+
+    if (request.method === "PUT") {
+      const store = getStore(env);
+      if (!store) return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
+      if (!canModerate(request, env)) return json({ success: false, error: "Prayer moderation is private." }, 403, corsHeaders);
+
+      const body = await request.json().catch(() => ({}));
+      const id = clean(body.id);
+      const action = clean(body.action);
+
+      if (!id || !["approve", "reject"].includes(action)) {
+        return json({ success: false, error: "Choose approve or reject for a pending prayer." }, 400, corsHeaders);
+      }
+
+      const pending = await getPendingItems(store);
+      const item = pending.find(entry => entry.id === id);
+      const remaining = pending.filter(entry => entry.id !== id);
+
+      if (!item) return json({ success: false, error: "Pending prayer was not found." }, 404, corsHeaders);
+
+      if (action === "approve") {
+        const publicItems = await getPublicItems(store);
+        publicItems.unshift(publicItem(item));
+        await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
+      }
+
+      await store.put("prayer-wall:pending", JSON.stringify(remaining));
+      return json({ success: true, action, item: publicItem(item), pending: remaining }, 200, corsHeaders);
     }
 
     return json({ success: false, error: "Method not allowed" }, 405, corsHeaders);
@@ -90,6 +132,11 @@ async function getPublicItems(store) {
   return Array.isArray(existing) ? existing : [];
 }
 
+async function getPendingItems(store) {
+  const existing = await store.get("prayer-wall:pending", { type: "json" });
+  return Array.isArray(existing) ? existing : [];
+}
+
 function publicItem(item) {
   return {
     id: item.id,
@@ -102,6 +149,17 @@ function publicItem(item) {
 
 function clean(value) {
   return String(value || "").trim();
+}
+
+function canModerate(request, env) {
+  const expectedToken = clean(env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
+  if (!expectedToken) return false;
+
+  const url = new URL(request.url);
+  const queryToken = clean(url.searchParams.get("token"));
+  const headerToken = clean(request.headers.get("x-prayer-admin-token"));
+
+  return queryToken === expectedToken || headerToken === expectedToken;
 }
 
 function json(data, status = 200, headers = {}) {
@@ -120,7 +178,7 @@ async function sendPrayerNotification(env, item) {
   const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
   const senderName = env.SENDER_NAME || "Daily Dose Devotions";
   const kind = item.type === "answered" ? "Answered prayer" : "Prayer request";
-  const visibility = item.private ? "Private - not shown on the website" : "Public - shown on the prayer wall";
+  const visibility = item.private ? "Private - not shown on the website" : "Pending review - not shown publicly until approved";
 
   await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",

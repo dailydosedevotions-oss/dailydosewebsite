@@ -62,7 +62,7 @@ export async function onRequest(context) {
           stats.likes = (stats.likes || 0) + 1;
           await env.VOTD_STATS.put(likedKey, "1");
           await sendNotification(env, {
-            subject: `Daily Dose Verse liked — ${reference}`,
+            subject: `Daily Dose Verse liked - ${reference}`,
             message: `Someone liked today's Verse of the Day.\n\nReference: ${reference}\nDate: ${date}\nCurrent likes: ${stats.likes}\n\nVerse:\n"${text}"\n\nPage:\n${page}`
           });
         }
@@ -71,7 +71,7 @@ export async function onRequest(context) {
       if (type === "share") {
         stats.shares = (stats.shares || 0) + 1;
         await sendNotification(env, {
-          subject: `Daily Dose Verse shared — ${reference}`,
+          subject: `Daily Dose Verse shared - ${reference}`,
           message: `Someone clicked Share Verse.\n\nReference: ${reference}\nDate: ${date}\nTotal share clicks recorded: ${stats.shares}\n\nVerse:\n"${text}"\n\nPage:\n${page}\n\nNote: Browsers do not always confirm whether a person completed the share after opening the share menu. This records the share button click/share intent.`
         });
       }

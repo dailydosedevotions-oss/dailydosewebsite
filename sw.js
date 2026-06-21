@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v6';
+const CACHE_VERSION = 'daily-dose-pwa-v7';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -7,10 +7,16 @@ const CORE_ASSETS = [
   '/devotions',
   '/series',
   '/verse-library',
+  '/start-here',
+  '/what-we-believe',
+  '/need-help-now',
+  '/privacy',
+  '/story',
+  '/prayer-admin.html',
   '/pwa-stats.html',
   '/offline',
-  '/styles.css?v=warm-readable-4',
-  '/script.js?v=prayer-wall-1',
+  '/styles.css?v=warm-readable-5',
+  '/script.js?v=prayer-wall-2',
   '/pwa.js?v=pwa-4',
   '/verse-of-the-day.js?v=verse-share-2',
   '/verses-of-the-day.json',

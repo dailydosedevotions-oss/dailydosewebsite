@@ -447,7 +447,7 @@ function stripTags(value) {
 function decodeHtml(value) {
   return value
     .replaceAll("&nbsp;", " ")
-    .replaceAll("&middot;", "·")
+    .replaceAll("&middot;", "\u00b7")
     .replaceAll("&amp;", "&")
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
