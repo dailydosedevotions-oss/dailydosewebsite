@@ -2,7 +2,7 @@
   "name": "Daily Dose Devotions",
   "short_name": "Daily Dose",
   "description": "Scripture-rooted devotions, reflections, prayers, and verse of the day from Daily Dose.",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -28,21 +28,21 @@
       "name": "Read Devotions",
       "short_name": "Devotions",
       "description": "Open the Daily Dose devotion library.",
-      "url": "/devotions.html",
+      "url": "/devotions",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Verse Library",
       "short_name": "Verses",
       "description": "Open the Verse of the Day library.",
-      "url": "/verse-library.html",
+      "url": "/verse-library",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Prayer",
       "short_name": "Prayer",
       "description": "Open the prayer section.",
-      "url": "/index.html#prayer",
+      "url": "/#prayer",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
