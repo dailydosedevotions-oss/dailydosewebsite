@@ -148,8 +148,6 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
 .page-hero{padding:150px 0 70px;background:linear-gradient(180deg,rgba(10,10,10,.86),rgba(10,10,10,1)), radial-gradient(circle at top right, rgba(198,160,90,.16), transparent 36%);border-bottom:1px solid var(--border)}
 .page-hero h1{font-family:var(--font-heading);font-size:clamp(44px,7vw,84px);line-height:1.05;margin:10px 0;color:#fff}
 .page-hero p{max-width:760px;color:#cfc6b8;font-size:18px}
-.archive-tools{max-width:620px;margin-top:28px}
-.archive-tools input{margin-top:10px;background:#11100e;border-color:rgba(198,160,90,.42);font-size:16px}
 .archive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:34px}
 .devotion-card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:22px;padding:24px;min-height:245px;display:flex;flex-direction:column;justify-content:space-between;transition:.25s}
 .devotion-card:hover{transform:translateY(-4px);border-color:rgba(198,160,90,.42)}
