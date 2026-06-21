@@ -292,8 +292,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     const hero = document.querySelector('.page-hero .container');
     if (!hero) return;
     const path = window.location.pathname;
-    if (path.endsWith('/devotions.html') || path.endsWith('/series.html') || path === '/' || path.endsWith('/index.html')) {
-      const label = path.endsWith('/series.html') ? 'Share This Series Page' : path.endsWith('/devotions.html') ? 'Share The Devotions Archive' : 'Share Daily Dose Devotions';
+    if (path.endsWith('/devotions.html') || path.endsWith('/series.html') || path.endsWith('/series/formed.html') || path === '/' || path.endsWith('/index.html')) {
+      const label = path.endsWith('/series/formed.html') ? 'Share This FORMED Series' : path.endsWith('/series.html') ? 'Share This Series Page' : path.endsWith('/devotions.html') ? 'Share The Devotions Archive' : 'Share Daily Dose Devotions';
       hero.appendChild(buildShareBlock(label));
     }
   }
