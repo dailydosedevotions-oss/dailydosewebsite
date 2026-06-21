@@ -12,8 +12,6 @@ const ALLOWED_EVENTS = new Set([
 
 const EMAIL_EVENTS = new Set([
   "app_installed",
-  "install_prompt_accepted",
-  "ios_add_to_home_tap",
   "first_standalone_open"
 ]);
 
@@ -96,6 +94,7 @@ function canViewStats(request, env) {
 
 async function sendInstallNotification(env, details) {
   if (!EMAIL_EVENTS.has(details.event)) return;
+  if (details.event === "first_standalone_open" && details.platform !== "ios") return;
   if (!env.BREVO_API_KEY || !env.NOTIFY_EMAIL) return;
 
   const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
@@ -128,13 +127,11 @@ async function sendInstallNotification(env, details) {
         `Display mode: ${details.displayMode || "unknown"}`,
         "",
         "Current totals:",
-        `Install prompt accepted: ${details.totals.install_prompt_accepted || 0}`,
         `Confirmed app installed: ${details.totals.app_installed || 0}`,
         `Likely app users: ${details.totals.first_standalone_open || 0}`,
-        `iPhone Add to Home Screen taps: ${details.totals.ios_add_to_home_tap || 0}`,
         `Standalone app opens: ${details.totals.standalone_open || 0}`,
         "",
-        "Note: iPhone Safari does not confirm the final Add to Home Screen action, so iPhone taps are install intent rather than a guaranteed install."
+        "Note: iPhone Safari does not confirm the final Add to Home Screen action, so the first app/home-screen open is the closest install signal."
       ].join("\n")
     })
   });
@@ -142,9 +139,7 @@ async function sendInstallNotification(env, details) {
 
 function eventLabel(event) {
   if (event === "app_installed") return "confirmed app install";
-  if (event === "first_standalone_open") return "first app/home-screen open";
-  if (event === "install_prompt_accepted") return "install prompt accepted";
-  if (event === "ios_add_to_home_tap") return "iPhone Add to Home Screen tapped";
+  if (event === "first_standalone_open") return "first iPhone app/home-screen open";
   return event;
 }
 
