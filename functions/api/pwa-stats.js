@@ -6,13 +6,15 @@ const ALLOWED_EVENTS = new Set([
   "ios_add_to_home_tap",
   "browser_install_help_tap",
   "app_installed",
+  "first_standalone_open",
   "standalone_open"
 ]);
 
 const EMAIL_EVENTS = new Set([
   "app_installed",
   "install_prompt_accepted",
-  "ios_add_to_home_tap"
+  "ios_add_to_home_tap",
+  "first_standalone_open"
 ]);
 
 export async function onRequest(context) {
@@ -47,7 +49,7 @@ export async function onRequest(context) {
         success: true,
         totals,
         today,
-        note: "PWA stats are aggregate counts only. iPhone Add to Home Screen installs cannot be confirmed by Safari, so use ios_add_to_home_tap and standalone_open as helpful signals."
+        note: "PWA stats are aggregate counts only. iPhone Add to Home Screen installs cannot be confirmed by Safari, so first_standalone_open and standalone_open are the strongest signals for iPhone/home-screen use."
       }, 200, corsHeaders);
     }
 
@@ -128,6 +130,7 @@ async function sendInstallNotification(env, details) {
         "Current totals:",
         `Install prompt accepted: ${details.totals.install_prompt_accepted || 0}`,
         `Confirmed app installed: ${details.totals.app_installed || 0}`,
+        `Likely app users: ${details.totals.first_standalone_open || 0}`,
         `iPhone Add to Home Screen taps: ${details.totals.ios_add_to_home_tap || 0}`,
         `Standalone app opens: ${details.totals.standalone_open || 0}`,
         "",
@@ -139,6 +142,7 @@ async function sendInstallNotification(env, details) {
 
 function eventLabel(event) {
   if (event === "app_installed") return "confirmed app install";
+  if (event === "first_standalone_open") return "first app/home-screen open";
   if (event === "install_prompt_accepted") return "install prompt accepted";
   if (event === "ios_add_to_home_tap") return "iPhone Add to Home Screen tapped";
   return event;
@@ -174,6 +178,7 @@ function defaultStats() {
     ios_add_to_home_tap: 0,
     browser_install_help_tap: 0,
     app_installed: 0,
+    first_standalone_open: 0,
     standalone_open: 0,
     totalEvents: 0,
     updatedAt: null,

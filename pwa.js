@@ -47,6 +47,7 @@ if (installButton && isAppleMobile() && !isStandalone()) {
 }
 
 if (pwaOpenedAsApp) {
+  trackPwaEventOnceEver('first_standalone_open');
   trackPwaEventOncePerDay('standalone_open');
 }
 
@@ -76,6 +77,17 @@ function getPlatform() {
 function trackPwaEventOncePerDay(event) {
   const today = new Date().toISOString().slice(0, 10);
   const key = `daily-dose-pwa:${event}:${today}`;
+  try {
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
+  } catch (error) {
+    // Keep tracking non-essential so browser privacy settings never break the app.
+  }
+  trackPwaEvent(event);
+}
+
+function trackPwaEventOnceEver(event) {
+  const key = `daily-dose-pwa:${event}`;
   try {
     if (localStorage.getItem(key)) return;
     localStorage.setItem(key, '1');
