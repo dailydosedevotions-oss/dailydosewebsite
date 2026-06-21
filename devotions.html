@@ -546,7 +546,163 @@
       </div>
     </section>
   </main>
-  <script src="script.js?v=prayer-wall-3"></script>
+  <script src="script.js?v=prayer-wall-4"></script>
+  <script>
+    (function () {
+      const search = document.getElementById('devotionSearch');
+      const grid = document.getElementById('archiveGrid');
+      const empty = document.getElementById('noSearchResults');
+      if (!search || !grid) return;
+
+      const themes = {
+        1: 'purpose direction searching questions spiritual hunger missing something meaning',
+        2: 'identity known by God belonging worth name personal relationship',
+        3: 'love grace acceptance forgiveness mercy',
+        4: 'confidence identity trust security courage faith fear',
+        5: 'identity new identity in Christ transformation old self new self worth',
+        6: 'calling identity purpose set apart created by God belonging',
+        7: 'clarity perspective vision discernment wisdom seeing clearly',
+        8: 'struggle suffering weakness comfort endurance God sees you',
+        9: 'anxiety worry peace fear pressure mental health trust',
+        10: 'control surrender trust uncertainty anxiety faith letting go',
+        11: 'drift drifting consistency discipline focus returning to God',
+        12: 'heart motives honesty repentance surrender search your heart',
+        13: 'direction repentance change surrender new path obedience',
+        14: 'discipline focus reset recovery getting back on track consistency',
+        15: 'rise courage obedience faith movement breakthrough',
+        16: 'faith courage obedience calling take hold uncertainty',
+        17: 'following Jesus discipleship obedience consistency commitment',
+        18: 'connection vine abiding Jesus fruitfulness spiritual growth',
+        19: 'consistency discipline faithfulness perseverance habits',
+        20: 'heart motives character wisdom response emotions',
+        21: 'opportunity purpose obedience calling faithfulness',
+        22: 'abundant life surrender obedience life in Christ freedom',
+        23: 'waiting progress patience trust God working process',
+        24: 'doubt confidence courage encouragement strength faith',
+        25: 'focus thoughts mindset attention growth discipline',
+        26: 'weakness strength endurance comfort dependence God help',
+        27: 'process trust patience waiting faithfulness growth',
+        28: 'faithfulness consistency grace God faithful restoration',
+        29: 'past temptation moving forward repentance recovery do not go back',
+        30: 'perseverance endurance keep going consistency encouragement',
+        31: 'thirst desire satisfaction emptiness Jesus living water',
+        32: 'repentance seeking God opportunity urgency return to God',
+        33: 'obedience humility surrender healing Naaman breakthrough',
+        34: 'seeking desire choices direction wisdom doors',
+        35: 'identity worth freedom slave son daughter who you are',
+        36: 'unknown trust faithfulness uncertainty patience',
+        37: 'light honesty repentance confession truth healing',
+        38: 'God character truth feelings disappointment faith',
+        39: 'love grace receiving love identity acceptance',
+        40: 'truth feelings mindset thinking renewal obedience',
+        41: 'narrow path obedience discipleship choices sacrifice',
+        42: 'faith sacrifice obedience narrow path endurance',
+        43: 'shaken security hope foundation trust stability',
+        44: 'calling discipleship obedience cross surrender',
+        45: 'blindness healing spiritual sight obedience Jesus',
+        46: 'rooted Jesus fruitfulness connection growth blessing',
+        47: 'lost found grace shepherd shame return to God',
+        48: 'lordship surrender obedience Jesus Lord priorities',
+        49: 'seek first priorities heart kingdom focus',
+        50: 'life Jesus answer identity satisfaction purpose',
+        51: 'identity new self transformation holiness following Jesus',
+        52: 'prayer relationship honesty intimacy God conversation',
+        53: 'invitation grace salvation table welcome return',
+        54: 'God working progress faithfulness perseverance hope',
+        55: 'healing Jesus sees you mercy faith Bartimaeus',
+        56: 'past temptation moving forward surrender do not go back',
+        57: 'shame hiding confession grace healing return',
+        58: 'voice guidance discernment obedience shepherd listening',
+        59: 'heart coldness drift passion return repentance',
+        60: 'waiting patience trust delay faith process',
+        61: 'drift warning attention faithfulness perseverance'
+      };
+      const aliases = {
+        idfentity: 'identity',
+        identiy: 'identity',
+        identidy: 'identity',
+        anxity: 'anxiety',
+        forgivness: 'forgiveness',
+        obediance: 'obedience',
+        prayr: 'prayer'
+      };
+      const cards = Array.from(grid.querySelectorAll('.devotion-card'));
+      const indexedCards = cards.map(card => ({
+        card,
+        searchText: buildSearchText(card)
+      }));
+
+      search.addEventListener('input', runSearch);
+      runSearch();
+
+      function runSearch() {
+        const term = normalize(search.value);
+        let shown = 0;
+
+        indexedCards.forEach(item => {
+          const matches = !term || item.searchText.includes(term);
+          item.card.hidden = !matches;
+          if (matches) shown += 1;
+        });
+
+        if (!empty) return;
+        if (!term || shown > 0) {
+          empty.hidden = true;
+          return;
+        }
+
+        empty.textContent = 'No devotion is available for that search yet. Try a title, date, Scripture, or theme such as identity, prayer, anxiety, obedience, faith, healing, waiting, or surrender.';
+        empty.hidden = false;
+      }
+
+      function buildSearchText(card) {
+        const number = (card.textContent.match(/Daily Dose\\s*#(\\d+)/i) || [])[1] || '';
+        const dateText = card.querySelector('.date')?.textContent || '';
+        return normalize([
+          card.textContent,
+          dateText,
+          buildDateTerms(dateText),
+          themes[number] || ''
+        ].join(' '));
+      }
+
+      function buildDateTerms(value) {
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return value;
+        const day = parsed.getDate();
+        const month = parsed.getMonth() + 1;
+        const year = parsed.getFullYear();
+        const shortMonth = parsed.toLocaleString('en-IE', { month: 'short' });
+        const longMonth = parsed.toLocaleString('en-IE', { month: 'long' });
+        const paddedDay = String(day).padStart(2, '0');
+        const paddedMonth = String(month).padStart(2, '0');
+        return [
+          `${shortMonth} ${day} ${year}`,
+          `${longMonth} ${day} ${year}`,
+          `${day} ${shortMonth} ${year}`,
+          `${day} ${longMonth} ${year}`,
+          `${paddedDay}/${paddedMonth}/${year}`,
+          `${day}/${month}/${year}`,
+          `${paddedDay}-${paddedMonth}-${year}`,
+          `${day}-${month}-${year}`,
+          `${year}-${paddedMonth}-${paddedDay}`
+        ].join(' ');
+      }
+
+      function normalize(value) {
+        const text = String(value || '')
+          .toLowerCase()
+          .replace(/&mdash;|—/g, ' ')
+          .replace(/&ndash;|–/g, ' ')
+          .replace(/&rsquo;|&lsquo;|’|‘/g, "'")
+          .replace(/&ldquo;|&rdquo;|“|”/g, '"')
+          .replace(/[^a-z0-9/ -]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return aliases[text] || text;
+      }
+    })();
+  </script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>
 </html>
