@@ -15,7 +15,6 @@ export default {
             sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
           }, 400);
         }
-
         return json(await sendManualDaily(env));
       }
 
@@ -27,7 +26,6 @@ export default {
             sendUrl: `${url.origin}${url.pathname}?confirm=SEND`
           }, 400);
         }
-
         return json(await sendDueDevotions(env, { manual: true }));
       }
 
@@ -89,7 +87,6 @@ async function subscribe(request, env) {
   });
 
   if (!response.ok) return brevoError(response);
-
   return json({ ok: true });
 }
 
@@ -97,14 +94,14 @@ async function sendManualDaily(env) {
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
   const daily = await loadDevotionCandidate(env, "daily", local.date);
 
-  if (!daily) return { ok: false, date: local.date, message: "No daily devotion file found for today." };
+  if (!daily) return { ok: false, date: local.date, message: "No daily devotion found for today." };
 
   await sendDevotionCampaign(env, daily);
   await markSent(env, daily);
 
   return {
     ok: true,
-    sent: [{ collection: daily.collection, date: daily.date, title: daily.devotion.title }],
+    sent: [{ collection: daily.collection, date: daily.date, title: daily.devotion.title, source: daily.source }],
     note: "Only today's daily devotion was sent."
   };
 }
@@ -135,7 +132,7 @@ async function sendDueDevotions(env, options = {}) {
 
     await sendDevotionCampaign(env, candidate);
     await markSent(env, candidate);
-    sent.push({ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title });
+    sent.push({ collection: candidate.collection, date: candidate.date, title: candidate.devotion.title, source: candidate.source });
   }
 
   return { ok: true, date: local.date, sent, skipped };
@@ -148,34 +145,118 @@ async function loadTodayCandidates(env, date) {
 
   if (daily) candidates.push(daily);
   if (series) candidates.push(series);
-
   return candidates;
 }
 
 async function loadDevotionCandidate(env, collection, date) {
-  const template = getPathTemplate(env, collection);
+  const jsonCandidate = await loadJsonDevotionCandidate(env, collection, date);
+  if (jsonCandidate) return jsonCandidate;
+  return loadWebsiteDevotionCandidate(env, collection, date);
+}
+
+async function loadJsonDevotionCandidate(env, collection, date) {
+  const template = getJsonPathTemplate(env, collection);
   if (!template) return null;
 
   const path = template.replaceAll("{date}", date);
 
   try {
-    const devotion = await getDevotionFromGitHub(env, path);
-    return { collection, date, path, devotion };
+    const devotion = await getJsonFromGitHub(env, path);
+    return { collection, date, path, devotion, source: "json" };
   } catch (error) {
-    if (String(error && error.message ? error.message : error).includes("404")) return null;
+    if (isNotFound(error)) return null;
     throw error;
   }
 }
 
-function getPathTemplate(env, collection) {
+async function loadWebsiteDevotionCandidate(env, collection, date) {
+  const archivePath = collection === "series" ? "series.html" : "devotions.html";
+  const archiveHtml = await getTextFromGitHub(env, archivePath);
+  const card = findArchiveCard(archiveHtml, collection, date);
+
+  if (!card) return null;
+
+  const pagePath = normalizeSitePath(card.href);
+  const pageHtml = await getTextFromGitHub(env, pagePath);
+  const devotion = parseDevotionPage(pageHtml, collection, pagePath, env);
+
+  if (!devotion.publishAt && card.publishAt) devotion.publishAt = card.publishAt;
+  if (!devotion.url) devotion.url = `${getSiteUrl(env)}/${pagePath}`;
+
+  return { collection, date, path: pagePath, devotion, source: "website" };
+}
+
+function findArchiveCard(html, collection, date) {
+  const articlePattern = /<article\b[\s\S]*?<\/article>/gi;
+  const articles = html.match(articlePattern) || [];
+
+  for (const article of articles) {
+    const publishAt = attr(article, "data-publish-at");
+    if (!publishAt || !publishAt.startsWith(date)) continue;
+
+    const hrefMatch = article.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/i);
+    if (!hrefMatch) continue;
+
+    const href = hrefMatch[1];
+    if (collection === "daily" && !href.includes("devotions/")) continue;
+    if (collection === "series" && !href.includes("series/")) continue;
+
+    return { publishAt, href };
+  }
+
+  return null;
+}
+
+function parseDevotionPage(html, collection, path, env) {
+  const eyebrow = textBetween(html, /<p\b[^>]*class=["'][^"']*eyebrow[^"']*["'][^>]*>/i, /<\/p>/i);
+  const h1 = textBetween(html, /<h1\b[^>]*>/i, /<\/h1>/i);
+  const scripture = textBetween(html, /<h3\b[^>]*class=["'][^"']*scripture-heading[^"']*["'][^>]*>/i, /<\/h3>/i);
+  const bodyHtml = textBetween(html, /<div\b[^>]*class=["'][^"']*devotion-body[^"']*["'][^>]*>/i, /<\/div>/i, true);
+  const publishAt = attr(html, "data-publish-at");
+  const pageUrl = `${getSiteUrl(env)}/${path}`;
+  const title = [eyebrow, h1].filter(Boolean).join(": ") || stripTags(textBetween(html, /<title\b[^>]*>/i, /<\/title>/i));
+  const body = extractReadableBody(bodyHtml);
+
+  if (!title || !body) throw new Error(`Could not parse devotion page ${path}.`);
+
+  return {
+    title,
+    scripture: scripture || undefined,
+    body,
+    publishAt: publishAt || undefined,
+    url: pageUrl
+  };
+}
+
+function extractReadableBody(bodyHtml) {
+  const chunks = [];
+  const blockPattern = /<(p|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  let match;
+
+  while ((match = blockPattern.exec(bodyHtml))) {
+    const text = stripTags(match[2]);
+    if (text) chunks.push(text);
+  }
+
+  return chunks.join("\n\n");
+}
+
+function getJsonPathTemplate(env, collection) {
   if (collection === "daily") {
     return env.GITHUB_DAILY_DEVOTION_PATH_TEMPLATE || env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
   }
-
   return env.GITHUB_SERIES_DEVOTION_PATH_TEMPLATE || "series/{date}.json";
 }
 
-async function getDevotionFromGitHub(env, path) {
+async function getJsonFromGitHub(env, path) {
+  const text = await getTextFromGitHub(env, path);
+  const devotion = JSON.parse(text);
+
+  if (!devotion.title || !devotion.body) throw new Error(`Devotion ${path} must include at least title and body.`);
+  return devotion;
+}
+
+async function getTextFromGitHub(env, path) {
   const owner = env.GITHUB_OWNER || "dailydosedevotions-oss";
   const repo = env.GITHUB_REPO || "dailydosewebsite";
   const branch = env.GITHUB_BRANCH || "main";
@@ -190,13 +271,8 @@ async function getDevotionFromGitHub(env, path) {
   if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
 
   const response = await fetch(apiUrl, { headers });
-
-  if (!response.ok) throw new Error(`Could not load devotion ${path} from GitHub: ${response.status} ${await response.text()}`);
-
-  const devotion = await response.json();
-  if (!devotion.title || !devotion.body) throw new Error(`Devotion ${path} must include at least title and body.`);
-
-  return devotion;
+  if (!response.ok) throw new Error(`Could not load ${path} from GitHub: ${response.status} ${await response.text()}`);
+  return response.text();
 }
 
 async function sendDevotionCampaign(env, candidate) {
@@ -247,7 +323,6 @@ function renderDevotionHtml(env, candidate) {
       <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">${escapeHtml(devotion.title)}</h1>
       ${devotion.scripture ? `<p style="font-weight:700;color:#365e53;">${escapeHtml(devotion.scripture)}</p>` : ""}
       <div style="font-size:17px;line-height:1.65;">${paragraphs}</div>
-      ${devotion.prayer ? `<h2 style="font-size:20px;margin-top:28px;">Prayer</h2><p style="font-size:17px;line-height:1.65;">${escapeHtml(devotion.prayer)}</p>` : ""}
       <p style="margin-top:32px;"><a href="${escapeHtml(devotionUrl)}" style="color:#365e53;font-weight:700;">${escapeHtml(getFooterLinkText(candidate))}</a></p>
     </main>
   </body>
@@ -263,7 +338,6 @@ function renderDevotionText(env, candidate) {
     devotion.title,
     devotion.scripture,
     devotion.body,
-    devotion.prayer ? `Prayer\n${devotion.prayer}` : undefined,
     `${getFooterLinkText(candidate)}: ${devotionUrl}`
   ].filter(Boolean).join("\n\n");
 }
@@ -288,14 +362,15 @@ function summarizeCandidate(candidate, now, env) {
     scripture: candidate.devotion.scripture || null,
     url: getDevotionUrl(env, candidate),
     publishAt: publishAt.toISOString(),
-    due: now >= publishAt
+    due: now >= publishAt,
+    source: candidate.source
   };
 }
 
 function getPublishAt(candidate) {
   const configured = candidate.devotion.publishAt || candidate.devotion.releaseAt || candidate.devotion.liveAt;
   if (configured) return new Date(configured);
-  return localDateTimeToUtc(candidate.date, "07:00", "Europe/Dublin");
+  return localDateTimeToUtc(candidate.date, candidate.collection === "series" ? "19:00" : "07:00", "Europe/Dublin");
 }
 
 function isDue(candidate, now) {
@@ -343,6 +418,44 @@ function getSiteUrl(env) {
   return (env.SITE_URL || "https://dailydosedevotions.ie").replace(/\/$/, "");
 }
 
+function normalizeSitePath(href) {
+  return href.replace(/^https?:\/\/[^/]+\//, "").replace(/^\//, "").replace(/^\.\//, "").replace(/^\.\.\//, "");
+}
+
+function attr(html, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = html.match(new RegExp(`${escaped}=["']([^"']+)["']`, "i"));
+  return match ? decodeHtml(match[1]) : "";
+}
+
+function textBetween(html, startPattern, endPattern, keepHtml = false) {
+  const start = html.search(startPattern);
+  if (start < 0) return "";
+  const afterStart = html.slice(start).match(startPattern)[0].length + start;
+  const rest = html.slice(afterStart);
+  const end = rest.search(endPattern);
+  if (end < 0) return "";
+  const value = rest.slice(0, end);
+  return keepHtml ? value : stripTags(value);
+}
+
+function stripTags(value) {
+  return decodeHtml(value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
+}
+
+function decodeHtml(value) {
+  return value
+    .replaceAll("&nbsp;", " ")
+    .replaceAll("&middot;", "·")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#039;", "'")
+    .replaceAll("&apos;", "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+}
+
 function getLocalParts(timeZone, date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone,
@@ -372,12 +485,16 @@ function localDateTimeToUtc(date, time, timeZone) {
   return new Date(utcGuess.getTime() - offsetMinutes * 60 * 1000);
 }
 
+function isNotFound(error) {
+  return String(error && error.message ? error.message : error).includes("404");
+}
+
 function isEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function escapeHtml(value) {
-  return value
+  return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
