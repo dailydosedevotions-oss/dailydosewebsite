@@ -29,7 +29,7 @@
       <div class="container">
         <p class="eyebrow">Private Dashboard</p>
         <h1>PWA Stats</h1>
-        <p>Install and app-open signals for Daily Dose.</p>
+        <p>Install and app-open signals for Daily Dose. Button taps and background prompt activity are not shown here.</p>
       </div>
     </section>
 
@@ -45,28 +45,16 @@
 
           <div class="stats-grid" id="statsGrid" hidden>
             <article class="stat-card">
-              <span>Total events</span>
-              <strong data-stat="totalEvents">0</strong>
-            </article>
-            <article class="stat-card">
               <span>Likely app users</span>
               <strong data-stat="likely_app_users">0</strong>
             </article>
             <article class="stat-card">
-              <span>Install button taps</span>
-              <strong data-stat="install_button_tap">0</strong>
-            </article>
-            <article class="stat-card">
-              <span>Prompt accepted</span>
+              <span>Accepted installs</span>
               <strong data-stat="install_prompt_accepted">0</strong>
             </article>
             <article class="stat-card">
-              <span>Confirmed browser installs</span>
+              <span>Confirmed installs</span>
               <strong data-stat="app_installed">0</strong>
-            </article>
-            <article class="stat-card">
-              <span>iPhone home-screen taps</span>
-              <strong data-stat="ios_add_to_home_tap">0</strong>
             </article>
             <article class="stat-card">
               <span>App opens</span>
@@ -145,10 +133,9 @@
 
       const today = data.today || {};
       todayStats.textContent = [
-        `Total events today: ${today.totalEvents || 0}`,
         `likely app users: ${Math.max(today.first_standalone_open || 0, today.standalone_open ? 1 : 0)}`,
-        `confirmed browser installs: ${today.app_installed || 0}`,
-        `iPhone taps: ${today.ios_add_to_home_tap || 0}`,
+        `accepted installs: ${today.install_prompt_accepted || 0}`,
+        `confirmed installs: ${today.app_installed || 0}`,
         `app opens: ${today.standalone_open || 0}`
       ].join(' | ');
 
