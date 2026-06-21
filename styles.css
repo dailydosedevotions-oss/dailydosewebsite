@@ -81,9 +81,6 @@ small{color:#d9cbb8}
 .image-card:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,10,10,.6),transparent)}
 .checks{list-style:none;margin:30px 0;padding:0;display:grid;gap:12px;color:#efe4d5;font-size:15px}
 .checks li:before{content:"\2713";color:var(--primary);margin-right:12px}
-.start-strip{margin:0 0 56px;padding:26px 30px;border:1px solid rgba(198,160,90,.28);border-radius:10px;background:linear-gradient(135deg,rgba(198,160,90,.12),rgba(244,237,226,.035));display:flex;align-items:center;justify-content:space-between;gap:22px}
-.start-strip h2{font-size:clamp(25px,3vw,36px);line-height:1.18;color:#fff}
-.start-strip .eyebrow{margin-bottom:8px}
 .about-full{background:#0a0a0a}
 .about-full .container{border:1px solid rgba(198,160,90,.26);padding:50px;border-radius:10px;background:#11100e}
 .series-panel{max-width:780px;margin:0 auto;border:1px solid var(--border);border-radius:10px;padding:52px;text-align:center;background:linear-gradient(135deg,rgba(198,160,90,.08),rgba(255,255,255,.02))}
@@ -136,7 +133,6 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
   .nav-links{display:none}.menu-btn{display:block}
   .hero-grid,.split,.cards,.footer-grid,.prayer-wall-grid{grid-template-columns:1fr}
   .stats-token-row{grid-template-columns:1fr}
-  .start-strip{align-items:flex-start;flex-direction:column}
   .hero{padding-top:110px}
   .subscribe-card{margin-top:10px}
   .prayer-wall-head{align-items:flex-start;flex-direction:column}
