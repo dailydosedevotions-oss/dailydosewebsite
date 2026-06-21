@@ -9,6 +9,12 @@ const ALLOWED_EVENTS = new Set([
   "standalone_open"
 ]);
 
+const EMAIL_EVENTS = new Set([
+  "app_installed",
+  "install_prompt_accepted",
+  "ios_add_to_home_tap"
+]);
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -60,6 +66,7 @@ export async function onRequest(context) {
 
       const totals = await updateStats(store, "pwa-stats:totals", event, now, { page, platform, displayMode });
       await updateStats(store, dayKey(now), event, now, { page, platform, displayMode });
+      await sendInstallNotification(env, { event, now, page, platform, displayMode, totals }).catch(() => {});
 
       return json({ success: true, event, totals }, 200, corsHeaders);
     }
@@ -83,6 +90,58 @@ function canViewStats(request, env) {
   const headerToken = clean(request.headers.get("x-pwa-stats-token"));
 
   return queryToken === expectedToken || headerToken === expectedToken;
+}
+
+async function sendInstallNotification(env, details) {
+  if (!EMAIL_EVENTS.has(details.event)) return;
+  if (!env.BREVO_API_KEY || !env.NOTIFY_EMAIL) return;
+
+  const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
+  const senderName = env.SENDER_NAME || "Daily Dose Devotions";
+  const label = eventLabel(details.event);
+
+  await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": env.BREVO_API_KEY
+    },
+    body: JSON.stringify({
+      sender: {
+        name: senderName,
+        email: senderEmail
+      },
+      to: [
+        {
+          email: env.NOTIFY_EMAIL
+        }
+      ],
+      subject: `Daily Dose app activity - ${label}`,
+      textContent: [
+        `Daily Dose app activity: ${label}`,
+        "",
+        `Time: ${details.now.toISOString()}`,
+        `Page: ${details.page || "/"}`,
+        `Platform: ${details.platform || "unknown"}`,
+        `Display mode: ${details.displayMode || "unknown"}`,
+        "",
+        "Current totals:",
+        `Install prompt accepted: ${details.totals.install_prompt_accepted || 0}`,
+        `Confirmed app installed: ${details.totals.app_installed || 0}`,
+        `iPhone Add to Home Screen taps: ${details.totals.ios_add_to_home_tap || 0}`,
+        `Standalone app opens: ${details.totals.standalone_open || 0}`,
+        "",
+        "Note: iPhone Safari does not confirm the final Add to Home Screen action, so iPhone taps are install intent rather than a guaranteed install."
+      ].join("\n")
+    })
+  });
+}
+
+function eventLabel(event) {
+  if (event === "app_installed") return "confirmed app install";
+  if (event === "install_prompt_accepted") return "install prompt accepted";
+  if (event === "ios_add_to_home_tap") return "iPhone Add to Home Screen tapped";
+  return event;
 }
 
 async function updateStats(store, key, event, now, details) {

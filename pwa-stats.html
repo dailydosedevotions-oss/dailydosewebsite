@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Daily Dose" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>PWA Stats | Daily Dose</title>
+  <meta name="description" content="Private Daily Dose PWA install stats." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=warm-readable-4" />
+</head>
+<body>
+  <nav class="navbar scrolled">
+    <div class="nav-inner">
+      <a class="brand" href="/index.html#home">DAILY DOSE</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Private Dashboard</p>
+        <h1>PWA Stats</h1>
+        <p>Install and app-open signals for Daily Dose.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="stats-panel">
+          <div class="stats-token-row">
+            <label class="field-label" for="statsToken">Private token</label>
+            <input id="statsToken" type="password" autocomplete="off" placeholder="Paste your PWA stats token">
+            <button class="btn primary small" type="button" id="loadStats">Load Stats</button>
+          </div>
+          <p class="thanks-note" id="statsStatus">Your token stays in this browser only. Do not share it publicly.</p>
+
+          <div class="stats-grid" id="statsGrid" hidden>
+            <article class="stat-card">
+              <span>Total events</span>
+              <strong data-stat="totalEvents">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Install button taps</span>
+              <strong data-stat="install_button_tap">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Prompt accepted</span>
+              <strong data-stat="install_prompt_accepted">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Confirmed installs</span>
+              <strong data-stat="app_installed">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>iPhone home-screen taps</span>
+              <strong data-stat="ios_add_to_home_tap">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>App opens</span>
+              <strong data-stat="standalone_open">0</strong>
+            </article>
+          </div>
+
+          <div class="stats-detail" id="statsDetail" hidden>
+            <h3>Today</h3>
+            <p id="todayStats"></p>
+            <h3>Last activity</h3>
+            <p id="lastActivity"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tokenInput = document.getElementById('statsToken');
+    const loadButton = document.getElementById('loadStats');
+    const statusEl = document.getElementById('statsStatus');
+    const grid = document.getElementById('statsGrid');
+    const detail = document.getElementById('statsDetail');
+    const todayStats = document.getElementById('todayStats');
+    const lastActivity = document.getElementById('lastActivity');
+    const params = new URLSearchParams(window.location.search);
+    const queryToken = params.get('token');
+    const savedToken = localStorage.getItem('daily-dose-pwa-stats-token');
+
+    if (queryToken) {
+      localStorage.setItem('daily-dose-pwa-stats-token', queryToken);
+      tokenInput.value = queryToken;
+      history.replaceState(null, '', '/pwa-stats.html');
+    } else if (savedToken) {
+      tokenInput.value = savedToken;
+    }
+
+    loadButton.addEventListener('click', loadStats);
+    if (tokenInput.value) loadStats();
+
+    async function loadStats() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        statusEl.textContent = 'Paste your private token first.';
+        return;
+      }
+
+      localStorage.setItem('daily-dose-pwa-stats-token', token);
+      statusEl.textContent = 'Loading stats...';
+
+      try {
+        const response = await fetch('/api/pwa-stats', {
+          headers: { 'x-pwa-stats-token': token }
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Unable to load stats.');
+        }
+
+        renderStats(data);
+      } catch (error) {
+        grid.hidden = true;
+        detail.hidden = true;
+        statusEl.textContent = error.message || 'Unable to load stats.';
+      }
+    }
+
+    function renderStats(data) {
+      const totals = data.totals || {};
+      document.querySelectorAll('[data-stat]').forEach(el => {
+        el.textContent = totals[el.dataset.stat] || 0;
+      });
+
+      const today = data.today || {};
+      todayStats.textContent = [
+        `Total events today: ${today.totalEvents || 0}`,
+        `confirmed installs: ${today.app_installed || 0}`,
+        `iPhone taps: ${today.ios_add_to_home_tap || 0}`,
+        `app opens: ${today.standalone_open || 0}`
+      ].join(' | ');
+
+      const last = totals.lastEvent;
+      lastActivity.textContent = last
+        ? `${last.event} on ${last.platform || 'unknown'} from ${last.page || '/'} at ${new Date(last.at).toLocaleString()}`
+        : 'No activity recorded yet.';
+
+      grid.hidden = false;
+      detail.hidden = false;
+      statusEl.textContent = data.note || 'Stats loaded.';
+    }
+  </script>
+  <script src="/pwa.js?v=pwa-3"></script>
+</body>
+</html>

@@ -9,4 +9,8 @@ Set a Cloudflare Pages environment variable named `PWA_STATS_TOKEN`, then view s
 
 `https://dailydosedevotions.ie/api/pwa-stats?token=YOUR_PRIVATE_TOKEN`
 
+Or use the private dashboard:
+
+`https://dailydosedevotions.ie/pwa-stats.html?token=YOUR_PRIVATE_TOKEN`
+
 Do not share that token publicly.
