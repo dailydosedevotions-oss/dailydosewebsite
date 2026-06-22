@@ -66,7 +66,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   const body = document.querySelector('.devotion-body');
   if (!body) return;
 
-  const inlineScriptureStyle = 'color:#8a6423;font-weight:800;font-style:italic;background:transparent;border:0;padding:0;border-radius:0;box-shadow:inset 0 -0.14em rgba(198,160,90,.18);';
+  const inlineScriptureStyle = 'color:#a46200;font-weight:850;font-style:italic;background:transparent;border:0;padding:0;border-radius:0;text-decoration:underline;text-decoration-color:#e3ae35;text-decoration-thickness:2px;text-underline-offset:4px;';
 
   body.querySelectorAll('blockquote').forEach(blockquote => {
     blockquote.classList.add('scripture-quote-block');
