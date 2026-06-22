@@ -66,6 +66,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   const body = document.querySelector('.devotion-body');
   if (!body) return;
 
+  const inlineScriptureStyle = 'background:linear-gradient(180deg,#f4dfad,#e6c478);color:#21180b;border:1px solid #c49a43;border-radius:8px;padding:2px 6px;font-weight:700;box-decoration-break:clone;-webkit-box-decoration-break:clone;';
+
   body.querySelectorAll('blockquote').forEach(blockquote => {
     blockquote.classList.add('scripture-quote-block');
   });
@@ -117,6 +119,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
         const span = document.createElement('span');
         span.className = 'scripture-inline';
+        span.setAttribute('style', inlineScriptureStyle);
         span.textContent = match[0];
         fragment.appendChild(span);
         lastIndex = match.index + match[0].length;
