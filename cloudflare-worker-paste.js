@@ -202,6 +202,7 @@ async function loadJsonDevotionCandidate(env, collection, date) {
 
   try {
     const devotion = await getJsonFromGitHub(env, path);
+    normalizeDevotion(devotion);
     return { collection, date, path, devotion, source: "json" };
   } catch (error) {
     if (isNotFound(error)) return null;
@@ -222,6 +223,7 @@ async function loadWebsiteDevotionCandidate(env, collection, date) {
 
   if (!devotion.publishAt && card.publishAt) devotion.publishAt = card.publishAt;
   if (!devotion.url) devotion.url = `${getSiteUrl(env)}/${pagePath}`;
+  normalizeDevotion(devotion);
 
   return { collection, date, path: pagePath, devotion, source: "website" };
 }
@@ -332,20 +334,51 @@ async function sendDevotionCampaign(env, candidate) {
 }
 
 function renderDevotionHtml(env, candidate) {
-  const { devotion, date } = candidate;
+  const { devotion, date, collection } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
-  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p>${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
+  const label = collection === "series" ? "Daily Dose Series" : "Daily Dose Devotions";
+  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 18px;">${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
 
   return `<!doctype html>
 <html>
-  <body style="margin:0;background:#f7f4ef;color:#202124;font-family:Arial,sans-serif;">
-    <main style="max-width:640px;margin:0 auto;padding:32px 20px;background:#ffffff;">
-      <p style="margin:0 0 8px;color:#6b6258;font-size:14px;">Daily Dose Devotions - ${escapeHtml(date)}</p>
-      <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">${escapeHtml(devotion.title)}</h1>
-      ${devotion.scripture ? `<p style="font-weight:700;color:#365e53;">${escapeHtml(devotion.scripture)}</p>` : ""}
-      <div style="font-size:17px;line-height:1.65;">${paragraphs}</div>
-      <p style="margin-top:32px;"><a href="${escapeHtml(devotionUrl)}" style="color:#365e53;font-weight:700;">${escapeHtml(getFooterLinkText(candidate))}</a></p>
-    </main>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${escapeHtml(devotion.title)}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f3efe7;color:#1f2522;font-family:Georgia,'Times New Roman',serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3efe7;margin:0;padding:28px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#fffaf3;border:1px solid #dfd5c6;border-radius:6px;overflow:hidden;">
+            <tr>
+              <td style="background:#263f36;padding:22px 26px;text-align:center;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#d8c4a1;font-weight:700;">${escapeHtml(label)}</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;color:#f7efe2;margin-top:8px;">${escapeHtml(formatEmailDate(date))}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:34px 28px 10px;">
+                <h1 style="margin:0;color:#1f2522;font-size:30px;line-height:1.2;font-weight:700;text-align:center;">${escapeHtml(devotion.title)}</h1>
+                ${devotion.scripture ? `<p style="margin:18px auto 0;max-width:520px;text-align:center;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;letter-spacing:.4px;color:#2f5c50;font-weight:700;text-transform:uppercase;">${escapeHtml(devotion.scripture)}</p>` : ""}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 30px 12px;">
+                <div style="height:1px;background:#e3d8c8;margin:0 auto 26px;width:100%;max-width:520px;"></div>
+                <div style="font-size:18px;line-height:1.72;color:#2d312f;">${paragraphs}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 30px 34px;text-align:center;">
+                <a href="${escapeHtml(devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:13px 20px;border-radius:4px;">${escapeHtml(getFooterLinkText(candidate))}</a>
+                <p style="margin:20px 0 0;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#7b7166;">Daily Dose Devotions</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>`;
 }
@@ -354,7 +387,7 @@ function renderDevotionText(env, candidate) {
   const { devotion, date } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
 
-  return [`Daily Dose Devotions - ${date}`, devotion.title, devotion.scripture, devotion.body, `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
+  return [`Daily Dose Devotions - ${formatEmailDate(date)}`, devotion.title, devotion.scripture, devotion.body, `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
 }
 
 function getDevotionUrl(env, candidate) {
@@ -423,6 +456,13 @@ function normalizeSitePath(href) {
   return href.replace(/^https?:\/\/[^/]+\//, "").replace(/^\//, "").replace(/^\.\//, "").replace(/^\.\.\//, "");
 }
 
+function normalizeDevotion(devotion) {
+  devotion.title = normalizeEmailText(devotion.title);
+  devotion.emailSubject = devotion.emailSubject ? normalizeEmailText(devotion.emailSubject) : undefined;
+  devotion.scripture = devotion.scripture ? normalizeEmailText(devotion.scripture) : undefined;
+  devotion.body = normalizeEmailText(devotion.body);
+}
+
 function attr(html, name) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const match = html.match(new RegExp(`${escaped}=["']([^"']+)["']`, "i"));
@@ -445,23 +485,46 @@ function stripTags(value) {
 }
 
 function decodeHtml(value) {
-  return value
+  return normalizeEmailText(value)
     .replaceAll("&nbsp;", " ")
-    .replaceAll("&middot;", "\u00b7")
+    .replaceAll("&middot;", "-")
     .replaceAll("&amp;", "&")
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
     .replaceAll("&quot;", '"')
-    .replaceAll("&ldquo;", "\u201c")
-    .replaceAll("&rdquo;", "\u201d")
-    .replaceAll("&lsquo;", "\u2018")
-    .replaceAll("&rsquo;", "\u2019")
-    .replaceAll("&ndash;", "\u2013")
-    .replaceAll("&mdash;", "\u2014")
+    .replaceAll("&ldquo;", '"')
+    .replaceAll("&rdquo;", '"')
+    .replaceAll("&lsquo;", "'")
+    .replaceAll("&rsquo;", "'")
+    .replaceAll("&ndash;", "-")
+    .replaceAll("&mdash;", "-")
     .replaceAll("&#039;", "'")
     .replaceAll("&apos;", "'")
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => normalizeEmailText(String.fromCharCode(parseInt(code, 16))))
+    .replace(/&#(\d+);/g, (_, code) => normalizeEmailText(String.fromCharCode(Number(code))));
+}
+
+function normalizeEmailText(value) {
+  return String(value || "")
+    .replaceAll("\u2018", "'")
+    .replaceAll("\u2019", "'")
+    .replaceAll("\u201c", '"')
+    .replaceAll("\u201d", '"')
+    .replaceAll("\u2013", "-")
+    .replaceAll("\u2014", "-")
+    .replaceAll("\u00a0", " ")
+    .replaceAll("\u00e2\u0080\u0098", "'")
+    .replaceAll("\u00e2\u0080\u0099", "'")
+    .replaceAll("\u00e2\u0080\u009c", '"')
+    .replaceAll("\u00e2\u0080\u009d", '"')
+    .replaceAll("\u00e2\u0080\u0093", "-")
+    .replaceAll("\u00e2\u0080\u0094", "-");
+}
+
+function formatEmailDate(date) {
+  const parsed = new Date(`${date}T12:00:00Z`);
+  if (!Number.isFinite(parsed.getTime())) return date;
+  return new Intl.DateTimeFormat("en-IE", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(parsed);
 }
 
 function getLocalParts(timeZone, date) {
@@ -494,6 +557,6 @@ function escapeHtml(value) {
 function json(data, status = 200) {
   return new Response(data === null ? null : JSON.stringify(data, null, 2), {
     status,
-    headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type", "content-type": "application/json" }
+    headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type", "content-type": "application/json; charset=utf-8" }
   });
 }
