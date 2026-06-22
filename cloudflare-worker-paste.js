@@ -5,6 +5,7 @@ export default {
     try {
       if (request.method === "OPTIONS") return json(null, 204);
       if (url.pathname === "/check") return checkToday(env);
+      if (url.pathname === "/preview-email") return previewEmail(env);
       if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
       if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
@@ -44,6 +45,7 @@ export default {
         ok: true,
         message: "Daily Dose Auto Email Worker is live",
         check: "/check",
+        previewEmail: "/preview-email",
         sendTodayOnly: "/send-daily-now?confirm=SEND",
         sendSeriesOnly: "/send-series-now?confirm=SEND",
         sendAllDue: "/send-due-now?confirm=SEND"
@@ -71,6 +73,22 @@ async function checkToday(env) {
     latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now, env),
     latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now, env),
     note: "Scheduled sends only happen at local 7am for daily devotions and local 7pm for series devotions."
+  });
+}
+
+async function previewEmail(env) {
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
+  const candidate = await loadDevotionCandidate(env, "daily", local.date) || await loadDevotionCandidate(env, "series", local.date);
+
+  if (!candidate) {
+    return new Response("No devotion found for today's preview.", {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8" }
+    });
+  }
+
+  return new Response(renderDevotionHtml(env, candidate), {
+    headers: { "content-type": "text/html; charset=utf-8" }
   });
 }
 
@@ -337,7 +355,8 @@ function renderDevotionHtml(env, candidate) {
   const { devotion, date, collection } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
   const label = collection === "series" ? "Daily Dose Series" : "Daily Dose Devotions";
-  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 18px;">${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
+  const intro = collection === "series" ? "A Sunday formation reflection from Daily Dose." : "Your daily devotion, sent with prayer and purpose.";
+  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 20px;">${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
 
   return `<!doctype html>
 <html>
@@ -346,33 +365,47 @@ function renderDevotionHtml(env, candidate) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(devotion.title)}</title>
   </head>
-  <body style="margin:0;padding:0;background:#f3efe7;color:#1f2522;font-family:Georgia,'Times New Roman',serif;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3efe7;margin:0;padding:28px 12px;">
+  <body style="margin:0;padding:0;background:#ede7dc;color:#222824;font-family:Georgia,'Times New Roman',serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ede7dc;margin:0;padding:30px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#fffaf3;border:1px solid #dfd5c6;border-radius:6px;overflow:hidden;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fffaf1;border:1px solid #d8cbb8;border-radius:8px;overflow:hidden;box-shadow:0 10px 28px rgba(38,63,54,.10);">
             <tr>
-              <td style="background:#263f36;padding:22px 26px;text-align:center;">
-                <div style="font-family:Arial,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#d8c4a1;font-weight:700;">${escapeHtml(label)}</div>
-                <div style="font-family:Arial,sans-serif;font-size:13px;color:#f7efe2;margin-top:8px;">${escapeHtml(formatEmailDate(date))}</div>
+              <td style="background:#233d34;padding:28px 28px 24px;text-align:center;border-bottom:5px solid #c8a968;">
+                <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d9c28f;font-weight:700;">${escapeHtml(label)}</div>
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1;color:#fffaf1;font-weight:700;margin-top:10px;">Daily Dose</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#efe4d1;margin-top:10px;">${escapeHtml(formatEmailDate(date))}</div>
               </td>
             </tr>
             <tr>
-              <td style="padding:34px 28px 10px;">
-                <h1 style="margin:0;color:#1f2522;font-size:30px;line-height:1.2;font-weight:700;text-align:center;">${escapeHtml(devotion.title)}</h1>
-                ${devotion.scripture ? `<p style="margin:18px auto 0;max-width:520px;text-align:center;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;letter-spacing:.4px;color:#2f5c50;font-weight:700;text-transform:uppercase;">${escapeHtml(devotion.scripture)}</p>` : ""}
+              <td style="padding:32px 30px 8px;text-align:center;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#6f6253;text-transform:uppercase;letter-spacing:1.8px;font-weight:700;">${escapeHtml(intro)}</div>
+                <h1 style="margin:16px 0 0;color:#202620;font-size:32px;line-height:1.18;font-weight:700;">${escapeHtml(devotion.title)}</h1>
+              </td>
+            </tr>
+            ${devotion.scripture ? `<tr>
+              <td style="padding:20px 30px 6px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f0eadf;border-left:4px solid #c8a968;border-radius:4px;">
+                  <tr>
+                    <td style="padding:18px 20px;text-align:center;">
+                      <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6f6253;font-weight:700;margin-bottom:6px;">Today's Scripture</div>
+                      <div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#2d5a4e;font-weight:700;">${escapeHtml(devotion.scripture)}</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>` : ""}
+            <tr>
+              <td style="padding:24px 32px 10px;">
+                <div style="height:1px;background:#ded2c0;margin:0 auto 28px;width:100%;"></div>
+                <div style="font-size:18px;line-height:1.78;color:#2c302d;">${paragraphs}</div>
               </td>
             </tr>
             <tr>
-              <td style="padding:18px 30px 12px;">
-                <div style="height:1px;background:#e3d8c8;margin:0 auto 26px;width:100%;max-width:520px;"></div>
-                <div style="font-size:18px;line-height:1.72;color:#2d312f;">${paragraphs}</div>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:8px 30px 34px;text-align:center;">
-                <a href="${escapeHtml(devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:13px 20px;border-radius:4px;">${escapeHtml(getFooterLinkText(candidate))}</a>
-                <p style="margin:20px 0 0;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#7b7166;">Daily Dose Devotions</p>
+              <td style="padding:10px 32px 38px;text-align:center;">
+                <a href="${escapeHtml(devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">${escapeHtml(getFooterLinkText(candidate))}</a>
+                <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
+                <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
               </td>
             </tr>
           </table>
