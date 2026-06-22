@@ -452,8 +452,15 @@ function decodeHtml(value) {
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
     .replaceAll("&quot;", '"')
+    .replaceAll("&ldquo;", "\u201c")
+    .replaceAll("&rdquo;", "\u201d")
+    .replaceAll("&lsquo;", "\u2018")
+    .replaceAll("&rsquo;", "\u2019")
+    .replaceAll("&ndash;", "\u2013")
+    .replaceAll("&mdash;", "\u2014")
     .replaceAll("&#039;", "'")
     .replaceAll("&apos;", "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
 }
 
