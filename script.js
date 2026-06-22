@@ -61,6 +61,75 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
+// Scripture highlighting: makes quoted Bible text stand out across current and future devotion pages.
+(function () {
+  const body = document.querySelector('.devotion-body');
+  if (!body) return;
+
+  body.querySelectorAll('blockquote').forEach(blockquote => {
+    blockquote.classList.add('scripture-quote-block');
+  });
+
+  const bibleBooks = [
+    'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
+    'Samuel', 'Kings', 'Chronicles', 'Ezra', 'Nehemiah', 'Esther', 'Job', 'Psalm', 'Psalms',
+    'Proverbs', 'Ecclesiastes', 'Song of Solomon', 'Isaiah', 'Jeremiah', 'Lamentations',
+    'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum',
+    'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew', 'Mark', 'Luke',
+    'John', 'Acts', 'Romans', 'Corinthians', 'Galatians', 'Ephesians', 'Philippians',
+    'Colossians', 'Thessalonians', 'Timothy', 'Titus', 'Philemon', 'Hebrews', 'James',
+    'Peter', 'Jude', 'Revelation'
+  ];
+  const bookPattern = bibleBooks.join('|');
+  const referencePattern = new RegExp('\\b(?:[1-3]\\s*)?(?:' + bookPattern + ')\\s+\\d{1,3}:\\d{1,3}(?:[-–]\\d{1,3})?(?:\\s*\\([A-Z0-9]+\\))?', 'i');
+  const scriptureCuePattern = /\b(?:Scripture|the Bible|Jesus|God|the Lord|Paul|John|Matthew|Mark|Luke|Peter|James)\s+(?:says|said|warns|writes|declares|calls|called|asks|asked|teaches|tells)\b/i;
+
+  body.querySelectorAll('p').forEach(paragraph => {
+    if (paragraph.querySelector('.scripture-inline')) return;
+
+    const text = paragraph.textContent || '';
+    if (!referencePattern.test(text) && !scriptureCuePattern.test(text)) return;
+
+    highlightQuotedText(paragraph);
+  });
+
+  function highlightQuotedText(element) {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue || !/["\u201c]/.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+        if (node.parentElement?.closest('.scripture-inline')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const fragment = document.createDocumentFragment();
+      const text = node.nodeValue;
+      const quotePattern = /(["\u201c])([^"\u201d]{4,240})(["\u201d])/g;
+      let lastIndex = 0;
+      let match;
+      let changed = false;
+
+      while ((match = quotePattern.exec(text))) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        const span = document.createElement('span');
+        span.className = 'scripture-inline';
+        span.textContent = match[0];
+        fragment.appendChild(span);
+        lastIndex = match.index + match[0].length;
+        changed = true;
+      }
+
+      if (!changed) return;
+      fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+      node.parentNode.replaceChild(fragment, node);
+    });
+  }
+})();
+
 
 // Subscribe form: sends new subscribers to Brevo through Cloudflare Pages Functions.
 (function () {
