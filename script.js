@@ -61,6 +61,23 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
+// Subscribe landing share helper.
+(function () {
+  const copyBtn = document.querySelector('.copy-subscribe-link');
+  const status = document.getElementById('subscribeCopyStatus');
+  if (!copyBtn) return;
+
+  copyBtn.addEventListener('click', async () => {
+    const url = 'https://dailydosedevotions.ie/subscribe.html';
+    try {
+      await navigator.clipboard.writeText(url);
+      if (status) status.textContent = 'Subscribe link copied.';
+    } catch {
+      if (status) status.textContent = url;
+    }
+  });
+})();
+
 // Scripture highlighting: makes quoted Bible text stand out across current and future devotion pages.
 (function () {
   const body = document.querySelector('.devotion-body');

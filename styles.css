@@ -208,3 +208,19 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
   color: #c6a05a;
   font-weight: 600;
 }
+
+/* Subscribe landing page */
+.subscribe-landing{min-height:100vh;padding:150px 0 90px;background:radial-gradient(circle at 18% 16%,rgba(198,160,90,.18),transparent 32%),linear-gradient(135deg,#090807 0%,#11100e 52%,#080706 100%);display:flex;align-items:center;border-bottom:1px solid var(--border)}
+.subscribe-landing-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center}
+.subscribe-landing-copy h1{font-size:clamp(44px,7vw,78px);line-height:1.02;margin-bottom:26px}
+.subscribe-landing-copy p:not(.eyebrow){max-width:620px;color:#f1e8dc;font-size:18px;margin:0 0 28px}
+.subscribe-points{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0}
+.subscribe-points span,.social-strip a{border:1px solid rgba(198,160,90,.28);background:rgba(198,160,90,.08);color:#f4ead4;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:700}
+.social-strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.social-strip a{transition:.25s}
+.social-strip a:hover{transform:translateY(-2px);border-color:rgba(198,160,90,.7);background:rgba(198,160,90,.15)}
+.subscribe-page-card{max-width:520px;margin-left:auto;background:rgba(17,16,14,.96)}
+.share-invite-section{text-align:center;background:#0d0c0b}
+.share-invite-section h2{font-size:clamp(34px,5vw,52px);margin:0 0 12px}
+.share-invite-copy{color:#f1e8dc;font-size:17px;margin:0 auto 28px;max-width:620px}
+@media(max-width:900px){.subscribe-landing{padding:130px 0 70px}.subscribe-landing-grid{grid-template-columns:1fr;gap:34px}.subscribe-page-card{max-width:none;margin-left:0}}
