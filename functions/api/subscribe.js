@@ -83,6 +83,10 @@ async function sendWelcomeEmail(env, apiKey, subscriber) {
 }
 
 function renderWelcomeHtml({ greeting, siteUrl }) {
+  const devotionsUrl = `${siteUrl}/devotions.html`;
+  const seriesUrl = `${siteUrl}/series.html`;
+  const prayerUrl = `${siteUrl}/#prayer`;
+
   return `<!doctype html>
 <html>
   <head>
@@ -121,7 +125,7 @@ function renderWelcomeHtml({ greeting, siteUrl }) {
               </td>
             </tr>
             <tr>
-              <td style="padding:26px 34px 10px;">
+              <td style="padding:26px 34px 8px;">
                 <div style="height:1px;background:#ded2c0;margin:0 auto 28px;width:100%;"></div>
                 <div style="font-size:18px;line-height:1.78;color:#2c302d;">
                   <p style="margin:0 0 20px;">${escapeHtml(greeting)}</p>
@@ -132,8 +136,38 @@ function renderWelcomeHtml({ greeting, siteUrl }) {
               </td>
             </tr>
             <tr>
-              <td style="padding:10px 32px 38px;text-align:center;">
-                <a href="${escapeHtml(siteUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">Open Daily Dose Devotions</a>
+              <td style="padding:8px 32px 4px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 12px;">
+                  <tr>
+                    <td style="background:#ffffff;border:1px solid #ded2c0;border-radius:6px;padding:18px 18px;">
+                      <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#9a7832;font-weight:800;margin-bottom:7px;">Install the app</div>
+                      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#3b403c;">You can add Daily Dose to your phone home screen like an app. Open the website on your phone and look for <strong>Install App</strong>, or use your browser menu and choose <strong>Add to Home Screen</strong>.</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background:#ffffff;border:1px solid #ded2c0;border-radius:6px;padding:18px 18px;">
+                      <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#9a7832;font-weight:800;margin-bottom:7px;">The Sanctuary Prayer Wall</div>
+                      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#3b403c;">If you are carrying something, you can send a prayer request privately or share one for the prayer wall. You do not have to carry it alone.</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background:#ffffff;border:1px solid #ded2c0;border-radius:6px;padding:18px 18px;">
+                      <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#9a7832;font-weight:800;margin-bottom:7px;">Read anytime</div>
+                      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#3b403c;">You can catch up on past Daily Dose devotions, explore series reflections, and return whenever you need encouragement.</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:14px 32px 38px;text-align:center;">
+                <a href="${escapeHtml(devotionsUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;margin:0 4px 10px;">Read Devotions</a>
+                <a href="${escapeHtml(prayerUrl)}" style="display:inline-block;background:#c8a968;color:#202620;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;margin:0 4px 10px;">Prayer Wall</a>
+                <div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.8;color:#6f6253;margin-top:4px;">
+                  <a href="${escapeHtml(seriesUrl)}" style="color:#2f5c50;font-weight:700;text-decoration:none;">Explore Series</a>
+                  <span style="color:#b8aa98;"> | </span>
+                  <a href="${escapeHtml(siteUrl)}" style="color:#2f5c50;font-weight:700;text-decoration:none;">Open Website</a>
+                </div>
                 <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
                 <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
               </td>
@@ -153,7 +187,10 @@ function renderWelcomeText({ greeting, siteUrl }) {
     'Thank you for subscribing to Daily Dose Devotions. I am so glad you are here.',
     'Daily devotions are sent at 7am, and series reflections are sent whenever a series is running.',
     'From the next release, you will receive the devotion straight in your inbox when it goes live.',
-    `Open Daily Dose Devotions: ${siteUrl}`
+    'You can add Daily Dose to your phone home screen like an app. Open the website on your phone and look for Install App, or use your browser menu and choose Add to Home Screen.',
+    `Prayer wall: ${siteUrl}/#prayer`,
+    `Read devotions: ${siteUrl}/devotions.html`,
+    `Explore series: ${siteUrl}/series.html`
   ].join('\n\n');
 }
 
