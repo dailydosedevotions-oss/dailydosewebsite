@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /prayer-admin.html
+Disallow: /pwa-stats.html
+
+Sitemap: https://dailydosedevotions.ie/sitemap.xml
