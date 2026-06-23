@@ -329,17 +329,50 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       <p class="eyebrow">Share</p>
       <h3>${label}</h3>
       <div class="share-buttons">
+        <button class="share-btn native-share" type="button">Share</button>
+        <button class="share-btn instagram-share" type="button">Instagram / Stories</button>
         <a class="share-btn" href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank" rel="noopener">WhatsApp</a>
         <a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noopener">Facebook</a>
         <a class="share-btn" href="mailto:?subject=${encodedSubject}&body=${encodedBody}">Email</a>
         <button class="share-btn copy-share" type="button">Copy Link</button>
       </div>
-      <p class="share-note">For Instagram or TikTok, tap Copy Link and paste it into your story, caption, bio, or status.</p>
+      <p class="share-note">For Instagram Stories, tap Instagram / Stories on your phone. If Instagram does not appear, copy the link and add it manually.</p>
       <p class="copy-status" aria-live="polite"></p>
     `;
 
+    const nativeBtn = wrapper.querySelector('.native-share');
+    const instagramBtn = wrapper.querySelector('.instagram-share');
     const copyBtn = wrapper.querySelector('.copy-share');
     const copyStatus = wrapper.querySelector('.copy-status');
+
+    async function nativeShare(intent) {
+      const shareData = {
+        title,
+        text: `I wanted to share this from Daily Dose Devotions:\n\n${title}`,
+        url
+      };
+
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          copyStatus.textContent = intent === 'instagram'
+            ? 'Share opened. Choose Instagram or Stories if it appears.'
+            : 'Share opened.';
+        } else {
+          await navigator.clipboard.writeText(url);
+          copyStatus.textContent = 'Link copied. Open Instagram and paste it into your story.';
+        }
+      } catch {
+        copyStatus.textContent = 'Share cancelled. Link copied if you need it.';
+        try {
+          await navigator.clipboard.writeText(url);
+        } catch {}
+      }
+    }
+
+    nativeBtn?.addEventListener('click', () => nativeShare('native'));
+    instagramBtn?.addEventListener('click', () => nativeShare('instagram'));
+
     copyBtn?.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(url);
