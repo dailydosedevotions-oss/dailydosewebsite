@@ -232,17 +232,17 @@
   function getVerseTheme(verse) {
     const combined = `${verse.reference || ""} ${verse.text || ""}`.toLowerCase();
     const themes = [
-      { keys: ["light", "darkness", "lamp"], name: "light", colors: ["#080706", "#2d2412", "#c6a05a"], symbol: "LIGHT" },
-      { keys: ["water", "thirst", "river", "stream"], name: "water", colors: ["#071011", "#153a3b", "#c6a05a"], symbol: "LIVING WATER" },
-      { keys: ["rest", "peace", "still"], name: "rest", colors: ["#0b0b0a", "#273322", "#d7bc7a"], symbol: "PEACE" },
-      { keys: ["shepherd", "lead", "path"], name: "path", colors: ["#090807", "#2f2717", "#d9b66c"], symbol: "THE WAY" },
-      { keys: ["cross", "jesus", "christ"], name: "cross", colors: ["#070605", "#241916", "#c6a05a"], symbol: "CHRIST" },
-      { keys: ["strength", "weak", "fear", "courage"], name: "strength", colors: ["#090909", "#352118", "#e0bd73"], symbol: "STRENGTH" },
-      { keys: ["love", "heart", "grace"], name: "grace", colors: ["#100908", "#33201e", "#e2ba70"], symbol: "GRACE" }
+      { keys: ["light", "darkness", "lamp"], label: "Light for today", accent: "#d7b56d" },
+      { keys: ["water", "thirst", "river", "stream"], label: "Living water", accent: "#c9b072" },
+      { keys: ["rest", "peace", "still"], label: "Rest in Him", accent: "#d9c486" },
+      { keys: ["shepherd", "lead", "path"], label: "Led by grace", accent: "#d3ad63" },
+      { keys: ["cross", "jesus", "christ"], label: "Christ at the centre", accent: "#d6b166" },
+      { keys: ["strength", "weak", "fear", "courage"], label: "Strength for today", accent: "#e0bd73" },
+      { keys: ["love", "heart", "grace"], label: "Held by grace", accent: "#dcb871" }
     ];
 
     return themes.find(theme => theme.keys.some(key => combined.includes(key)))
-      || { name: "daily-dose", colors: ["#080706", "#17120c", "#c6a05a"], symbol: "DAILY DOSE" };
+      || { label: "Scripture for today", accent: "#d3ad63" };
   }
 
   function wrapCanvasText(ctx, text, maxWidth) {
@@ -270,88 +270,119 @@
     canvas.height = 1920;
     const ctx = canvas.getContext("2d");
     const theme = getVerseTheme(verse);
-    const [dark, mid, gold] = theme.colors;
 
+    const gold = theme.accent;
     const bg = ctx.createLinearGradient(0, 0, 1080, 1920);
-    bg.addColorStop(0, dark);
-    bg.addColorStop(0.55, mid);
-    bg.addColorStop(1, "#070606");
+    bg.addColorStop(0, "#17120c");
+    bg.addColorStop(0.45, "#0d0c0a");
+    bg.addColorStop(1, "#080706");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1080, 1920);
 
-    for (let i = 0; i < 9; i += 1) {
-      const x = 120 + i * 120;
-      const glow = ctx.createRadialGradient(x, 420 + i * 75, 0, x, 420 + i * 75, 360);
-      glow.addColorStop(0, "rgba(198,160,90,.16)");
-      glow.addColorStop(1, "rgba(198,160,90,0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(x, 420 + i * 75, 360, 0, Math.PI * 2);
-      ctx.fill();
+    const topLight = ctx.createRadialGradient(230, 120, 0, 230, 120, 760);
+    topLight.addColorStop(0, "rgba(211,173,99,.34)");
+    topLight.addColorStop(0.42, "rgba(211,173,99,.10)");
+    topLight.addColorStop(1, "rgba(211,173,99,0)");
+    ctx.fillStyle = topLight;
+    ctx.fillRect(0, 0, 1080, 1000);
+
+    const lowerWarmth = ctx.createRadialGradient(900, 1680, 0, 900, 1680, 620);
+    lowerWarmth.addColorStop(0, "rgba(255,244,220,.12)");
+    lowerWarmth.addColorStop(1, "rgba(255,244,220,0)");
+    ctx.fillStyle = lowerWarmth;
+    ctx.fillRect(0, 980, 1080, 940);
+
+    ctx.fillStyle = "rgba(255,255,255,.018)";
+    for (let x = -80; x < 1160; x += 54) {
+      ctx.fillRect(x, 0, 1, 1920);
+    }
+    for (let yLine = -40; yLine < 1960; yLine += 54) {
+      ctx.fillRect(0, yLine, 1080, 1);
     }
 
-    ctx.strokeStyle = "rgba(198,160,90,.55)";
-    ctx.lineWidth = 3;
-    ctx.strokeRect(70, 70, 940, 1780);
-    ctx.strokeStyle = "rgba(255,255,255,.10)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(98, 98, 884, 1724);
-
-    ctx.fillStyle = "rgba(198,160,90,.13)";
-    ctx.beginPath();
-    ctx.arc(540, 260, 108, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,248,236,.945)";
+    roundRect(ctx, 90, 250, 900, 1250, 54);
     ctx.fill();
-    ctx.strokeStyle = "rgba(198,160,90,.45)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(540, 190);
-    ctx.lineTo(540, 330);
-    ctx.moveTo(485, 245);
-    ctx.lineTo(595, 245);
+
+    ctx.strokeStyle = "rgba(211,173,99,.72)";
+    ctx.lineWidth = 4;
+    roundRect(ctx, 116, 276, 848, 1198, 40);
     ctx.stroke();
 
-    ctx.fillStyle = gold;
-    ctx.font = "700 34px Inter, Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.letterSpacing = "4px";
-    ctx.fillText("VERSE OF THE DAY", 540, 450);
+    ctx.fillStyle = "rgba(211,173,99,.10)";
+    roundRect(ctx, 150, 318, 780, 92, 46);
+    ctx.fill();
 
-    ctx.fillStyle = "#fff8ec";
+    ctx.fillStyle = "#6e5422";
+    ctx.font = "700 28px Inter, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("VERSE OF THE DAY", 540, 374);
+
+    ctx.fillStyle = "#17120c";
     ctx.font = "700 74px Georgia, 'Times New Roman', serif";
-    const referenceLines = wrapCanvasText(ctx, verse.reference, 820);
-    let y = 560;
+    const referenceLines = wrapCanvasText(ctx, verse.reference, 760);
+    let y = 535;
     referenceLines.slice(0, 2).forEach(line => {
       ctx.fillText(line, 540, y);
-      y += 86;
+      y += 82;
     });
 
-    ctx.fillStyle = "#f5ead7";
-    ctx.font = "italic 52px Georgia, 'Times New Roman', serif";
+    ctx.strokeStyle = "rgba(211,173,99,.55)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(350, y + 22);
+    ctx.lineTo(730, y + 22);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(110,84,34,.18)";
+    ctx.font = "700 120px Georgia, 'Times New Roman', serif";
+    ctx.fillText("“", 190, y + 150);
+
+    ctx.fillStyle = "#2a2117";
+    ctx.font = "italic 50px Georgia, 'Times New Roman', serif";
     const verseLines = wrapCanvasText(ctx, `“${verse.text}”`, 820);
     const limitedLines = verseLines.slice(0, 10);
-    y = 800;
+    y += 185;
     limitedLines.forEach(line => {
       ctx.fillText(line, 540, y);
-      y += 76;
+      y += 70;
     });
 
     if (verseLines.length > limitedLines.length) {
       ctx.fillText("...", 540, y + 20);
     }
 
-    ctx.fillStyle = "rgba(198,160,90,.88)";
-    ctx.font = "700 28px Inter, Arial, sans-serif";
-    ctx.fillText(theme.symbol, 540, 1588);
+    ctx.fillStyle = "rgba(110,84,34,.72)";
+    ctx.font = "600 26px Inter, Arial, sans-serif";
+    ctx.fillText(theme.label.toUpperCase(), 540, 1358);
+
+    ctx.fillStyle = "rgba(211,173,99,.95)";
+    roundRect(ctx, 330, 1556, 420, 4, 2);
+    ctx.fill();
 
     ctx.fillStyle = "#fff8ec";
-    ctx.font = "700 42px Inter, Arial, sans-serif";
-    ctx.fillText("DAILY DOSE DEVOTIONS", 540, 1688);
+    ctx.font = "700 44px Inter, Arial, sans-serif";
+    ctx.fillText("DAILY DOSE", 540, 1648);
     ctx.fillStyle = "rgba(245,234,215,.72)";
-    ctx.font = "400 28px Inter, Arial, sans-serif";
-    ctx.fillText("dailydosedevotions.ie", 540, 1738);
+    ctx.font = "400 27px Inter, Arial, sans-serif";
+    ctx.fillText("Scripture • Reflection • Real Life", 540, 1702);
+    ctx.fillStyle = "rgba(245,234,215,.58)";
+    ctx.font = "400 25px Inter, Arial, sans-serif";
+    ctx.fillText("dailydosedevotions.ie", 540, 1756);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
     return new File([blob], `daily-dose-verse-${verse.date || "today"}.png`, { type: "image/png" });
+  }
+
+  function roundRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
   }
 
   async function downloadVerseStory(verse) {

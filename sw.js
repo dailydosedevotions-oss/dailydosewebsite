@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v12';
+const CACHE_VERSION = 'daily-dose-pwa-v13';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -19,7 +19,7 @@ const CORE_ASSETS = [
   '/styles.css?v=warm-readable-5',
   '/script.js?v=share-ig-1',
   '/pwa.js?v=pwa-4',
-  '/verse-of-the-day.js?v=verse-story-1',
+  '/verse-of-the-day.js?v=verse-story-2',
   '/verses-of-the-day.json',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
