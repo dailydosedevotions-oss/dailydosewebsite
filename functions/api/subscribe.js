@@ -43,7 +43,9 @@ export async function onRequestPost(context) {
       return json({ error: data.message || 'Brevo could not add this contact.' }, 400);
     }
 
-    return json({ success: true });
+    const welcomeEmailSent = await sendWelcomeEmail(env, apiKey, { email, name });
+
+    return json({ success: true, welcomeEmailSent });
   } catch (error) {
     return json({ error: 'Subscription failed. Please try again.' }, 500);
   }
@@ -53,8 +55,119 @@ export async function onRequestGet() {
   return json({ error: 'Method not allowed.' }, 405);
 }
 
+async function sendWelcomeEmail(env, apiKey, subscriber) {
+  const senderEmail = clean(env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL || 'dailydosedevotions@gmail.com');
+  const senderName = clean(env.BREVO_SENDER_NAME || 'Daily Dose Devotions');
+  const siteUrl = clean(env.SITE_URL || 'https://dailydosedevotions.ie').replace(/\/$/, '');
+  const firstName = clean(subscriber.name).split(/\s+/)[0];
+  const greeting = firstName ? `Hi ${firstName},` : 'Hi,';
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'api-key': apiKey
+    },
+    body: JSON.stringify({
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: subscriber.email, name: subscriber.name || undefined }],
+      replyTo: { email: senderEmail, name: senderName },
+      subject: 'Welcome to Daily Dose Devotions',
+      htmlContent: renderWelcomeHtml({ greeting, siteUrl }),
+      textContent: renderWelcomeText({ greeting, siteUrl })
+    })
+  });
+
+  return response.ok;
+}
+
+function renderWelcomeHtml({ greeting, siteUrl }) {
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Daily Dose Devotions</title>
+  </head>
+  <body style="margin:0;padding:0;background:#ede7dc;color:#222824;font-family:Georgia,'Times New Roman',serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ede7dc;margin:0;padding:30px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fffaf1;border:1px solid #d8cbb8;border-radius:8px;overflow:hidden;box-shadow:0 10px 28px rgba(38,63,54,.10);">
+            <tr>
+              <td style="background:#233d34;padding:30px 28px 26px;text-align:center;border-bottom:5px solid #c8a968;">
+                <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d9c28f;font-weight:700;">Welcome To</div>
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1;color:#fffaf1;font-weight:700;margin-top:10px;">Daily Dose</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#efe4d1;margin-top:10px;">Devotions sent with prayer and purpose.</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:34px 32px 12px;text-align:center;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#6f6253;text-transform:uppercase;letter-spacing:1.8px;font-weight:700;">You are subscribed</div>
+                <h1 style="margin:16px 0 0;color:#202620;font-size:32px;line-height:1.18;font-weight:700;">Welcome to the Daily Dose family</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 32px 6px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f0eadf;border-left:4px solid #c8a968;border-radius:4px;">
+                  <tr>
+                    <td style="padding:18px 20px;text-align:center;">
+                      <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6f6253;font-weight:700;margin-bottom:6px;">What to expect</div>
+                      <div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2d5a4e;font-weight:700;">Daily devotions at 7am, and series reflections whenever a series is running.</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:26px 34px 10px;">
+                <div style="height:1px;background:#ded2c0;margin:0 auto 28px;width:100%;"></div>
+                <div style="font-size:18px;line-height:1.78;color:#2c302d;">
+                  <p style="margin:0 0 20px;">${escapeHtml(greeting)}</p>
+                  <p style="margin:0 0 20px;">Thank you for subscribing to Daily Dose Devotions. I am so glad you are here.</p>
+                  <p style="margin:0 0 20px;">Each devotion is written to help you pause, return to the Word, and let God speak into the middle of everyday life.</p>
+                  <p style="margin:0 0 20px;">From the next release, you will receive the devotion straight in your inbox when it goes live.</p>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 32px 38px;text-align:center;">
+                <a href="${escapeHtml(siteUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">Open Daily Dose Devotions</a>
+                <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
+                <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function renderWelcomeText({ greeting, siteUrl }) {
+  return [
+    'Welcome to Daily Dose Devotions',
+    greeting,
+    'Thank you for subscribing to Daily Dose Devotions. I am so glad you are here.',
+    'Daily devotions are sent at 7am, and series reflections are sent whenever a series is running.',
+    'From the next release, you will receive the devotion straight in your inbox when it goes live.',
+    `Open Daily Dose Devotions: ${siteUrl}`
+  ].join('\n\n');
+}
+
 function clean(value) {
   return String(value || '').trim();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function json(body, status = 200) {
