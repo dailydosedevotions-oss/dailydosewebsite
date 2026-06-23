@@ -43,9 +43,11 @@ export async function onRequestPost(context) {
       return json({ error: data.message || 'Brevo could not add this contact.' }, 400);
     }
 
-    const welcomeEmailSent = await sendWelcomeEmail(env, apiKey, { email, name });
+    const subscriber = { email, name, message, listId };
+    const welcomeEmailSent = await sendWelcomeEmail(env, apiKey, subscriber);
+    const ownerNotificationSent = await sendOwnerNotificationEmail(env, apiKey, subscriber);
 
-    return json({ success: true, welcomeEmailSent });
+    return json({ success: true, welcomeEmailSent, ownerNotificationSent });
   } catch (error) {
     return json({ error: 'Subscription failed. Please try again.' }, 500);
   }
@@ -80,6 +82,89 @@ async function sendWelcomeEmail(env, apiKey, subscriber) {
   });
 
   return response.ok;
+}
+
+async function sendOwnerNotificationEmail(env, apiKey, subscriber) {
+  const senderEmail = clean(env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL || 'dailydosedevotions@gmail.com');
+  const senderName = clean(env.BREVO_SENDER_NAME || 'Daily Dose Devotions');
+  const notifyEmail = clean(env.NOTIFY_EMAIL || senderEmail);
+  const subscribedAt = new Date().toLocaleString('en-IE', { timeZone: 'Europe/Dublin', dateStyle: 'medium', timeStyle: 'short' });
+
+  if (!notifyEmail) return false;
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'api-key': apiKey
+    },
+    body: JSON.stringify({
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email: notifyEmail, name: 'Daily Dose Devotions' }],
+      replyTo: { email: subscriber.email, name: subscriber.name || subscriber.email },
+      subject: 'New Daily Dose subscriber',
+      htmlContent: renderOwnerNotificationHtml({ subscriber, subscribedAt }),
+      textContent: renderOwnerNotificationText({ subscriber, subscribedAt })
+    })
+  });
+
+  return response.ok;
+}
+
+function renderOwnerNotificationHtml({ subscriber, subscribedAt }) {
+  const displayName = subscriber.name || 'No name given';
+  const message = subscriber.message || 'No message added.';
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>New Daily Dose subscriber</title>
+  </head>
+  <body style="margin:0;padding:0;background:#ede7dc;color:#222824;font-family:Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ede7dc;margin:0;padding:26px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fffaf1;border:1px solid #d8cbb8;border-radius:8px;overflow:hidden;">
+            <tr>
+              <td style="background:#233d34;padding:24px 26px;text-align:center;border-bottom:5px solid #c8a968;">
+                <div style="font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9c28f;font-weight:700;">Daily Dose Devotions</div>
+                <h1 style="font-family:Georgia,'Times New Roman',serif;margin:10px 0 0;color:#fffaf1;font-size:28px;line-height:1.15;">New Subscriber</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 30px;">
+                <p style="margin:0 0 18px;font-size:16px;line-height:1.6;color:#2c302d;">Someone has subscribed to Daily Dose and has been added or updated in your Brevo list.</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;border:1px solid #ded2c0;border-radius:6px;">
+                  <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Name:</strong> ${escapeHtml(displayName)}</td></tr>
+                  <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Email:</strong> ${escapeHtml(subscriber.email)}</td></tr>
+                  <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Brevo List ID:</strong> ${escapeHtml(String(subscriber.listId))}</td></tr>
+                  <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Subscribed:</strong> ${escapeHtml(subscribedAt)}</td></tr>
+                  <tr><td style="padding:16px 18px;"><strong>Message / Prayer:</strong><br>${escapeHtml(message).replaceAll('\n', '<br>')}</td></tr>
+                </table>
+                <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#776b5f;">The subscriber also receives the Daily Dose welcome email automatically.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function renderOwnerNotificationText({ subscriber, subscribedAt }) {
+  return [
+    'New Daily Dose subscriber',
+    'Someone has subscribed to Daily Dose and has been added or updated in your Brevo list.',
+    `Name: ${subscriber.name || 'No name given'}`,
+    `Email: ${subscriber.email}`,
+    `Brevo List ID: ${subscriber.listId}`,
+    `Subscribed: ${subscribedAt}`,
+    `Message / Prayer: ${subscriber.message || 'No message added.'}`,
+    'The subscriber also receives the Daily Dose welcome email automatically.'
+  ].join('\n\n');
 }
 
 function renderWelcomeHtml({ greeting, siteUrl }) {
