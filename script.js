@@ -68,7 +68,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (!copyBtn) return;
 
   copyBtn.addEventListener('click', async () => {
-    const url = 'https://dailydosedevotions.ie/subscribe.html';
+    const url = 'https://dailydosedevotions.ie/subscribe';
     try {
       await navigator.clipboard.writeText(url);
       if (status) status.textContent = 'Subscribe link copied.';

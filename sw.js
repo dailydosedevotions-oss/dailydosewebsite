@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'daily-dose-pwa-v16';
+const CACHE_VERSION = 'daily-dose-pwa-v17';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const CORE_ASSETS = [
   '/',
   '/devotions',
-  '/subscribe.html',
+  '/subscribe',
   '/series',
   '/series/formed.html',
   '/verse-library',
@@ -18,8 +18,8 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles.css?v=subscribe-2',
-  '/script.js?v=subscribe-2',
+  '/styles.css?v=subscribe-3',
+  '/script.js?v=subscribe-3',
   '/pwa.js?v=pwa-4',
   '/verse-of-the-day.js?v=verse-story-2',
   '/verses-of-the-day.json',
