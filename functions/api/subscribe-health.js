@@ -81,8 +81,7 @@ export async function onRequest(context) {
         "api-key": apiKey
       },
       body: JSON.stringify({
-        name: requestedName,
-        folderId: listData.folderId
+        name: requestedName
       })
     });
 
