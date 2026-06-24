@@ -13,6 +13,7 @@ export async function onRequestPost(context) {
     const name = clean(formData.get('name'));
     const email = clean(formData.get('email')).toLowerCase();
     const message = clean(formData.get('message'));
+    const source = clean(formData.get('source') || formData.get('form_type') || 'Website subscribe form');
 
     if (!email || !email.includes('@')) {
       return json({ error: 'Please enter a valid email address.' }, 400);
@@ -43,7 +44,7 @@ export async function onRequestPost(context) {
       return json({ error: data.message || 'Brevo could not add this contact.' }, 400);
     }
 
-    const subscriber = { email, name, message, listId };
+    const subscriber = { email, name, message, source, listId };
     const welcomeEmailSent = await sendWelcomeEmail(env, apiKey, subscriber);
     const ownerNotificationSent = await sendOwnerNotificationEmail(env, apiKey, subscriber);
 
@@ -139,6 +140,7 @@ function renderOwnerNotificationHtml({ subscriber, subscribedAt }) {
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;border:1px solid #ded2c0;border-radius:6px;">
                   <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Name:</strong> ${escapeHtml(displayName)}</td></tr>
                   <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Email:</strong> ${escapeHtml(subscriber.email)}</td></tr>
+                  <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Source:</strong> ${escapeHtml(subscriber.source || 'Website subscribe form')}</td></tr>
                   <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Brevo List ID:</strong> ${escapeHtml(String(subscriber.listId))}</td></tr>
                   <tr><td style="padding:16px 18px;border-bottom:1px solid #ede4d5;"><strong>Subscribed:</strong> ${escapeHtml(subscribedAt)}</td></tr>
                   <tr><td style="padding:16px 18px;"><strong>Message / Prayer:</strong><br>${escapeHtml(message).replaceAll('\n', '<br>')}</td></tr>
@@ -160,6 +162,7 @@ function renderOwnerNotificationText({ subscriber, subscribedAt }) {
     'Someone has subscribed to Daily Dose and has been added or updated in your Brevo list.',
     `Name: ${subscriber.name || 'No name given'}`,
     `Email: ${subscriber.email}`,
+    `Source: ${subscriber.source || 'Website subscribe form'}`,
     `Brevo List ID: ${subscriber.listId}`,
     `Subscribed: ${subscribedAt}`,
     `Message / Prayer: ${subscriber.message || 'No message added.'}`,

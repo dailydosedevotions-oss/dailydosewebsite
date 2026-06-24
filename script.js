@@ -165,6 +165,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     event.stopPropagation();
 
     const button = form.querySelector('button[type="submit"]');
+    const originalButtonText = button?.dataset.originalText || button?.textContent || 'Subscribe to Daily Dose';
+    if (button) button.dataset.originalText = originalButtonText;
     const formData = new FormData(form);
     const email = String(formData.get('email') || '').trim();
 
@@ -196,12 +198,12 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       if (button) button.textContent = 'Subscribed';
     } catch (error) {
       if (status) status.textContent = error.message || 'Something went wrong. Please try again.';
-      if (button) button.textContent = 'Subscribe to Daily Dose';
+      if (button) button.textContent = originalButtonText;
     } finally {
       if (button) {
         setTimeout(() => {
           button.disabled = false;
-          if (button.textContent === 'Subscribed') button.textContent = 'Subscribe to Daily Dose';
+          if (button.textContent === 'Subscribed') button.textContent = originalButtonText;
         }, 2500);
       }
     }
