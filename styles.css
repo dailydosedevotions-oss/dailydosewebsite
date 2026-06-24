@@ -164,13 +164,13 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
 
 
 /* Share buttons */
-.share-box{max-width:860px;margin:24px auto 0;background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:24px;padding:24px;text-align:center}
-.page-hero .share-box{margin-top:28px;background:rgba(9,9,9,.55)}
+.share-box{max-width:860px;margin:24px auto 0;background:linear-gradient(180deg,rgba(12,10,8,.96),rgba(17,15,12,.94));border:1px solid rgba(198,160,90,.34);border-radius:24px;padding:24px;text-align:center;box-shadow:0 22px 70px rgba(0,0,0,.34)}
+.page-hero .share-box{margin-top:28px;background:linear-gradient(180deg,rgba(8,7,6,.92),rgba(16,13,10,.9))}
 .share-box h3{font-family:var(--font-heading);font-size:clamp(24px,4vw,36px);margin:6px 0 18px;color:#fff}
 .share-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
-.share-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(198,160,90,.45);background:rgba(198,160,90,.09);color:#f4efe6;border-radius:999px;padding:11px 18px;font-weight:700;font-size:14px;letter-spacing:.02em;cursor:pointer;text-decoration:none;font-family:var(--font-body)}
-.share-btn:hover{transform:translateY(-2px);border-color:rgba(198,160,90,.8);background:rgba(198,160,90,.16)}
-.share-note{margin:16px auto 0;color:#bfb4a4;font-size:14px;max-width:620px}.copy-status{margin:10px 0 0;color:var(--primary);font-size:14px;min-height:20px}
+.share-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(217,185,111,.68);background:#17130f;color:#fff7e8;border-radius:999px;padding:11px 18px;font-weight:800;font-size:14px;letter-spacing:.02em;cursor:pointer;text-decoration:none;font-family:var(--font-body);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}
+.share-btn:hover{transform:translateY(-2px);border-color:rgba(241,211,140,.95);background:#211a12;color:#fff}
+.share-note{margin:16px auto 0;color:#e6d8c3;font-size:14px;max-width:620px}.copy-status{margin:10px 0 0;color:#f0c970;font-size:14px;min-height:20px;font-weight:700}
 @media (max-width:620px){.share-buttons{flex-direction:column}.share-btn{width:100%}}
 /* VERSE OF THE DAY */
 
