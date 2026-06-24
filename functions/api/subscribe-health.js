@@ -3,7 +3,7 @@ export async function onRequest(context) {
 
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, x-subscribe-admin-token"
   };
 
@@ -11,7 +11,7 @@ export async function onRequest(context) {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (request.method !== "GET") {
+  if (!["GET", "POST"].includes(request.method)) {
     return json({ success: false, error: "Method not allowed." }, 405, corsHeaders);
   }
 
@@ -64,6 +64,45 @@ export async function onRequest(context) {
     }, 502, corsHeaders);
   }
 
+  let renamed = null;
+  if (request.method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    const requestedName = clean(body.name || "Daily Dose Subscriber List");
+
+    if (!requestedName) {
+      return json({ success: false, error: "List name is required." }, 400, corsHeaders);
+    }
+
+    const renameResponse = await fetch(`https://api.brevo.com/v3/contacts/lists/${listId}`, {
+      method: "PUT",
+      headers: {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "api-key": apiKey
+      },
+      body: JSON.stringify({
+        name: requestedName,
+        folderId: listData.folderId
+      })
+    });
+
+    const renameData = await renameResponse.json().catch(() => ({}));
+    if (!renameResponse.ok) {
+      return json({
+        success: false,
+        configured: true,
+        error: renameData.message || "Brevo could not rename the subscribe list.",
+        checks
+      }, 502, corsHeaders);
+    }
+
+    listData.name = requestedName;
+    renamed = {
+      id: listId,
+      name: requestedName
+    };
+  }
+
   checks.list = {
     id: listData.id,
     name: listData.name,
@@ -91,7 +130,10 @@ export async function onRequest(context) {
   return json({
     success: true,
     configured: true,
-    message: "Brevo is reachable and the configured subscribe list exists.",
+    message: renamed
+      ? `Brevo list renamed to ${renamed.name}.`
+      : "Brevo is reachable and the configured subscribe list exists.",
+    renamed,
     checks
   }, 200, corsHeaders);
 }
