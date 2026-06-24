@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v19';
+const CACHE_VERSION = 'daily-dose-pwa-v20';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   '/',
   '/devotions',
   '/subscribe',
+  '/prayer',
   '/series',
   '/series/formed.html',
   '/verse-library',
@@ -18,10 +19,10 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles.css?v=home-focus-1',
-  '/script.js?v=home-focus-1',
+  '/styles.css?v=home-focus-2',
+  '/script.js?v=home-focus-2',
   '/pwa.js?v=pwa-4',
-  '/verse-of-the-day.js?v=verse-story-2',
+  '/verse-of-the-day.js?v=verse-story-3',
   '/verses-of-the-day.json',
   '/manifest.webmanifest',
   '/icons/icon-192.png',

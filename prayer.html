@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Daily Dose" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>Prayer | Daily Dose Devotions</title>
+  <meta name="description" content="Send a private prayer request to Daily Dose or share a moderated public request so others can pray with you." />
+  <link rel="canonical" href="https://dailydosedevotions.ie/prayer" />
+  <meta property="og:title" content="Prayer | Daily Dose Devotions" />
+  <meta property="og:description" content="You are not alone. Share a prayer request or answered prayer with Daily Dose." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dailydosedevotions.ie/prayer" />
+  <meta property="og:image" content="https://dailydosedevotions.ie/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=home-focus-2" />
+</head>
+<body>
+  <nav class="navbar scrolled" id="navbar">
+    <div class="nav-inner">
+      <a class="brand" href="/index.html#home">DAILY DOSE</a>
+      <div class="nav-links">
+        <a href="/index.html#home">Home</a>
+        <a href="/start-here.html">Start Here</a>
+        <a href="/devotions.html">Devotions</a>
+        <a href="/series.html">Series</a>
+        <a href="/prayer">Prayer</a>
+        <a href="/subscribe">Subscribe</a>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button>
+    <a href="/index.html#home">Home</a>
+    <a href="/start-here.html">Start Here</a>
+    <a href="/devotions.html">Devotions</a>
+    <a href="/series.html">Series</a>
+    <a href="/prayer">Prayer</a>
+    <a href="/subscribe">Subscribe</a>
+    <div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Reflection &middot; Real Life</span></div>
+  </div>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Prayer at Daily Dose</p>
+        <h1>You Are Not Alone</h1>
+        <p>Send a private prayer request to Daily Dose, or share a moderated request so others can pray with you.</p>
+      </div>
+    </section>
+
+    <section id="prayer" class="section split-section">
+      <div class="container narrow">
+        <div class="section-head reveal visible">
+          <p class="eyebrow">Prayer Requests</p>
+          <h2>How Can We Pray?</h2>
+          <div class="line"></div>
+          <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through &mdash; you are welcome to share it.</p>
+        </div>
+        <form class="contact-card reveal visible" id="prayerForm" action="/api/prayers" method="POST">
+          <input type="hidden" name="form_type" value="Prayer wall submission">
+          <label class="field-label" for="prayerType">I am sharing</label>
+          <select id="prayerType" name="type" required>
+            <option value="prayer">A prayer request</option>
+            <option value="answered">An answered prayer</option>
+          </select>
+          <input name="name" placeholder="Your Name" required>
+          <input name="email" type="email" placeholder="Email Address">
+          <textarea name="message" placeholder="Your prayer request..." required></textarea>
+          <label class="check-row"><input type="checkbox" name="private" value="Yes"> Keep this private and send it only to Daily Dose</label>
+          <small id="prayerPrivacyNote">Unticked requests are sent to Daily Dose for review before appearing below. Private requests are emailed only to Daily Dose Devotions.</small>
+          <button class="btn primary full" type="submit">Submit</button>
+          <small id="prayerStatus" aria-live="polite"></small>
+        </form>
+        <div class="prayer-wall reveal visible" id="prayerWall">
+          <div class="prayer-wall-head">
+            <div>
+              <p class="eyebrow">Prayer Wall</p>
+              <h3>Pray With Others</h3>
+            </div>
+            <button class="btn outline small" type="button" id="refreshPrayers">Refresh</button>
+          </div>
+          <div class="prayer-wall-grid">
+            <section>
+              <h4>Prayer Requests</h4>
+              <div class="prayer-list" id="publicPrayerList">
+                <p class="empty-state">Loading prayer requests...</p>
+              </div>
+            </section>
+            <section>
+              <h4>Answered Prayer</h4>
+              <div class="prayer-list" id="answeredPrayerList">
+                <p class="empty-state">Loading answered prayers...</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <h3>DAILY DOSE</h3>
+        <p>Scripture-Rooted. Honest. Personal.</p>
+        <small>Each devotion is written to point people back toward Christ through the Word of God, honest faith, encouragement, challenge and daily reflection.</small>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="/start-here.html">Start Here</a>
+        <a href="/subscribe">Subscribe Free</a>
+        <a href="/devotions.html">Daily Devotions</a>
+        <a href="/series.html">The Series</a>
+        <a href="/prayer">Prayer Requests</a>
+        <a href="/story.html">About Daily Dose</a>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <a href="mailto:dailydosedevotions@gmail.com">dailydosedevotions@gmail.com</a>
+        <a href="https://www.facebook.com/share/1CuVbMziM4/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/dailydosedevotions3/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@dailydosedevotions" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <small>&copy; 2026 Daily Dose Devotions. All rights reserved.</small>
+      <small>SCRIPTURE &middot; REFLECTION &middot; REAL LIFE</small>
+    </div>
+  </footer>
+
+  <script src="/script.js?v=home-focus-2"></script>
+  <script src="/pwa.js?v=pwa-4"></script>
+</body>
+</html>

@@ -50,7 +50,7 @@
     style.id = "daily-dose-votd-feature-styles";
     style.textContent = `
       .verse-feature-section {
-        padding: 34px 20px 78px;
+        padding: 30px 20px 72px;
         position: relative;
       }
 
@@ -63,35 +63,11 @@
         position: relative;
         overflow: hidden;
         text-align: center;
-        padding: 48px 36px;
-        border-radius: 28px;
-        border: 1px solid rgba(198,160,90,.38);
-        background:
-          radial-gradient(circle at top, rgba(198,160,90,.16), transparent 42%),
-          linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
-        box-shadow: 0 30px 90px rgba(0,0,0,.32);
-      }
-
-      .verse-feature-card:before {
-        content: "";
-        position: absolute;
-        inset: 18px;
-        border: 1px solid rgba(198,160,90,.12);
-        border-radius: 22px;
-        pointer-events: none;
-      }
-
-      .verse-feature-card .icon {
-        width: 72px;
-        height: 72px;
-        margin: 0 auto 18px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(198,160,90,.10);
-        border: 1px solid rgba(198,160,90,.22);
-        font-size: 30px;
+        padding: 42px 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(198,160,90,.3);
+        background: linear-gradient(180deg, rgba(18,16,13,.96), rgba(12,11,10,.96));
+        box-shadow: 0 22px 70px rgba(0,0,0,.28);
       }
 
       .verse-feature-card .date {
@@ -112,54 +88,18 @@
 
       .verse-feature-card .verse-text {
         max-width: 780px;
-        margin: 0 auto 30px;
+        margin: 0 auto 26px;
         color: #f4ede2;
         font-size: clamp(17px, 2vw, 22px);
         line-height: 1.75;
         font-style: italic;
       }
 
-      .verse-feature-card .verse-actions,
-      .verse-feature-card .verse-social-actions {
+      .verse-feature-card .verse-actions {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 14px;
-      }
-
-      .verse-feature-card .verse-social-actions {
-        margin: 10px 0 26px;
-      }
-
-      .verse-action-btn {
-        appearance: none;
-        border: 1px solid rgba(198,160,90,.35);
-        background: #171512;
-        color: #f4ead4;
-        border-radius: 999px;
-        padding: 11px 18px;
-        font-size: 13px;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: transform .2s ease, border-color .2s ease, background .2s ease;
-      }
-
-      .verse-action-btn:hover {
-        transform: translateY(-2px);
-        border-color: rgba(198,160,90,.75);
-        background: rgba(198,160,90,.12);
-      }
-
-      .verse-action-btn.primary-share {
-        background: linear-gradient(135deg, #c6a05a, #f1d78a);
-        color: #12100d;
-        border-color: rgba(241,215,138,.85);
-        font-weight: 800;
-      }
-
-      .verse-action-btn.primary-share:hover {
-        background: linear-gradient(135deg, #d9b66c, #f6df9c);
+        gap: 12px;
       }
 
       .verse-share-status {
@@ -202,13 +142,11 @@
           padding: 36px 22px;
         }
 
-        .verse-feature-card .verse-actions,
-        .verse-feature-card .verse-social-actions {
+        .verse-feature-card .verse-actions {
           flex-direction: column;
         }
 
-        .verse-feature-card .btn,
-        .verse-action-btn {
+        .verse-feature-card .btn {
           width: 100%;
         }
       }
@@ -495,21 +433,15 @@
     section.innerHTML = `
       <div class="container verse-feature-wrap">
         <article class="verse-feature-card reveal visible">
-              <div class="icon">&#128214;</div>
           <p class="eyebrow">Verse of the Day</p>
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
           <h3 id="votdReference">${escapeHtml(verse.reference)}</h3>
           <p class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
 
-          <div class="verse-social-actions">
-            <button class="verse-action-btn primary-share" id="shareVerseBtn" type="button">Share Story Image</button>
-            <button class="verse-action-btn" id="downloadVerseStoryBtn" type="button">Download Story Image</button>
-            <button class="verse-action-btn" id="copyVerseBtn" type="button">Copy Verse</button>
-          </div>
-
           <div class="verse-actions">
-            <a class="btn primary" href="devotions.html">Read Devotions</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
+            <button class="btn outline" id="shareVerseBtn" type="button">Share Verse Image</button>
+            <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
           </div>
 
           <div class="verse-share-status" id="verseShareStatus"></div>

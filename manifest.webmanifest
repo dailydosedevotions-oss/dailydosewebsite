@@ -42,7 +42,7 @@
       "name": "Prayer",
       "short_name": "Prayer",
       "description": "Open the prayer section.",
-      "url": "/#prayer",
+      "url": "/prayer",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

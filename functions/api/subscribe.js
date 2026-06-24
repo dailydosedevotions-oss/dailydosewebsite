@@ -173,7 +173,7 @@ function renderOwnerNotificationText({ subscriber, subscribedAt }) {
 function renderWelcomeHtml({ greeting, siteUrl }) {
   const devotionsUrl = `${siteUrl}/devotions.html`;
   const seriesUrl = `${siteUrl}/series.html`;
-  const prayerUrl = `${siteUrl}/#prayer`;
+  const prayerUrl = `${siteUrl}/prayer`;
 
   return `<!doctype html>
 <html>
@@ -276,7 +276,7 @@ function renderWelcomeText({ greeting, siteUrl }) {
     'Daily devotions are sent at 7am, and series reflections are sent whenever a series is running.',
     'From the next release, you will receive the devotion straight in your inbox when it goes live.',
     'You can add Daily Dose to your phone home screen like an app. Open the website on your phone and look for Install App, or use your browser menu and choose Add to Home Screen.',
-    `Prayer wall: ${siteUrl}/#prayer`,
+    `Prayer wall: ${siteUrl}/prayer`,
     `Read devotions: ${siteUrl}/devotions.html`,
     `Explore series: ${siteUrl}/series.html`
   ].join('\n\n');

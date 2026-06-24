@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=home-focus-1" />
+  <link rel="stylesheet" href="styles.css?v=home-focus-2" />
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -47,7 +47,7 @@
         <a href="start-here.html">Start Here</a>
         <a href="devotions.html">Devotions</a>
         <a href="series.html">Series</a>
-        <a href="#prayer">Prayer</a>
+        <a href="/prayer">Prayer</a>
         <a href="subscribe">Subscribe</a>
       </div>
       <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
@@ -60,7 +60,7 @@
     <a href="start-here.html">Start Here</a>
     <a href="devotions.html">Devotions</a>
     <a href="series.html">Series</a>
-    <a href="#prayer">Prayer</a>
+    <a href="/prayer">Prayer</a>
     <a href="subscribe">Subscribe</a>
     <div class="mobile-note">
       <p>Daily Dose Devotions</p>
@@ -147,7 +147,7 @@
             <p class="eyebrow">Prayer Ministry</p>
             <h3>Share a Prayer Request</h3>
             <p>A quiet space to share what you are carrying. Whether for yourself or someone you love &mdash; you do not have to carry it alone.</p>
-            <a class="btn outline small" href="#prayer">Submit a Prayer</a>
+            <a class="btn outline small" href="/prayer">Prayer Requests</a>
           </article>
         </div>
       </div>
@@ -164,96 +164,6 @@
         </div>
       </div>
     </section>
-    <section id="about" class="section split-section">
-      <div class="container split">
-        <div class="image-card reveal">
-          <img src="https://media.base44.com/images/public/6a1e90e9afeaee4e0a0198e2/e7b158545_generated_fb58f30f.png" alt="Journal and fountain pen in candlelight">
-        </div>
-        <div class="reveal">
-          <p class="eyebrow">The Story Behind Daily Dose</p>
-          <h2>Why Daily Dose<br><span>Exists</span></h2>
-          <p>Daily Dose began in a broken place, through recovery, Scripture, and the slow rebuilding work of God. What started as personal notes became reflections written to help others find hope, keep going, and turn back toward Christ one day at a time.</p>
-          <a class="btn primary" href="story.html">Read the Story</a>
-        </div>
-      </div>
-    </section>
-
-    <section id="series" class="section">
-      <div class="container">
-        <div class="section-head reveal">
-          <p class="eyebrow">Our Work</p>
-          <h2>The Series Collection</h2>
-          <div class="line"></div>
-        </div>
-        <div class="series-panel reveal">
-          <p class="eyebrow">Featured Series</p>
-          <h3>FORMED</h3>
-          <p>A weekly Daily Dose series on spiritual formation: obedience, prayer, fasting, discipline, work, charity, watchfulness, and being formed in Christ.</p>
-          <a class="btn primary small" href="series.html">Open Series Library</a>
-        </div>
-      </div>
-    </section>
-
-    <section id="prayer" class="section split-section">
-      <div class="container narrow">
-        <div class="section-head reveal">
-          <p class="eyebrow">Prayer Requests</p>
-          <h2>You Are Not Alone</h2>
-          <div class="line"></div>
-          <p>Whether it is for yourself, someone you care about, recovery, family, faith, healing, direction, or anything you are walking through &mdash; you are welcome to share it.</p>
-        </div>
-        <form class="contact-card reveal" id="prayerForm" action="/api/prayers" method="POST">
-          <input type="hidden" name="form_type" value="Prayer wall submission">
-          <label class="field-label" for="prayerType">I am sharing</label>
-          <select id="prayerType" name="type" required>
-            <option value="prayer">A prayer request</option>
-            <option value="answered">An answered prayer</option>
-          </select>
-          <input name="name" placeholder="Your Name" required>
-          <input name="email" type="email" placeholder="Email Address">
-          <textarea name="message" placeholder="Your prayer request..." required></textarea>
-          <label class="check-row"><input type="checkbox" name="private" value="Yes"> Keep this private and send it only to Daily Dose</label>
-          <small id="prayerPrivacyNote">Unticked requests are sent to Daily Dose for review before appearing below. Private requests are emailed only to Daily Dose Devotions.</small>
-          <button class="btn primary full" type="submit">Submit</button>
-          <small id="prayerStatus" aria-live="polite"></small>
-        </form>
-        <div class="prayer-wall reveal" id="prayerWall">
-          <div class="prayer-wall-head">
-            <div>
-              <p class="eyebrow">Prayer Wall</p>
-              <h3>Pray With Others</h3>
-            </div>
-            <button class="btn outline small" type="button" id="refreshPrayers">Refresh</button>
-          </div>
-          <div class="prayer-wall-grid">
-            <section>
-              <h4>Prayer Requests</h4>
-              <div class="prayer-list" id="publicPrayerList">
-                <p class="empty-state">Loading prayer requests...</p>
-              </div>
-            </section>
-            <section>
-              <h4>Answered Prayer</h4>
-              <div class="prayer-list" id="answeredPrayerList">
-                <p class="empty-state">Loading answered prayers...</p>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact" class="section final">
-      <div class="container narrow reveal">
-        <div class="vertical-line"></div>
-        <p>Whether you are strong in your faith, trying to find your way back to God, new to faith, recovering, struggling, or simply trying to get through the day &mdash; Daily Dose exists to help you pause, reflect and turn your focus back to Jesus.</p>
-        <div class="hero-actions center">
-          <a class="btn primary" href="#home">Subscribe Free</a>
-          <a class="btn outline" href="mailto:dailydosedevotions@gmail.com">Get In Touch</a>
-        </div>
-        <div class="vertical-line"></div>
-      </div>
-    </section>
   </main>
 
   <footer>
@@ -268,13 +178,13 @@
         <a href="start-here.html">Start Here</a>
         <a href="subscribe">Subscribe Free</a>
         <a href="#devotions">Daily Devotions</a>
-        <a href="#series">The Series</a>
-        <a href="#prayer">Prayer Requests</a>
+        <a href="series.html">The Series</a>
+        <a href="/prayer">Prayer Requests</a>
         <a href="story.html">About Daily Dose</a>
         <a href="what-we-believe.html">What We Believe</a>
         <a href="need-help-now.html">Need Help Now</a>
         <a href="privacy.html">Privacy Policy</a>
-        <a href="#contact">Contact</a>
+        <a href="mailto:dailydosedevotions@gmail.com">Contact</a>
       </div>
       <div>
         <h4>Connect</h4>
@@ -290,8 +200,8 @@
     </div>
   </footer>
 
-  <script src="script.js?v=home-focus-1"></script>
-        <script src="/verse-of-the-day.js?v=verse-story-2"></script>
+  <script src="script.js?v=home-focus-2"></script>
+  <script src="/verse-of-the-day.js?v=verse-story-3"></script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>
 </html>
