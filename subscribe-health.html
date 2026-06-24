@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Subscribe Health | Daily Dose</title>
+  <meta name="description" content="Private Daily Dose subscribe and Brevo health check." />
+  <link rel="stylesheet" href="/styles.css?v=subscribe-2" />
+</head>
+<body>
+  <nav class="navbar scrolled"><div class="nav-inner"><a class="brand" href="/index.html#home">DAILY DOSE</a></div></nav>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Private</p>
+        <h1>Subscribe Health</h1>
+        <p>Check whether Daily Dose is connected to Brevo and which list the subscribe form is using.</p>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <div class="stats-panel">
+          <div class="stats-token-row">
+            <label class="field-label" for="healthToken">Private token</label>
+            <input id="healthToken" type="password" autocomplete="off" placeholder="Paste your private token">
+            <button class="btn primary small" type="button" id="runHealth">Check Brevo</button>
+          </div>
+          <p class="thanks-note" id="healthStatus">Use the same private token you use for PWA stats, unless a separate subscribe admin token is configured.</p>
+          <div class="stats-grid" id="healthCards"></div>
+          <pre class="stats-detail" id="healthRaw" style="white-space:pre-wrap;overflow:auto;"></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const tokenInput = document.getElementById('healthToken');
+    const button = document.getElementById('runHealth');
+    const statusEl = document.getElementById('healthStatus');
+    const cards = document.getElementById('healthCards');
+    const raw = document.getElementById('healthRaw');
+    const params = new URLSearchParams(window.location.search);
+    const queryToken = params.get('token');
+    const savedToken = localStorage.getItem('daily-dose-subscribe-health-token') || localStorage.getItem('daily-dose-pwa-stats-token');
+
+    if (queryToken) {
+      localStorage.setItem('daily-dose-subscribe-health-token', queryToken);
+      tokenInput.value = queryToken;
+      history.replaceState(null, '', '/subscribe-health.html');
+    } else if (savedToken) {
+      tokenInput.value = savedToken;
+    }
+
+    button.addEventListener('click', runHealth);
+    if (tokenInput.value) runHealth();
+
+    async function runHealth() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        statusEl.textContent = 'Paste your private token first.';
+        return;
+      }
+
+      localStorage.setItem('daily-dose-subscribe-health-token', token);
+      statusEl.textContent = 'Checking Brevo...';
+      cards.innerHTML = '';
+      raw.textContent = '';
+
+      const response = await fetch('/api/subscribe-health', { headers: { 'x-subscribe-admin-token': token } });
+      const data = await response.json().catch(() => ({}));
+      raw.textContent = JSON.stringify(data, null, 2);
+
+      if (!response.ok || !data.success) {
+        statusEl.textContent = data.error || 'Brevo check failed.';
+        return;
+      }
+
+      const checks = data.checks || {};
+      const list = checks.list || {};
+      statusEl.textContent = data.message || 'Brevo is connected.';
+      cards.innerHTML = [
+        stat('Brevo API', checks.apiKeyConfigured ? 'Connected' : 'Missing'),
+        stat('List ID', checks.listId || 'Unknown'),
+        stat('List Name', list.name || 'Unknown'),
+        stat('Subscribers', list.totalSubscribers ?? 'Unknown'),
+        stat('Notify Email', checks.notifyEmail || 'Unknown'),
+        stat('Sender', checks.senderEmail || 'Unknown')
+      ].join('');
+    }
+
+    function stat(label, value) {
+      return `<article class="stat-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+  </script>
+</body>
+</html>

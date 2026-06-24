@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v15';
+const CACHE_VERSION = 'daily-dose-pwa-v16';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -16,6 +16,7 @@ const CORE_ASSETS = [
   '/story',
   '/prayer-admin.html',
   '/pwa-stats.html',
+  '/subscribe-health.html',
   '/offline',
   '/styles.css?v=subscribe-2',
   '/script.js?v=subscribe-2',
