@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=share-contrast-1" />
+  <link rel="stylesheet" href="styles.css?v=home-focus-1" />
 </head>
 <body>
   <nav class="navbar" id="navbar">
@@ -44,13 +44,11 @@
       <a class="brand" href="#home">DAILY DOSE</a>
       <div class="nav-links">
         <a href="#home">Home</a>
-        <a href="subscribe">Subscribe</a>
         <a href="start-here.html">Start Here</a>
-        <a href="story.html">About</a>
-        <a href="#devotions">Devotions</a>
+        <a href="devotions.html">Devotions</a>
         <a href="series.html">Series</a>
         <a href="#prayer">Prayer</a>
-        <a href="#contact">Contact</a>
+        <a href="subscribe">Subscribe</a>
       </div>
       <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
     </div>
@@ -59,13 +57,11 @@
   <div class="mobile-menu" id="mobileMenu">
     <button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button>
     <a href="#home">Home</a>
-    <a href="subscribe">Subscribe</a>
     <a href="start-here.html">Start Here</a>
-    <a href="story.html">About</a>
-    <a href="#devotions">Devotions</a>
+    <a href="devotions.html">Devotions</a>
     <a href="series.html">Series</a>
     <a href="#prayer">Prayer</a>
-    <a href="#contact">Contact</a>
+    <a href="subscribe">Subscribe</a>
     <div class="mobile-note">
       <p>Daily Dose Devotions</p>
       <span>Scripture &middot; Reflection &middot; Real Life</span>
@@ -79,29 +75,47 @@
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <h1>WORD.<br>REFLECTION.<br><span>REAL LIFE.</span></h1>
-          <p>Daily Dose is a space for Scripture, reflection and real life. Each devotion points people back toward Christ through honest faith, encouragement and daily reflection.</p>
+          <p>Daily Dose is here to help you pause, open Scripture, and turn your focus back to Christ in the middle of real life.</p>
           <div class="hero-actions">
-            <a class="btn primary" href="devotions.html">Read Devotions</a>
-            <a class="btn outline" href="subscribe">Subscribe Free</a>
-            <a class="btn outline" href="#prayer">Submit a Prayer</a>
-            <button class="btn install-app-btn" type="button" data-install-app hidden>Install App</button>
+            <a class="btn primary" href="subscribe">Subscribe Free</a>
+            <a class="btn outline" href="devotions.html" id="heroTodayDevotionLink">Read Today&rsquo;s Dose</a>
+            <a class="btn text-link-btn" href="start-here.html">Start Here</a>
+            <button class="btn text-link-btn" type="button" data-install-app hidden>Install App</button>
           </div>
           <div class="tags">
             <span>SCRIPTURE-ROOTED</span><i></i><span>HONEST</span><i></i><span>PERSONAL</span>
           </div>
         </div>
 
-        <form class="subscribe-card reveal" id="subscribeForm" action="#" method="POST" novalidate>
-          <div>
-            <h2>Subscribe Free</h2>
-            <p>Receive devotions straight to your inbox</p>
+        <article class="today-dose-card reveal" id="todayDoseCard">
+          <p class="eyebrow">Today&rsquo;s Daily Dose</p>
+          <div class="today-dose-date" id="todayDoseDate">Latest devotion</div>
+          <h2 id="todayDoseTitle">Daily Dose Devotions</h2>
+          <p id="todayDoseExcerpt">Begin with today&rsquo;s Scripture-rooted reflection and take a few quiet minutes with God.</p>
+          <div class="today-dose-actions">
+            <a class="btn primary small" id="todayDoseLink" href="devotions.html">Read Today&rsquo;s Dose</a>
+            <a class="btn outline small" href="devotions.html">View Archive</a>
           </div>
-          <input name="name" placeholder="Your Name" required>
-          <input name="email" type="email" placeholder="Email Address" required>
-          <textarea name="message" placeholder="Any message or prayer request (optional)"></textarea>
-          <input type="hidden" name="form_type" value="Subscription request">
-          <button class="btn primary full" type="submit">Subscribe to Daily Dose</button>
-          <small id="subscribeStatus">No pressure. No cost. Just Scripture and encouragement.</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="section subscribe-band-section">
+      <div class="container">
+        <form class="subscribe-band reveal" id="subscribeForm" action="#" method="POST" novalidate>
+          <div class="subscribe-band-copy">
+            <p class="eyebrow">Subscribe Free</p>
+            <h2>Get Daily Dose by Email</h2>
+            <p>No pressure. No cost. Just Scripture and encouragement sent straight to your inbox.</p>
+          </div>
+          <div class="subscribe-band-fields">
+            <input name="name" placeholder="First name (optional)">
+            <input name="email" type="email" placeholder="Email Address" required>
+            <input type="hidden" name="form_type" value="Subscription request">
+            <input type="hidden" name="source" value="Homepage subscribe band">
+            <button class="btn primary full" type="submit">Send Me Daily Dose</button>
+            <small id="subscribeStatus">You can unsubscribe at any time.</small>
+          </div>
         </form>
       </div>
     </section>
@@ -136,17 +150,20 @@
             <a class="btn outline small" href="#prayer">Submit a Prayer</a>
           </article>
         </div>
-<section class="section verse-of-the-day-section" id="verse-of-the-day">
-  <div class="container">
-    <div class="verse-of-the-day-card reveal visible">
-      <p class="eyebrow">Verse of the Day</p>
-      <div class="date" id="votdDate">Loading today&rsquo;s verse...</div>
-      <h2 id="votdReference">Verse of the Day</h2>
-      <p class="verse-text" id="votdText">Loading...</p>
-      <a class="btn outline small" href="verse-library.html">View Verse Library</a>
-    </div>
-  </div>
-</section>
+      </div>
+    </section>
+
+    <section class="section verse-of-the-day-section" id="verse-of-the-day">
+      <div class="container">
+        <div class="verse-of-the-day-card reveal visible">
+          <p class="eyebrow">Verse of the Day</p>
+          <div class="date" id="votdDate">Loading today&rsquo;s verse...</div>
+          <h2 id="votdReference">Verse of the Day</h2>
+          <p class="verse-text" id="votdText">Loading...</p>
+          <a class="btn outline small" href="verse-library.html">View Verse Library</a>
+        </div>
+      </div>
+    </section>
     <section id="about" class="section split-section">
       <div class="container split">
         <div class="image-card reveal">
@@ -273,7 +290,7 @@
     </div>
   </footer>
 
-  <script src="script.js?v=share-ig-1"></script>
+  <script src="script.js?v=home-focus-1"></script>
         <script src="/verse-of-the-day.js?v=verse-story-2"></script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>

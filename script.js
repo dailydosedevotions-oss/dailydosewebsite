@@ -61,6 +61,45 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
+// Homepage feature: pulls the latest available devotion into the "Today's Daily Dose" card.
+(function () {
+  const card = document.getElementById('todayDoseCard');
+  const title = document.getElementById('todayDoseTitle');
+  const date = document.getElementById('todayDoseDate');
+  const excerpt = document.getElementById('todayDoseExcerpt');
+  const link = document.getElementById('todayDoseLink');
+  const heroLink = document.getElementById('heroTodayDevotionLink');
+  if (!card || !title || !date || !excerpt || !link) return;
+
+  const now = new Date();
+
+  fetch('/devotions.html')
+    .then(response => response.text())
+    .then(html => {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const devotion = Array.from(doc.querySelectorAll('.devotion-card')).find(item => {
+        const publishAt = item.getAttribute('data-publish-at');
+        return !publishAt || now >= new Date(publishAt);
+      });
+
+      if (!devotion) return;
+
+      const devotionTitle = devotion.querySelector('h3')?.textContent?.trim();
+      const devotionDate = devotion.querySelector('.date')?.textContent?.trim();
+      const devotionExcerpt = devotion.querySelector('p')?.textContent?.trim();
+      const devotionHref = devotion.querySelector('a[href]')?.getAttribute('href');
+
+      if (devotionTitle) title.textContent = devotionTitle;
+      if (devotionDate) date.textContent = devotionDate;
+      if (devotionExcerpt) excerpt.textContent = devotionExcerpt.replace(/\.\.\.$/, '...');
+      if (devotionHref) {
+        link.href = devotionHref;
+        if (heroLink) heroLink.href = devotionHref;
+      }
+    })
+    .catch(() => {});
+})();
+
 // Subscribe landing share helper.
 (function () {
   const copyBtn = document.querySelector('.copy-subscribe-link');
