@@ -11,13 +11,12 @@ menuBtn?.addEventListener('click', () => menu?.classList.add('open'));
 closeBtn?.addEventListener('click', () => menu?.classList.remove('open'));
 
 document.querySelectorAll('a[href^="#"]').forEach(link => {
-  link.addEventListener('click', e => {
+  link.addEventListener('click', event => {
     const target = document.querySelector(link.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      menu?.classList.remove('open');
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!target) return;
+    event.preventDefault();
+    menu?.classList.remove('open');
+    target.scrollIntoView({ behavior: 'smooth' });
   });
 });
 
@@ -32,20 +31,25 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 // Daily Dose scheduled publishing: hides future devotions until their publish time.
 (function () {
   const now = new Date();
+
   document.querySelectorAll('[data-publish-at]').forEach(el => {
     const publishAt = new Date(el.getAttribute('data-publish-at'));
-    if (now < publishAt) {
-      if (el.classList.contains('devotion-card')) {
-        el.remove();
-      } else if (document.body === el) {
-        const warning = document.querySelector('.scheduled-warning');
-        const body = document.querySelector('.devotion-body');
-        if (warning) warning.hidden = false;
-        if (body) body.innerHTML = '<p>This devotion is scheduled and will become available at 7am on its release date.</p>';
-        document.querySelectorAll('.scheduled-sensitive').forEach(link => link.remove());
-      }
+    if (now >= publishAt) return;
+
+    if (el.classList.contains('devotion-card')) {
+      el.remove();
+      return;
+    }
+
+    if (document.body === el) {
+      const warning = document.querySelector('.scheduled-warning');
+      const body = document.querySelector('.devotion-body');
+      if (warning) warning.hidden = false;
+      if (body) body.innerHTML = '<p>This devotion is scheduled and will become available at 7am on its release date.</p>';
+      document.querySelectorAll('.scheduled-sensitive').forEach(link => link.remove());
     }
   });
+
   document.querySelectorAll('a.scheduled-sensitive[href]').forEach(link => {
     const url = new URL(link.getAttribute('href'), window.location.href);
     fetch(url.href)
@@ -56,6 +60,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       })
       .catch(() => {});
   });
+
   const archiveGrid = document.getElementById('archiveGrid');
   const emptyMsg = document.getElementById('noDevotionsMessage');
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
@@ -117,16 +122,15 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   });
 })();
 
-// Scripture highlighting: makes quoted Bible text stand out across current and future devotion pages.
+// Scripture highlighting: keeps Bible text visually distinct across old and future devotions.
 (function () {
+  const article = document.querySelector('.devotion-article');
   const body = document.querySelector('.devotion-body');
-  if (!body) return;
+  if (!article || !body) return;
 
-  const inlineScriptureStyle = 'color:#a46200;font-weight:850;font-style:italic;background:transparent;border:0;padding:0;border-radius:0;text-decoration:underline;text-decoration-color:#e3ae35;text-decoration-thickness:2px;text-underline-offset:4px;';
-
-  body.querySelectorAll('blockquote').forEach(blockquote => {
-    blockquote.classList.add('scripture-quote-block');
-  });
+  const inlineScriptureStyle = 'color:#9b6100;font-weight:850;font-style:italic;background:transparent;border:0;padding:0;border-radius:0;text-decoration:underline;text-decoration-color:#e0a72e;text-decoration-thickness:2px;text-underline-offset:4px;';
+  const referenceLineStyle = 'color:#8a5b00;font-family:Inter,Arial,sans-serif;font-size:14px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin:32px 0 8px;';
+  const verseLineStyle = 'color:#7a4d00;font-weight:800;font-style:italic;line-height:1.95;text-decoration:underline;text-decoration-color:#e0a72e;text-decoration-thickness:2px;text-underline-offset:5px;';
 
   const bibleBooks = [
     'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
@@ -138,16 +142,51 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     'Colossians', 'Thessalonians', 'Timothy', 'Titus', 'Philemon', 'Hebrews', 'James',
     'Peter', 'Jude', 'Revelation'
   ];
+
   const bookPattern = bibleBooks.join('|');
-  const referencePattern = new RegExp('\\b(?:[1-3]\\s*)?(?:' + bookPattern + ')\\s+\\d{1,3}:\\d{1,3}(?:[-–]\\d{1,3})?(?:\\s*\\([A-Z0-9]+\\))?', 'i');
+  const referencePattern = new RegExp('\\b(?:[1-3]\\s*)?(?:' + bookPattern + ')\\s+\\d{1,3}:\\d{1,3}(?:[-–&]\\d{1,3})?(?:\\s*\\([A-Z0-9]+\\))?', 'i');
+  const referenceOnlyPattern = new RegExp('^\\s*(?:[1-3]\\s*)?(?:' + bookPattern + ')\\s+\\d{1,3}:\\d{1,3}(?:[-–&]\\d{1,3})?(?:\\s*\\([A-Z0-9]+\\))?\\s*$', 'i');
   const scriptureCuePattern = /\b(?:Scripture|the Bible|Jesus|God|the Lord|Paul|John|Matthew|Mark|Luke|Peter|James)\s+(?:says|said|warns|writes|declares|calls|called|asks|asked|teaches|tells)\b/i;
+  const quoteStartPattern = /^\s*(?:["\u201c]|&ldquo;|&quot;)/i;
 
-  body.querySelectorAll('p').forEach(paragraph => {
-    if (paragraph.querySelector('.scripture-inline')) return;
+  article.querySelectorAll('.scripture-box').forEach(box => {
+    const heading = box.querySelector('h3');
+    const verse = box.querySelector('p');
+    if (heading) heading.setAttribute('style', mergeStyle(heading, referenceLineStyle + 'margin:0 0 12px;'));
+    if (verse) verse.setAttribute('style', mergeStyle(verse, verseLineStyle + 'margin:0;'));
+  });
 
-    const text = paragraph.textContent || '';
+  body.querySelectorAll('blockquote').forEach(blockquote => {
+    blockquote.classList.add('scripture-quote-block');
+  });
+
+  const paragraphs = Array.from(body.querySelectorAll('p'));
+
+  paragraphs.forEach((paragraph, index) => {
+    if (paragraph.closest('.scripture-inline')) return;
+
+    const text = (paragraph.textContent || '').trim();
+    const previousText = (paragraphs[index - 1]?.textContent || '').trim();
+    const nextParagraph = paragraphs[index + 1];
+
+    if (referenceOnlyPattern.test(text)) {
+      paragraph.classList.add('scripture-reference-line');
+      paragraph.setAttribute('style', mergeStyle(paragraph, referenceLineStyle));
+
+      if (nextParagraph && quoteStartPattern.test(nextParagraph.textContent || '')) {
+        nextParagraph.classList.add('scripture-quoted-line');
+        nextParagraph.setAttribute('style', mergeStyle(nextParagraph, verseLineStyle));
+      }
+      return;
+    }
+
+    if (quoteStartPattern.test(text) && referenceOnlyPattern.test(previousText)) {
+      paragraph.classList.add('scripture-quoted-line');
+      paragraph.setAttribute('style', mergeStyle(paragraph, verseLineStyle));
+      return;
+    }
+
     if (!referencePattern.test(text) && !scriptureCuePattern.test(text)) return;
-
     highlightQuotedText(paragraph);
   });
 
@@ -166,7 +205,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     textNodes.forEach(node => {
       const fragment = document.createDocumentFragment();
       const text = node.nodeValue;
-      const quotePattern = /(["\u201c])([^"\u201d]{4,240})(["\u201d])/g;
+      const quotePattern = /(["\u201c])([^"\u201d]{4,360})(["\u201d])/g;
       let lastIndex = 0;
       let match;
       let changed = false;
@@ -187,8 +226,12 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       node.parentNode.replaceChild(fragment, node);
     });
   }
-})();
 
+  function mergeStyle(element, style) {
+    const current = element.getAttribute('style');
+    return current ? `${current};${style}` : style;
+  }
+})();
 
 // Subscribe form: sends new subscribers to Brevo through Cloudflare Pages Functions.
 (function () {
@@ -199,13 +242,14 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   form.setAttribute('action', '#');
   form.setAttribute('novalidate', 'novalidate');
 
-  form.addEventListener('submit', async (event) => {
+  form.addEventListener('submit', async event => {
     event.preventDefault();
     event.stopPropagation();
 
     const button = form.querySelector('button[type="submit"]');
     const originalButtonText = button?.dataset.originalText || button?.textContent || 'Subscribe to Daily Dose';
     if (button) button.dataset.originalText = originalButtonText;
+
     const formData = new FormData(form);
     const email = String(formData.get('email') || '').trim();
 
@@ -221,16 +265,10 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     if (status) status.textContent = 'Subscribing...';
 
     try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        body: formData
-      });
-
+      const response = await fetch('/api/subscribe', { method: 'POST', body: formData });
       const result = await response.json().catch(() => ({}));
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Something went wrong. Please try again.');
-      }
+      if (!response.ok || !result.success) throw new Error(result.error || 'Something went wrong. Please try again.');
 
       form.reset();
       if (status) status.textContent = 'Thank you for subscribing. Please check your inbox for the Welcome Pack.';
@@ -278,11 +316,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
   function formatDate(value) {
     try {
-      return new Date(value).toLocaleDateString('en-IE', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
+      return new Date(value).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
     } catch {
       return '';
     }
@@ -312,7 +346,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       if (!response.ok || !data.success) throw new Error(data.error || 'Could not load prayer wall.');
       renderItems(prayerList, data.prayers || [], 'No public prayer requests yet.', false);
       renderItems(answeredList, data.answered || [], 'No answered prayers shared yet.', true);
-    } catch (error) {
+    } catch {
       prayerList.innerHTML = '<p class="empty-state">Prayer wall could not load right now.</p>';
       answeredList.innerHTML = '<p class="empty-state">Answered prayers could not load right now.</p>';
     }
@@ -361,7 +395,6 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   loadPrayers();
 })();
 
-
 // Share buttons use the current page URL for homepage, devotions, and series pages.
 (function () {
   function getShareTitle() {
@@ -404,18 +437,12 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     const copyStatus = wrapper.querySelector('.copy-status');
 
     async function nativeShare(intent) {
-      const shareData = {
-        title,
-        text: `I wanted to share this from Daily Dose Devotions:\n\n${title}`,
-        url
-      };
+      const shareData = { title, text: `I wanted to share this from Daily Dose Devotions:\n\n${title}`, url };
 
       try {
         if (navigator.share) {
           await navigator.share(shareData);
-          copyStatus.textContent = intent === 'instagram'
-            ? 'Share opened. Choose Instagram or Stories if it appears.'
-            : 'Share opened.';
+          copyStatus.textContent = intent === 'instagram' ? 'Share opened. Choose Instagram or Stories if it appears.' : 'Share opened.';
         } else {
           await navigator.clipboard.writeText(url);
           copyStatus.textContent = 'Link copied. Open Instagram and paste it into your story.';
@@ -435,7 +462,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       try {
         await navigator.clipboard.writeText(url);
         copyStatus.textContent = 'Link copied.';
-      } catch (error) {
+      } catch {
         copyStatus.textContent = url;
       }
     });
