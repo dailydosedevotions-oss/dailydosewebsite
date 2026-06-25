@@ -121,6 +121,8 @@ small{color:#d9cbb8}
 .prayer-item .answered-label{color:#d9b96f;font-weight:700}
 .prayer-status-success{color:#d9b96f!important}
 .prayer-status-error{color:#ffcfba!important}
+.gentle-support-note{margin-top:14px!important;color:#766b5f!important;font-size:14px!important;line-height:1.7!important}
+.gentle-support-note a{color:#8d6728;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .stats-panel{background:#11100e;border:1px solid rgba(198,160,90,.28);border-radius:10px;padding:30px;box-shadow:0 24px 70px rgba(0,0,0,.24)}
 .stats-token-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}
 .stats-token-row .field-label{grid-column:1/-1}
