@@ -66,6 +66,56 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
+// Homepage milestone banner: celebrates Daily Dose #100 without needing a manual site change.
+(function () {
+  const section = document.getElementById('dailyDoseMilestone');
+  const eyebrow = document.getElementById('milestoneEyebrow');
+  const title = document.getElementById('milestoneTitle');
+  const text = document.getElementById('milestoneText');
+  const link = document.getElementById('milestoneLink');
+  if (!section || !eyebrow || !title || !text || !link) return;
+
+  const now = new Date();
+  const buildStart = new Date('2026-07-27T00:00:00+01:00');
+  const dayStart = new Date('2026-08-02T00:00:00+01:00');
+  const thanksStart = new Date('2026-08-03T00:00:00+01:00');
+  const end = new Date('2026-08-06T00:00:00+01:00');
+
+  if (now < buildStart || now >= end) return;
+
+  const states = {
+    build: {
+      eyebrow: '100 Days of Daily Dose',
+      title: 'Approaching 100 Days of Daily Dose',
+      text: 'On Sunday, August 2, Daily Dose reaches #100. One hundred days of Scripture, reflection, and real life. Thank You Lord for grace.',
+      href: 'devotions.html',
+      label: 'Read Today\u2019s Dose'
+    },
+    day: {
+      eyebrow: 'Today: Daily Dose #100',
+      title: '100 Days of Daily Dose',
+      text: '100 days of opening the Word, turning back to Christ, and remembering grace. Today\u2019s Daily Dose is #100.',
+      href: 'devotions/daily-dose-100.html',
+      label: 'Read Daily Dose #100'
+    },
+    thanks: {
+      eyebrow: 'Thank You for 100 Days',
+      title: 'Daily Dose Continues One Day at a Time',
+      text: 'Thank you for reading, praying, sharing, and walking with us. We keep going in the Word, one day at a time.',
+      href: 'devotions.html',
+      label: 'Keep Reading'
+    }
+  };
+
+  const state = now >= thanksStart ? states.thanks : now >= dayStart ? states.day : states.build;
+  eyebrow.textContent = state.eyebrow;
+  title.textContent = state.title;
+  text.textContent = state.text;
+  link.href = state.href;
+  link.textContent = state.label;
+  section.hidden = false;
+})();
+
 // Homepage feature: pulls the latest available devotion into the "Today's Daily Dose" card.
 (function () {
   const card = document.getElementById('todayDoseCard');
