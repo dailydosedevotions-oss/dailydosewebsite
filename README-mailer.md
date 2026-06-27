@@ -5,7 +5,9 @@ This Cloudflare Worker:
 - accepts new subscribers at `POST /subscribe`;
 - adds them to Brevo list `2`;
 - checks every hour and sends the devotion once when the local time in `Europe/Dublin` is 7am;
-- loads each devotion from GitHub;
+- checks every hour and sends the series reflection once when the local time in `Europe/Dublin` is 7pm;
+- sends the Daily Dose #100 thank-you email once at 10am on Sunday, August 2, 2026;
+- loads devotion content from the live website;
 - creates and sends a Brevo email campaign to your subscriber list.
 
 New subscribers are added to Brevo and will receive the next devotion release. They are not sent old devotions automatically.
@@ -42,9 +44,13 @@ SENT_DEVOTIONS
 
 This is a Cloudflare KV binding. The Worker can run without it, but adding it protects against accidental duplicate sends.
 
-## Devotion file format
+## Devotion source
 
-Create one JSON file per day in GitHub.
+The Worker reads the live Daily Dose website archive and devotion pages. The dated JSON files can still exist for reference, but the email worker is designed to follow what is live on the website.
+
+## Optional JSON devotion file format
+
+If you ever use JSON-only sending again, create one JSON file per day in GitHub.
 
 Example: `devotions/2026-06-20.json`
 
@@ -86,3 +92,25 @@ curl -X POST https://your-worker.your-subdomain.workers.dev/send-today
 ```
 
 Use that carefully because it sends to the Brevo list.
+
+## Daily Dose #100 thank-you email
+
+This one-off email is scheduled for:
+
+```txt
+Sunday, August 2, 2026 at 10:00 Europe/Dublin time
+```
+
+This is about three hours after Daily Dose #100 releases at 7am.
+
+Preview it at:
+
+```txt
+https://your-worker.your-subdomain.workers.dev/preview-milestone-100
+```
+
+Manual send, only if needed:
+
+```txt
+https://your-worker.your-subdomain.workers.dev/send-milestone-100?confirm=SEND
+```

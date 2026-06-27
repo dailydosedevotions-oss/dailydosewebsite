@@ -6,6 +6,7 @@ export default {
       if (request.method === "OPTIONS") return json(null, 204);
       if (url.pathname === "/check") return checkToday(env);
       if (url.pathname === "/preview-email") return previewEmail(env);
+      if (url.pathname === "/preview-milestone-100") return previewMilestone100(env);
       if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
       if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
@@ -29,14 +30,23 @@ export default {
         return json(await sendDueDevotions(env, { manual: true }));
       }
 
+      if (url.pathname === "/send-milestone-100") {
+        if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+          return json({ ok: false, message: "Add ?confirm=SEND to send the Daily Dose #100 thank-you email.", sendUrl: `${url.origin}${url.pathname}?confirm=SEND` }, 400);
+        }
+        return json(await sendMilestone100Email(env, { manual: true, force: url.searchParams.get("force") === "1" }));
+      }
+
       return json({
         ok: true,
         message: "Daily Dose Auto Email Worker is live",
         check: "/check",
         previewEmail: "/preview-email",
+        previewMilestone100: "/preview-milestone-100",
         sendTodayOnly: "/send-daily-now?confirm=SEND",
         sendSeriesOnly: "/send-series-now?confirm=SEND",
-        sendAllDue: "/send-due-now?confirm=SEND"
+        sendAllDue: "/send-due-now?confirm=SEND",
+        sendMilestone100: "/send-milestone-100?confirm=SEND"
       });
     } catch (error) {
       return json({ ok: false, error: String(error && error.message ? error.message : error) }, 500);
@@ -61,7 +71,12 @@ async function checkToday(env) {
     localTime: local.time,
     latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now, env),
     latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now, env),
-    note: "Scheduled sends only happen at local 7am for daily devotions and local 7pm for series devotions."
+    milestone100: {
+      date: "2026-08-02",
+      localTime: "10:00",
+      subject: getMilestone100Content(env).subject
+    },
+    note: "Scheduled sends happen at local 7am for daily devotions, local 7pm for series devotions, and 10am on 2026-08-02 for the Daily Dose #100 thank-you email."
   });
 }
 
@@ -74,6 +89,10 @@ async function previewEmail(env) {
   }
 
   return new Response(renderDevotionHtml(env, candidate), { headers: { "content-type": "text/html; charset=utf-8" } });
+}
+
+async function previewMilestone100(env) {
+  return new Response(renderMilestone100Html(env), { headers: { "content-type": "text/html; charset=utf-8" } });
 }
 
 async function subscribe(request, env) {
@@ -124,6 +143,7 @@ async function sendScheduledForLocalTime(env) {
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
 
   if (local.hour === 7) return sendDueDevotions(env, { collections: ["daily"] });
+  if (local.date === "2026-08-02" && local.hour === 10) return sendMilestone100Email(env);
   if (local.hour === 19) return sendDueDevotions(env, { collections: ["series"] });
 
   return { ok: true, skipped: true, localTime: local.time, reason: "Not the local 7am or 7pm send window." };
@@ -158,6 +178,28 @@ async function sendDueDevotions(env, options = {}) {
   }
 
   return { ok: true, date: local.date, sent, skipped };
+}
+
+async function sendMilestone100Email(env, options = {}) {
+  const candidate = getMilestone100Candidate(env);
+
+  if (!options.force && await wasSent(env, candidate)) {
+    return { ok: true, skipped: true, reason: "Already sent", date: candidate.date, title: candidate.devotion.title };
+  }
+
+  await sendMilestone100Campaign(env);
+  await markSent(env, candidate);
+
+  return {
+    ok: true,
+    sent: [{
+      collection: candidate.collection,
+      date: candidate.date,
+      title: candidate.devotion.title,
+      source: options.manual ? "manual milestone send" : "scheduled milestone send"
+    }],
+    note: "Daily Dose #100 thank-you email sent to the Brevo subscriber list."
+  };
 }
 
 async function loadTodayCandidates(env, date) {
@@ -283,6 +325,67 @@ async function sendDevotionCampaign(env, candidate) {
   if (!sendResponse.ok) throw new Error(`Brevo campaign send failed: ${sendResponse.status} ${await sendResponse.text()}`);
 }
 
+async function sendMilestone100Campaign(env) {
+  const content = getMilestone100Content(env);
+  const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
+
+  if (!senderEmail) throw new Error("Set BREVO_SENDER_EMAIL or NOTIFY_EMAIL in Cloudflare variables.");
+
+  const createResponse = await brevoFetch(env, "/emailCampaigns", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "Daily Dose #100 thank-you email",
+      subject: content.subject,
+      sender: { name: env.BREVO_SENDER_NAME || "Daily Dose Devotions", email: senderEmail },
+      type: "classic",
+      htmlContent: renderMilestone100Html(env),
+      textContent: renderMilestone100Text(env),
+      recipients: { listIds: [Number(env.BREVO_LIST_ID)] }
+    })
+  });
+
+  if (!createResponse.ok) throw new Error(`Brevo milestone campaign create failed: ${createResponse.status} ${await createResponse.text()}`);
+
+  const created = await createResponse.json();
+  const sendResponse = await brevoFetch(env, `/emailCampaigns/${created.id}/sendNow`, { method: "POST" });
+
+  if (!sendResponse.ok) throw new Error(`Brevo milestone campaign send failed: ${sendResponse.status} ${await sendResponse.text()}`);
+}
+
+function getMilestone100Content(env) {
+  return {
+    subject: "100 Days of Daily Dose - Thank You",
+    title: "100 Days of Daily Dose",
+    subtitle: "Thank You for Walking With Us",
+    date: "2026-08-02",
+    devotionUrl: `${getSiteUrl(env)}/devotions/daily-dose-100.html`,
+    subscribeUrl: `${getSiteUrl(env)}/subscribe`,
+    lines: [
+      "Today Daily Dose reaches #100.",
+      "One hundred days of Scripture, reflection, and real life. One hundred days of opening the Word, turning our eyes back to Christ, and remembering that grace is still enough for today.",
+      "Thank you for being part of it. Thank you for reading, praying, sharing, subscribing, and encouraging this small ministry as it grows one day at a time.",
+      "Daily Dose was never meant to be about numbers alone. It is about hearts being pointed back to Jesus. If even one person pauses, opens Scripture, and takes another step toward Christ, then it matters.",
+      "Here is to the next 100 days, and to every year the Lord allows. May Daily Dose keep being a quiet place of truth, encouragement, repentance, recovery, and hope.",
+      "Thank you for walking with us. Keep going in the Word. Keep turning back to Christ. One day at a time."
+    ]
+  };
+}
+
+function getMilestone100Candidate(env) {
+  const content = getMilestone100Content(env);
+  return {
+    collection: "milestone",
+    date: content.date,
+    path: "daily-dose-100-thank-you-email",
+    devotion: {
+      title: content.subject,
+      body: content.lines.join("\n\n"),
+      url: content.devotionUrl
+    },
+    source: "scheduled milestone"
+  };
+}
+
 function renderDevotionHtml(env, candidate) {
   const { devotion, date, collection } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
@@ -353,6 +456,67 @@ function renderDevotionText(env, candidate) {
   const devotionUrl = getDevotionUrl(env, candidate);
 
   return [`Daily Dose Devotions - ${formatEmailDate(date)}`, devotion.title, devotion.scripture, devotion.body, `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
+}
+
+function renderMilestone100Html(env) {
+  const content = getMilestone100Content(env);
+  const paragraphs = content.lines.map((line) => `<p style="margin:0 0 20px;">${escapeHtml(line)}</p>`).join("");
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${escapeHtml(content.subject)}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#ede7dc;color:#222824;font-family:Georgia,'Times New Roman',serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ede7dc;margin:0;padding:30px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fffaf1;border:1px solid #d8cbb8;border-radius:8px;overflow:hidden;box-shadow:0 10px 28px rgba(38,63,54,.10);">
+            <tr>
+              <td style="background:#233d34;padding:30px 28px 26px;text-align:center;border-bottom:5px solid #c8a968;">
+                <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#d9c28f;font-weight:700;">Daily Dose Devotions</div>
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:42px;line-height:1;color:#fffaf1;font-weight:700;margin-top:14px;">100 Days</div>
+                <div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#efe4d1;margin-top:12px;">${escapeHtml(formatEmailDate(content.date))}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:34px 30px 8px;text-align:center;">
+                <div style="font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#6f6253;text-transform:uppercase;letter-spacing:1.8px;font-weight:700;">${escapeHtml(content.subtitle)}</div>
+                <h1 style="margin:16px 0 0;color:#202620;font-size:34px;line-height:1.18;font-weight:700;">${escapeHtml(content.title)}</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 32px 10px;">
+                <div style="height:1px;background:#ded2c0;margin:0 auto 28px;width:100%;"></div>
+                <div style="font-size:18px;line-height:1.78;color:#2c302d;">${paragraphs}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 32px 38px;text-align:center;">
+                <a href="${escapeHtml(content.devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">Read Daily Dose #100</a>
+                <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
+                <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function renderMilestone100Text(env) {
+  const content = getMilestone100Content(env);
+  return [
+    content.subject,
+    content.subtitle,
+    ...content.lines,
+    `Read Daily Dose #100: ${content.devotionUrl}`,
+    "Daily Dose Devotions - Helping hearts return to the Word, one day at a time."
+  ].join("\n\n");
 }
 
 function getDevotionUrl(env, candidate) {
