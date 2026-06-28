@@ -219,7 +219,9 @@ async function loadDevotionCandidate(env, collection, date) {
 async function loadWebsiteDevotionCandidate(env, collection, date) {
   const archivePath = collection === "series" ? "series.html" : "devotions.html";
   const archiveHtml = await getTextFromLiveSite(env, archivePath);
-  const card = findArchiveCard(archiveHtml, collection, date);
+  const card = collection === "series"
+    ? await findSeriesArchiveCard(env, archiveHtml, date)
+    : findArchiveCard(archiveHtml, collection, date);
 
   if (!card) return null;
 
@@ -232,6 +234,40 @@ async function loadWebsiteDevotionCandidate(env, collection, date) {
   normalizeDevotion(devotion);
 
   return { collection, date, path: pagePath, devotion, source: "live website" };
+}
+
+async function findSeriesArchiveCard(env, archiveHtml, date) {
+  const card = findArchiveCard(archiveHtml, "series", date);
+  if (card) return card;
+
+  for (const href of findSeriesPageLinks(archiveHtml)) {
+    const pagePath = normalizeSitePath(href);
+    const pageHtml = await getTextFromLiveSite(env, pagePath);
+    const pageCard = findArchiveCard(pageHtml, "series", date);
+    if (pageCard) return pageCard;
+  }
+
+  return null;
+}
+
+function findSeriesPageLinks(html) {
+  const links = [];
+  const seen = new Set();
+  const linkPattern = /<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi;
+  let match;
+
+  while ((match = linkPattern.exec(html))) {
+    const href = decodeHtml(match[1]);
+    const path = normalizeSitePath(href).replace(/\.html$/i, "");
+    if (!path.startsWith("series/")) continue;
+    if (path.split("/").length !== 2) continue;
+    if (seen.has(path)) continue;
+
+    seen.add(path);
+    links.push(path);
+  }
+
+  return links;
 }
 
 function findArchiveCard(html, collection, date) {
