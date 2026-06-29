@@ -16,7 +16,7 @@
       <div class="container">
         <p class="eyebrow">Private</p>
         <h1>Prayer Review</h1>
-        <p>Approve public prayer requests before they appear on the prayer wall.</p>
+        <p>Accept private prayer requests, and approve public ones before they appear on the prayer wall.</p>
       </div>
     </section>
     <section class="section">
@@ -82,11 +82,11 @@
         <article class="prayer-item">
           <p>${escapeHtml(item.message)}</p>
           <footer>
-            <span>${escapeHtml(item.name || 'Anonymous')} &middot; ${escapeHtml(item.type || 'prayer')}</span>
+            <span>${escapeHtml(item.name || 'Anonymous')} &middot; ${escapeHtml(item.type || 'prayer')} &middot; ${item.private ? 'Private' : 'Public review'}</span>
             <span>${new Date(item.createdAt).toLocaleString()}</span>
           </footer>
           <div class="hero-actions">
-            <button class="btn primary small" type="button" data-action="approve" data-id="${item.id}">Approve</button>
+            <button class="btn primary small" type="button" data-action="approve" data-id="${item.id}">${item.private ? 'Accept' : 'Approve'}</button>
             <button class="btn outline small" type="button" data-action="reject" data-id="${item.id}">Reject</button>
           </div>
         </article>
