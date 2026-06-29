@@ -25,16 +25,18 @@ export async function onRequest(context) {
           return htmlMessage("Prayer Review", "This prayer review link is private or has expired.", 403);
         }
 
-        const result = await moderatePrayer(store, emailId, emailAction);
+        const result = await moderatePrayer(store, emailId, emailAction, env, request.url);
         if (!result.success) {
           return htmlMessage("Prayer Review", result.error, result.status || 400);
         }
 
         return htmlMessage(
           "Prayer Review",
-          result.action === "approve"
-            ? "This prayer has been approved and is now on the prayer wall."
-            : "This prayer has been declined and will not appear on the prayer wall.",
+          result.action === "approve" && result.private
+            ? "This private prayer has been accepted. If they gave an email address, they have been told Daily Dose received it and will be praying."
+            : result.action === "approve"
+              ? "This prayer has been approved and is now on the prayer wall. If they gave an email address, they have been told it was accepted."
+              : "This prayer has been declined and will not appear on the prayer wall.",
           200
         );
       }
@@ -79,16 +81,14 @@ export async function onRequest(context) {
         createdAt: new Date().toISOString()
       };
 
-      if (!isPrivate) {
-        const store = getStore(env);
-        if (!store) {
-          return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
-        }
-
-        const pending = await getPendingItems(store);
-        pending.unshift({ ...publicItem(item), email });
-        await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
+      const store = getStore(env);
+      if (!store) {
+        return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
       }
+
+      const pending = await getPendingItems(store);
+      pending.unshift({ ...publicItem(item), private: isPrivate, email });
+      await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
 
       await sendPrayerNotification(env, { ...item, email }, request.url);
 
@@ -113,7 +113,7 @@ export async function onRequest(context) {
         return json({ success: false, error: "Choose approve or reject for a pending prayer." }, 400, corsHeaders);
       }
 
-      const result = await moderatePrayer(store, id, action);
+      const result = await moderatePrayer(store, id, action, env, request.url);
       return json(result, result.success ? 200 : result.status || 400, corsHeaders);
     }
 
@@ -147,7 +147,7 @@ async function getPendingItems(store) {
   return Array.isArray(existing) ? existing : [];
 }
 
-async function moderatePrayer(store, id, action) {
+async function moderatePrayer(store, id, action, env, requestUrl) {
   const normalizedAction = action === "decline" ? "reject" : action;
 
   if (!id || !["approve", "reject"].includes(normalizedAction)) {
@@ -162,14 +162,107 @@ async function moderatePrayer(store, id, action) {
     return { success: false, error: "Pending prayer was not found. It may already have been reviewed.", status: 404 };
   }
 
+  let emailed = false;
+
   if (normalizedAction === "approve") {
-    const publicItems = await getPublicItems(store);
-    publicItems.unshift(publicItem(item));
-    await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
+    if (!item.private) {
+      const publicItems = await getPublicItems(store);
+      publicItems.unshift(publicItem(item));
+      await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
+    }
+
+    emailed = await sendSubmitterPrayerAcceptedEmail(env, item, requestUrl);
   }
 
   await store.put("prayer-wall:pending", JSON.stringify(remaining));
-  return { success: true, action: normalizedAction, item: publicItem(item), pending: remaining };
+  return {
+    success: true,
+    action: normalizedAction,
+    item: publicItem(item),
+    private: Boolean(item.private),
+    emailed,
+    pending: remaining
+  };
+}
+
+async function sendSubmitterPrayerAcceptedEmail(env, item, requestUrl) {
+  if (!env.BREVO_API_KEY || !item.email || !isEmail(item.email)) return false;
+
+  const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
+  const senderName = env.SENDER_NAME || "Daily Dose Devotions";
+  const siteUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
+  const isPrivate = Boolean(item.private);
+  const kind = item.type === "answered" ? "answered prayer" : "prayer request";
+  const subject = isPrivate
+    ? "We received your prayer request - Daily Dose"
+    : "Your prayer request has been accepted - Daily Dose";
+  const message = isPrivate
+    ? "Thank you for trusting Daily Dose with your prayer request. We have received it, it will remain private, and we will be praying with you."
+    : "Thank you for sharing your prayer request with Daily Dose. It has been accepted for the prayer wall, and we will be praying with you.";
+
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": env.BREVO_API_KEY
+    },
+    body: JSON.stringify({
+      sender: {
+        name: senderName,
+        email: senderEmail
+      },
+      to: [
+        {
+          email: item.email,
+          name: item.name || undefined
+        }
+      ],
+      subject,
+      textContent: [
+        `Hi ${item.name && item.name !== "Anonymous" ? item.name : "there"},`,
+        "",
+        message,
+        "",
+        "You are not alone in this. Thank you for allowing us to stand with you in prayer.",
+        "",
+        "Daily Dose Devotions",
+        siteUrl
+      ].join("\n"),
+      htmlContent: buildSubmitterPrayerAcceptedHtml({ item, subject, message, siteUrl, kind })
+    })
+  });
+
+  return response.ok;
+}
+
+function buildSubmitterPrayerAcceptedHtml({ item, subject, message, siteUrl, kind }) {
+  const greeting = item.name && item.name !== "Anonymous" ? `Hi ${item.name},` : "Hi there,";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;background:#ede7dc;color:#222824;font-family:Georgia,'Times New Roman',serif;padding:24px;">
+  <div style="max-width:680px;margin:0 auto;background:#fffaf1;border:1px solid #d8cbb8;border-radius:8px;overflow:hidden;">
+    <div style="background:#233d34;padding:26px 28px;text-align:center;border-bottom:5px solid #c8a968;">
+      <p style="margin:0;color:#d9c28f;font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;">Daily Dose Prayer</p>
+      <h1 style="margin:12px 0 0;color:#fffaf1;font-size:30px;line-height:1.2;">${escapeHtml(subject.replace(" - Daily Dose", ""))}</h1>
+    </div>
+    <div style="padding:30px 32px;font-size:18px;line-height:1.75;color:#2c302d;">
+      <p style="margin:0 0 18px;">${escapeHtml(greeting)}</p>
+      <p style="margin:0 0 18px;">${escapeHtml(message)}</p>
+      <p style="margin:0 0 22px;">You are not alone in this. Thank you for allowing us to stand with you in prayer.</p>
+      <div style="background:#f0eadf;border-left:4px solid #c8a968;padding:16px 18px;margin:24px 0;">
+        <p style="margin:0;color:#6f6253;font-family:Arial,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">${escapeHtml(kind)}</p>
+        <p style="margin:8px 0 0;color:#2c302d;">${escapeHtml(item.message)}</p>
+      </div>
+      <p style="margin:26px 0 0;font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br><a href="${escapeHtml(siteUrl)}" style="color:#2f5c50;font-weight:700;">${escapeHtml(siteUrl)}</a></p>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function isEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""));
 }
 
 function publicItem(item) {
@@ -279,7 +372,7 @@ async function sendPrayerNotification(env, item, requestUrl) {
 
 function buildReviewLinks(env, item, requestUrl) {
   const token = clean(env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
-  if (item.private || !token) return { approveUrl: "", rejectUrl: "", textLines: [] };
+  if (!token) return { approveUrl: "", rejectUrl: "", textLines: [] };
 
   const baseUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
   const approveUrl = new URL("/api/prayers", baseUrl);
