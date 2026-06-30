@@ -81,21 +81,28 @@ export async function onRequest(context) {
         createdAt: new Date().toISOString()
       };
 
-      const store = getStore(env);
-      if (!store) {
-        return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
+      let submitterEmailed = false;
+
+      if (isPrivate) {
+        await sendPrayerNotification(env, { ...item, email }, request.url);
+        submitterEmailed = await sendSubmitterPrayerReceivedEmail(env, { ...item, email }, request.url);
+      } else {
+        const store = getStore(env);
+        if (!store) {
+          return json({ success: false, error: "Prayer wall storage is not configured yet." }, 500, corsHeaders);
+        }
+
+        const pending = await getPendingItems(store);
+        pending.unshift({ ...publicItem(item), private: false, email });
+        await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
+        await sendPrayerNotification(env, { ...item, email }, request.url);
       }
-
-      const pending = await getPendingItems(store);
-      pending.unshift({ ...publicItem(item), private: isPrivate, email });
-      await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
-
-      await sendPrayerNotification(env, { ...item, email }, request.url);
 
       return json({
         success: true,
         private: isPrivate,
         pending: !isPrivate,
+        submitterEmailed,
         item: null
       }, 200, corsHeaders);
     }
@@ -171,7 +178,9 @@ async function moderatePrayer(store, id, action, env, requestUrl) {
       await store.put("prayer-wall:public", JSON.stringify(publicItems.slice(0, 60)));
     }
 
-    emailed = await sendSubmitterPrayerAcceptedEmail(env, item, requestUrl);
+    emailed = item.private
+      ? await sendSubmitterPrayerReceivedEmail(env, item, requestUrl)
+      : await sendSubmitterPrayerAcceptedEmail(env, item, requestUrl);
   }
 
   await store.put("prayer-wall:pending", JSON.stringify(remaining));
@@ -186,19 +195,26 @@ async function moderatePrayer(store, id, action, env, requestUrl) {
 }
 
 async function sendSubmitterPrayerAcceptedEmail(env, item, requestUrl) {
+  return sendSubmitterPrayerResponseEmail(env, item, requestUrl, {
+    subject: "Your prayer request has been accepted - Daily Dose",
+    message: "Thank you for sharing your prayer request with Daily Dose. It has been accepted for the prayer wall, and we will be praying with you."
+  });
+}
+
+async function sendSubmitterPrayerReceivedEmail(env, item, requestUrl) {
+  return sendSubmitterPrayerResponseEmail(env, item, requestUrl, {
+    subject: "We received your prayer request - Daily Dose",
+    message: "Thank you for trusting Daily Dose with your prayer request. We have received it, it will remain private, and we will be praying with you."
+  });
+}
+
+async function sendSubmitterPrayerResponseEmail(env, item, requestUrl, content) {
   if (!env.BREVO_API_KEY || !item.email || !isEmail(item.email)) return false;
 
   const senderEmail = env.SENDER_EMAIL || "dailydosedevotions@gmail.com";
   const senderName = env.SENDER_NAME || "Daily Dose Devotions";
   const siteUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
-  const isPrivate = Boolean(item.private);
   const kind = item.type === "answered" ? "answered prayer" : "prayer request";
-  const subject = isPrivate
-    ? "We received your prayer request - Daily Dose"
-    : "Your prayer request has been accepted - Daily Dose";
-  const message = isPrivate
-    ? "Thank you for trusting Daily Dose with your prayer request. We have received it, it will remain private, and we will be praying with you."
-    : "Thank you for sharing your prayer request with Daily Dose. It has been accepted for the prayer wall, and we will be praying with you.";
 
   const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -217,18 +233,18 @@ async function sendSubmitterPrayerAcceptedEmail(env, item, requestUrl) {
           name: item.name || undefined
         }
       ],
-      subject,
+      subject: content.subject,
       textContent: [
         `Hi ${item.name && item.name !== "Anonymous" ? item.name : "there"},`,
         "",
-        message,
+        content.message,
         "",
         "You are not alone in this. Thank you for allowing us to stand with you in prayer.",
         "",
         "Daily Dose Devotions",
         siteUrl
       ].join("\n"),
-      htmlContent: buildSubmitterPrayerAcceptedHtml({ item, subject, message, siteUrl, kind })
+      htmlContent: buildSubmitterPrayerAcceptedHtml({ item, subject: content.subject, message: content.message, siteUrl, kind })
     })
   });
 
@@ -372,7 +388,7 @@ async function sendPrayerNotification(env, item, requestUrl) {
 
 function buildReviewLinks(env, item, requestUrl) {
   const token = clean(env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
-  if (!token) return { approveUrl: "", rejectUrl: "", textLines: [] };
+  if (item.private || !token) return { approveUrl: "", rejectUrl: "", textLines: [] };
 
   const baseUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
   const approveUrl = new URL("/api/prayers", baseUrl);
