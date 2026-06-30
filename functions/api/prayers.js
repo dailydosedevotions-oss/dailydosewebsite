@@ -345,7 +345,6 @@ function htmlMessage(title, message, status = 200) {
   <main>
     <h1>${escapeHtml(title)}</h1>
     <p>${escapeHtml(message)}</p>
-    <p><a href="/prayer-admin.html">Open Prayer Review</a></p>
   </main>
 </body>
 </html>`, {
