@@ -21,11 +21,7 @@ export async function onRequest(context) {
       const emailId = clean(url.searchParams.get("id"));
 
       if (emailAction || emailId) {
-        if (!canModerate(request, env)) {
-          return htmlMessage("Prayer Review", "This prayer review link is private or has expired.", 403);
-        }
-
-        const result = await moderatePrayer(store, emailId, emailAction, env, request.url);
+        const result = await moderatePrayer(store, emailId, emailAction, env, request.url, request);
         if (!result.success) {
           return htmlMessage("Prayer Review", result.error, result.status || 400);
         }
@@ -93,7 +89,7 @@ export async function onRequest(context) {
         }
 
         const pending = await getPendingItems(store);
-        pending.unshift({ ...publicItem(item), private: false, email });
+        pending.unshift({ ...publicItem(item), private: false, email, reviewToken: crypto.randomUUID() });
         await store.put("prayer-wall:pending", JSON.stringify(pending.slice(0, 80)));
         await sendPrayerNotification(env, { ...item, email }, request.url);
       }
@@ -120,7 +116,7 @@ export async function onRequest(context) {
         return json({ success: false, error: "Choose approve or reject for a pending prayer." }, 400, corsHeaders);
       }
 
-      const result = await moderatePrayer(store, id, action, env, request.url);
+      const result = await moderatePrayer(store, id, action, env, request.url, request);
       return json(result, result.success ? 200 : result.status || 400, corsHeaders);
     }
 
@@ -154,7 +150,7 @@ async function getPendingItems(store) {
   return Array.isArray(existing) ? existing : [];
 }
 
-async function moderatePrayer(store, id, action, env, requestUrl) {
+async function moderatePrayer(store, id, action, env, requestUrl, request) {
   const normalizedAction = action === "decline" ? "reject" : action;
 
   if (!id || !["approve", "reject"].includes(normalizedAction)) {
@@ -167,6 +163,10 @@ async function moderatePrayer(store, id, action, env, requestUrl) {
 
   if (!item) {
     return { success: false, error: "Pending prayer was not found. It may already have been reviewed.", status: 404 };
+  }
+
+  if (!canModeratePrayerItem(request, env, item)) {
+    return { success: false, error: "This prayer review link is private or has expired.", status: 403 };
   }
 
   let emailed = false;
@@ -306,6 +306,16 @@ function canModerate(request, env) {
   return queryToken === expectedToken || headerToken === expectedToken;
 }
 
+function canModeratePrayerItem(request, env, item) {
+  if (canModerate(request, env)) return true;
+
+  const url = new URL(request.url);
+  const queryToken = clean(url.searchParams.get("token"));
+  const itemToken = clean(item.reviewToken);
+
+  return Boolean(queryToken && itemToken && queryToken === itemToken);
+}
+
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -387,7 +397,7 @@ async function sendPrayerNotification(env, item, requestUrl) {
 }
 
 function buildReviewLinks(env, item, requestUrl) {
-  const token = clean(env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
+  const token = clean(item.reviewToken || env.PRAYER_ADMIN_TOKEN || env.PWA_STATS_TOKEN);
   if (item.private || !token) return { approveUrl: "", rejectUrl: "", textLines: [] };
 
   const baseUrl = clean(env.SITE_URL || env.PUBLIC_SITE_URL) || new URL(requestUrl).origin;
