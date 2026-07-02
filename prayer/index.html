@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/styles.css?v=home-focus-2" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="navbar scrolled" id="navbar">
     <div class="nav-inner">
       <a class="brand" href="/index.html#home">DAILY DOSE</a>
@@ -40,7 +41,7 @@
         <a href="/prayer">Prayer</a>
         <a href="/subscribe">Subscribe</a>
       </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="mobileMenu">&#9776;</button>
     </div>
   </nav>
 
@@ -55,7 +56,7 @@
     <div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Reflection &middot; Real Life</span></div>
   </div>
 
-  <main>
+  <main id="main">
     <section class="page-hero">
       <div class="container">
         <p class="eyebrow">Prayer at Daily Dose</p>
@@ -80,9 +81,9 @@
             <option value="prayer">A prayer request</option>
             <option value="answered">An answered prayer</option>
           </select>
-          <input name="name" placeholder="Your Name" required>
-          <input name="email" type="email" placeholder="Email Address">
-          <textarea name="message" placeholder="Your prayer request..." required></textarea>
+          <input name="name" placeholder="Your Name" aria-label="Your name" required>
+          <input name="email" type="email" placeholder="Email Address" aria-label="Email address">
+          <textarea name="message" placeholder="Your prayer request..." aria-label="Prayer request or answered prayer" required></textarea>
           <label class="check-row"><input type="checkbox" name="private" value="Yes"> Keep this private and send it only to Daily Dose</label>
           <small id="prayerPrivacyNote">Unticked requests are sent to Daily Dose for review before appearing below. Private requests are emailed only to Daily Dose Devotions.</small>
           <button class="btn primary full" type="submit">Submit</button>

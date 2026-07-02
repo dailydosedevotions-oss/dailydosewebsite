@@ -44,6 +44,7 @@
   <link rel="stylesheet" href="styles.css?v=milestone-1" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
       <a class="brand" href="#home">DAILY DOSE</a>
@@ -55,7 +56,7 @@
         <a href="/prayer">Prayer</a>
         <a href="subscribe">Subscribe</a>
       </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="mobileMenu">&#9776;</button>
     </div>
   </nav>
 
@@ -73,7 +74,7 @@
     </div>
   </div>
 
-  <main>
+  <main id="main">
     <section id="home" class="hero">
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
@@ -127,8 +128,8 @@
             <p>No pressure. No cost. Just Scripture and encouragement sent straight to your inbox.</p>
           </div>
           <div class="subscribe-band-fields">
-            <input name="name" placeholder="First name (optional)">
-            <input name="email" type="email" placeholder="Email Address" required>
+            <input name="name" placeholder="First name (optional)" aria-label="First name">
+            <input name="email" type="email" placeholder="Email Address" aria-label="Email address" required>
             <input type="hidden" name="form_type" value="Subscription request">
             <input type="hidden" name="source" value="Homepage subscribe band">
             <button class="btn primary full" type="submit">Send Me Daily Dose</button>

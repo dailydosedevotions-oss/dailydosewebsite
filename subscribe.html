@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="/styles.css?v=share-contrast-1" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="navbar scrolled" id="navbar">
     <div class="nav-inner">
       <a class="brand" href="/index.html#home">DAILY DOSE</a>
@@ -41,7 +42,7 @@
         <a href="/verse-library.html">Verse Library</a>
         <a href="/prayer">Prayer</a>
       </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="mobileMenu">&#9776;</button>
     </div>
   </nav>
 
@@ -57,7 +58,7 @@
     <div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Reflection &middot; Real Life</span></div>
   </div>
 
-  <main>
+  <main id="main">
     <section class="subscribe-landing">
       <div class="container subscribe-landing-grid">
         <div class="subscribe-landing-copy reveal visible">
@@ -81,8 +82,8 @@
             <h2>Get Daily Dose by Email</h2>
             <p>Free devotions sent straight to your inbox</p>
           </div>
-          <input name="name" placeholder="First name (optional)">
-          <input name="email" type="email" placeholder="Email Address" required>
+          <input name="name" placeholder="First name (optional)" aria-label="First name">
+          <input name="email" type="email" placeholder="Email Address" aria-label="Email address" required>
           <input type="hidden" name="form_type" value="Subscription request">
           <input type="hidden" name="source" value="Subscribe landing page">
           <button class="btn primary full" type="submit">Send Me Daily Dose</button>

@@ -8,18 +8,20 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <title>Need Help Now | Daily Dose</title>
-  <meta name="description" content="Support guidance for urgent situations." />
+  <meta name="description" content="Urgent support guidance for Daily Dose visitors. Daily Dose can receive prayer requests, but it is not an emergency or crisis service." />
+  <link rel="canonical" href="https://dailydosedevotions.ie/need-help-now.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=share-contrast-1" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <nav class="navbar scrolled" id="navbar">
     <div class="nav-inner">
       <a class="brand" href="/index.html#home">DAILY DOSE</a>
       <div class="nav-links"><a href="/index.html#home">Home</a><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer">Prayer</a></div>
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">&#9776;</button>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="mobileMenu">&#9776;</button>
     </div>
   </nav>
   <div class="mobile-menu" id="mobileMenu">
@@ -27,7 +29,7 @@
     <a href="/index.html#home">Home</a><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer">Prayer</a>
     <div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Reflection &middot; Real Life</span></div>
   </div>
-  <main>
+  <main id="main">
     <section class="page-hero">
       <div class="container">
         <p class="eyebrow">Support</p>
@@ -41,12 +43,57 @@
         <p>Please contact emergency services in your country now, or go to the nearest safe place and tell someone you trust. In Ireland, call 112 or 999 in an emergency.</p>
         <h2>If you feel at risk of harming yourself</h2>
         <p>Please reach out immediately to a trusted person, local emergency services, your GP, a crisis line, or a nearby support service. You do not have to carry that moment alone.</p>
+        <div class="support-list" aria-label="Urgent support options">
+          <article class="support-item">
+            <h3>Emergency Services</h3>
+            <p>If there is immediate danger, call 112 or 999 in Ireland now and ask for the service you need.</p>
+          </article>
+          <article class="support-item">
+            <h3>Samaritans</h3>
+            <p>Call 116 123 free, day or night, if you need someone to listen without judgement.</p>
+          </article>
+          <article class="support-item">
+            <h3>Pieta</h3>
+            <p>For suicide, self-harm, or bereavement support in Ireland, call 1800 247 247 or text HELP to 51444.</p>
+          </article>
+        </div>
         <h2>Prayer requests</h2>
         <p>You are welcome to submit prayer requests through Daily Dose, but prayer messages may not be read instantly. For urgent needs, seek direct help first.</p>
         <a class="btn primary" href="/prayer">Submit a Prayer Request</a>
       </div>
     </section>
   </main>
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <h3>DAILY DOSE</h3>
+        <p>Scripture-Rooted. Honest. Personal.</p>
+        <small>Each devotion is written to point people back toward Christ through the Word of God, honest faith, encouragement, challenge and daily reflection.</small>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="/start-here.html">Start Here</a>
+        <a href="/subscribe">Subscribe Free</a>
+        <a href="/devotions.html">Daily Devotions</a>
+        <a href="/series.html">The Series</a>
+        <a href="/prayer">Prayer Requests</a>
+        <a href="/story.html">About Daily Dose</a>
+        <a href="/what-we-believe.html">What We Believe</a>
+        <a href="/privacy.html">Privacy Policy</a>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <a href="mailto:dailydosedevotions@gmail.com">dailydosedevotions@gmail.com</a>
+        <a href="https://www.facebook.com/share/1CuVbMziM4/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/dailydosedevotions3/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@dailydosedevotions" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <small>&copy; 2026 Daily Dose Devotions. All rights reserved.</small>
+      <small>SCRIPTURE &middot; REFLECTION &middot; REAL LIFE</small>
+    </div>
+  </footer>
   <script src="/script.js?v=share-ig-1"></script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>
