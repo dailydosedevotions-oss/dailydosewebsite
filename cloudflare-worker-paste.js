@@ -61,7 +61,7 @@ export default {
 async function checkToday(env) {
   const now = new Date();
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
-  const candidates = await loadTodayCandidates(env, local.date);
+  const { candidates, errors } = await loadTodayCandidates(env, local.date, ["daily", "series"], true);
 
   return json({
     ok: true,
@@ -71,6 +71,7 @@ async function checkToday(env) {
     localTime: local.time,
     latestDailyDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "daily"), now, env),
     latestSeriesDose: summarizeCandidate(candidates.find((candidate) => candidate.collection === "series"), now, env),
+    loadErrors: errors,
     milestone100: {
       date: "2026-08-02",
       localTime: "10:00",
@@ -152,9 +153,10 @@ async function sendScheduledForLocalTime(env) {
 async function sendDueDevotions(env, options = {}) {
   const now = new Date();
   const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", now);
-  const candidates = await loadTodayCandidates(env, local.date);
+  const collectionsToLoad = options.collections || ["daily", "series"];
+  const { candidates, errors } = await loadTodayCandidates(env, local.date, collectionsToLoad, true);
   const sent = [];
-  const skipped = [];
+  const skipped = errors.map((error) => ({ collection: error.collection, date: local.date, reason: "Could not load devotion", error: error.error }));
 
   for (const candidate of candidates) {
     if (options.collections && !options.collections.includes(candidate.collection)) {
@@ -202,14 +204,21 @@ async function sendMilestone100Email(env, options = {}) {
   };
 }
 
-async function loadTodayCandidates(env, date) {
+async function loadTodayCandidates(env, date, collections = ["daily", "series"], tolerateErrors = false) {
   const candidates = [];
-  const daily = await loadDevotionCandidate(env, "daily", date);
-  const series = await loadDevotionCandidate(env, "series", date);
+  const errors = [];
 
-  if (daily) candidates.push(daily);
-  if (series) candidates.push(series);
-  return candidates;
+  for (const collection of collections) {
+    try {
+      const candidate = await loadDevotionCandidate(env, collection, date);
+      if (candidate) candidates.push(candidate);
+    } catch (error) {
+      if (!tolerateErrors) throw error;
+      errors.push({ collection, error: String(error && error.message ? error.message : error) });
+    }
+  }
+
+  return { candidates, errors };
 }
 
 async function loadDevotionCandidate(env, collection, date) {
