@@ -76,6 +76,17 @@ const formedSchedule = {
   "8": "2026-07-26T18:00:00Z"
 };
 
+const blessedAreSchedule = {
+  "1": "2026-08-23T18:00:00Z",
+  "2": "2026-08-30T18:00:00Z",
+  "3": "2026-09-06T18:00:00Z",
+  "4": "2026-09-13T18:00:00Z",
+  "5": "2026-09-20T18:00:00Z",
+  "6": "2026-09-27T18:00:00Z",
+  "7": "2026-10-04T18:00:00Z",
+  "8": "2026-10-11T18:00:00Z",
+  "9": "2026-10-18T18:00:00Z"
+};
 
 function scheduledResponse(eyebrow, title, message, backHref, backText) {
   return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><link rel="stylesheet" href="/styles.css"></head><body><main class="devotion-shell"><div class="container"><article class="devotion-article reveal visible"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p>${message}</p><p><a class="btn primary small" href="${backHref}">${backText}</a></p></article></div></main></body></html>`, {
@@ -101,6 +112,14 @@ export async function onRequest(context) {
     const publishAt = new Date(formedSchedule[formedMatch[1]]);
     if (now < publishAt) {
       return scheduledResponse('Daily Dose: FORMED', 'Scheduled Series Part', 'This FORMED part is scheduled and will become available at 7pm on its Sunday release date.', '/series.html', 'Back to FORMED');
+    }
+  }
+
+  const blessedAreMatch = url.pathname.match(/^\/series\/blessed-are-part-(\d+)\.html$/);
+  if (blessedAreMatch && blessedAreSchedule[blessedAreMatch[1]]) {
+    const publishAt = new Date(blessedAreSchedule[blessedAreMatch[1]]);
+    if (now < publishAt) {
+      return scheduledResponse('Daily Dose: Blessed Are', 'Scheduled Series Part', 'This Blessed Are part is scheduled and will become available at 7pm on its Sunday release date.', '/series/blessed-are.html', 'Back to Blessed Are');
     }
   }
 
