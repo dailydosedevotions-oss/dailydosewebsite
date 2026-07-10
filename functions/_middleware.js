@@ -115,11 +115,18 @@ export async function onRequest(context) {
     }
   }
 
+  if (url.pathname === '/series/blessed-are.html') {
+    const publishAt = new Date(blessedAreSchedule["1"]);
+    if (now < publishAt) {
+      return scheduledResponse('Daily Dose: Blessed Are', 'Scheduled Series', 'This Blessed Are series is scheduled and will become available at 7pm on its launch date.', '/series.html', 'Back to Series');
+    }
+  }
+
   const blessedAreMatch = url.pathname.match(/^\/series\/blessed-are-part-(\d+)\.html$/);
   if (blessedAreMatch && blessedAreSchedule[blessedAreMatch[1]]) {
     const publishAt = new Date(blessedAreSchedule[blessedAreMatch[1]]);
     if (now < publishAt) {
-      return scheduledResponse('Daily Dose: Blessed Are', 'Scheduled Series Part', 'This Blessed Are part is scheduled and will become available at 7pm on its Sunday release date.', '/series/blessed-are.html', 'Back to Blessed Are');
+      return scheduledResponse('Daily Dose: Blessed Are', 'Scheduled Series Part', 'This Blessed Are part is scheduled and will become available at 7pm on its Sunday release date.', '/series.html', 'Back to Series');
     }
   }
 
