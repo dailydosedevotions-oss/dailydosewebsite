@@ -1,3 +1,7 @@
+document.querySelectorAll('.devotion-article > .share-panel').forEach(panel => {
+  panel.remove();
+});
+
 let dailyDoseInstallPrompt = null;
 const installButton = document.querySelector('[data-install-app]');
 const pwaOpenedAsApp = isStandalone();
