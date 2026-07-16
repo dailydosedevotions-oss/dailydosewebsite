@@ -50,105 +50,120 @@
     style.id = "daily-dose-votd-feature-styles";
     style.textContent = `
       .verse-feature-section {
-        padding: 30px 20px 72px;
         position: relative;
+        overflow: hidden;
+        padding: clamp(72px, 9vw, 118px) 20px;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(198,160,90,.14), transparent 48%),
+          linear-gradient(180deg, #0d0c0b, #090807);
+        border-top: 1px solid rgba(198,160,90,.12);
+        border-bottom: 1px solid rgba(198,160,90,.12);
       }
-
-      .verse-feature-wrap {
-        max-width: 980px;
-        margin: 0 auto;
+      .verse-feature-section::before {
+        content: "";
+        position: absolute;
+        inset: 24px;
+        border: 1px solid rgba(198,160,90,.08);
+        pointer-events: none;
       }
-
+      .verse-feature-wrap { max-width: 1040px; margin: 0 auto; position: relative; }
       .verse-feature-card {
         position: relative;
         overflow: hidden;
         text-align: center;
-        padding: 42px 34px;
-        border-radius: 10px;
-        border: 1px solid rgba(198,160,90,.3);
-        background: linear-gradient(180deg, rgba(18,16,13,.96), rgba(12,11,10,.96));
-        box-shadow: 0 22px 70px rgba(0,0,0,.28);
+        padding: clamp(42px, 7vw, 78px) clamp(24px, 7vw, 84px);
+        border: 1px solid rgba(198,160,90,.34);
+        border-radius: 12px;
+        background: linear-gradient(145deg, rgba(24,20,15,.98), rgba(11,10,9,.98));
+        box-shadow: 0 34px 100px rgba(0,0,0,.38);
       }
-
+      .verse-feature-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #c6a05a, transparent);
+      }
+      .verse-feature-ornament {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 18px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(198,160,90,.38);
+        border-radius: 50%;
+        color: #d8b66e;
+        font-size: 17px;
+      }
       .verse-feature-card .date {
+        color: #d9c9af;
+        font-size: 12px;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+        margin: 8px 0 30px;
+      }
+      .verse-feature-card .verse-text {
+        max-width: 820px;
+        margin: 0 auto 24px;
+        padding: 0;
+        border: 0;
+        color: #fffaf0;
+        font-family: var(--font-heading, "Playfair Display", serif);
+        font-size: clamp(28px, 4.3vw, 48px);
+        font-weight: 400;
+        line-height: 1.42;
+        font-style: italic;
+        text-wrap: balance;
+      }
+      .verse-feature-card .verse-reference {
+        margin: 0 0 34px;
         color: var(--primary, #c6a05a);
         font-size: 13px;
-        letter-spacing: .14em;
+        font-weight: 700;
+        letter-spacing: .18em;
         text-transform: uppercase;
-        margin: 8px 0 12px;
       }
-
-      .verse-feature-card h3 {
-        font-family: var(--font-heading, "Playfair Display", serif);
-        font-size: clamp(34px, 5vw, 56px);
-        line-height: 1.05;
-        margin: 0 0 22px;
-        color: #fff;
-      }
-
-      .verse-feature-card .verse-text {
-        max-width: 780px;
-        margin: 0 auto 26px;
-        color: #f4ede2;
-        font-size: clamp(17px, 2vw, 22px);
-        line-height: 1.75;
-        font-style: italic;
-      }
-
       .verse-feature-card .verse-actions {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         gap: 12px;
       }
-
+      .verse-feature-card .verse-fallback-note {
+        margin: 18px 0 0;
+        color: #b9aa96;
+        font-size: 12px;
+      }
       .verse-share-status {
         min-height: 20px;
         margin-top: 12px;
         color: var(--primary, #c6a05a);
         font-size: 13px;
       }
-
       .votd-library-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
         gap: 18px;
         margin-top: 30px;
       }
-
       .votd-library-card {
         border: 1px solid rgba(198,160,90,.22);
         border-radius: 20px;
         padding: 22px;
         background: rgba(255,255,255,.035);
       }
-
       .votd-library-card h3 {
         margin: 8px 0 12px;
         font-family: var(--font-heading, "Playfair Display", serif);
       }
-
-      .votd-library-card p {
-        color: #ded6c9;
-        line-height: 1.65;
-      }
-
+      .votd-library-card p { color: #ded6c9; line-height: 1.65; }
       @media (max-width: 620px) {
-        .verse-feature-section {
-          padding: 26px 16px 58px;
-        }
-
-        .verse-feature-card {
-          padding: 36px 22px;
-        }
-
-        .verse-feature-card .verse-actions {
-          flex-direction: column;
-        }
-
-        .verse-feature-card .btn {
-          width: 100%;
-        }
+        .verse-feature-section { padding: 58px 16px; }
+        .verse-feature-section::before { inset: 10px; }
+        .verse-feature-card { padding: 42px 20px; }
+        .verse-feature-card .verse-text { font-size: clamp(26px, 8vw, 36px); line-height: 1.45; }
+        .verse-feature-card .verse-actions { flex-direction: column; }
+        .verse-feature-card .btn { width: 100%; }
       }
     `;
     document.head.appendChild(style);
@@ -430,21 +445,22 @@
     if (!section || !verse) return;
 
     section.className = "section verse-feature-section";
+    section.setAttribute("aria-labelledby", "votdHeading");
     section.innerHTML = `
       <div class="container verse-feature-wrap">
         <article class="verse-feature-card reveal visible">
-          <p class="eyebrow">Verse of the Day</p>
+          <div class="verse-feature-ornament" aria-hidden="true">&#10013;</div>
+          <p class="eyebrow" id="votdHeading">Verse of the Day</p>
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
-          <h3 id="votdReference">${escapeHtml(verse.reference)}</h3>
-          <p class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
-
+          <blockquote class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</blockquote>
+          <p class="verse-reference" id="votdReference">${escapeHtml(verse.reference)}</p>
           <div class="verse-actions">
+            <a class="btn primary" href="devotions.html">Read Today&rsquo;s Reflection</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
-            <button class="btn outline" id="shareVerseBtn" type="button">Share Verse Image</button>
+            <button class="btn outline" id="shareVerseBtn" type="button">Share Verse</button>
             <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
           </div>
-
-          <div class="verse-share-status" id="verseShareStatus"></div>
+          <div class="verse-share-status" id="verseShareStatus" aria-live="polite"></div>
         </article>
       </div>
     `;
@@ -501,10 +517,14 @@
         section.innerHTML = `
           <div class="container verse-feature-wrap">
             <article class="verse-feature-card reveal visible">
-          <div class="icon">&#128214;</div>
+              <div class="verse-feature-ornament" aria-hidden="true">&#10013;</div>
               <p class="eyebrow">Verse of the Day</p>
-              <h3>Verse of the Day</h3>
-              <p class="verse-text">Unable to load today&rsquo;s verse at the moment.</p>
+              <blockquote class="verse-text">&ldquo;Your word is a lamp to my feet, and a light for my path.&rdquo;</blockquote>
+              <p class="verse-reference">Psalm 119:105</p>
+              <div class="verse-actions">
+                <a class="btn primary" href="devotions.html">Read Today&rsquo;s Reflection</a>
+                <a class="btn outline" href="verse-library.html">View Verse Library</a>
+              </div>
             </article>
           </div>
         `;
