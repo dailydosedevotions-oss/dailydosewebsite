@@ -41,7 +41,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=milestone-1" />
+  <link rel="stylesheet" href="styles.css?v=votd-redesign-1" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -183,15 +183,20 @@
       </div>
     </section>
 
-    <section class="section verse-of-the-day-section" id="verse-of-the-day">
-      <div class="container">
-        <div class="verse-of-the-day-card reveal visible">
-          <p class="eyebrow">Verse of the Day</p>
-          <div class="date" id="votdDate">Loading today&rsquo;s verse...</div>
-          <h2 id="votdReference">Verse of the Day</h2>
-          <p class="verse-text" id="votdText">Loading...</p>
-          <a class="btn outline small" href="verse-library.html">View Verse Library</a>
-        </div>
+    <section class="section verse-feature-section" id="verse-of-the-day" aria-labelledby="votdHeading">
+      <div class="container verse-feature-wrap">
+        <article class="verse-feature-card reveal visible">
+          <div class="verse-feature-ornament" aria-hidden="true">&#10013;</div>
+          <p class="eyebrow" id="votdHeading">Verse of the Day</p>
+          <div class="date" id="votdDate">Thursday, 16 July 2026</div>
+          <blockquote class="verse-text" id="votdText">&ldquo;For you are my hope, Lord Yahweh; my confidence from my youth.&rdquo;</blockquote>
+          <p class="verse-reference" id="votdReference">Psalm 71:5</p>
+          <div class="verse-actions">
+            <a class="btn primary" href="devotions.html">Read Today&rsquo;s Reflection</a>
+            <a class="btn outline" href="verse-library.html">View Verse Library</a>
+          </div>
+          <p class="verse-fallback-note">Today&rsquo;s Scripture is refreshed automatically each day.</p>
+        </article>
       </div>
     </section>
   </main>
@@ -231,7 +236,7 @@
   </footer>
 
   <script src="script.js?v=milestone-1"></script>
-  <script src="/verse-of-the-day.js?v=verse-story-3"></script>
+  <script src="/verse-of-the-day.js?v=votd-redesign-1"></script>
   <script src="/pwa.js?v=pwa-4"></script>
 </body>
 </html>
