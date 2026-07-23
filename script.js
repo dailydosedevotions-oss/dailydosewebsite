@@ -94,18 +94,19 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (!section || !eyebrow || !title || !text || !link) return;
 
   const now = new Date();
-  const buildStart = new Date('2026-07-27T00:00:00+01:00');
+  const buildStart = new Date('2026-07-23T00:00:00+01:00');
   const dayStart = new Date('2026-08-02T00:00:00+01:00');
   const thanksStart = new Date('2026-08-03T00:00:00+01:00');
   const end = new Date('2026-08-06T00:00:00+01:00');
+  const daysUntil100 = Math.max(1, Math.ceil((dayStart - now) / (1000 * 60 * 60 * 24)));
 
   if (now < buildStart || now >= end) return;
 
   const states = {
     build: {
       eyebrow: '100 Days of Daily Dose',
-      title: 'Approaching 100 Days of Daily Dose',
-      text: 'On Sunday, August 2, Daily Dose reaches #100. One hundred days of Scripture, reflection, and real life. Thank You Lord for grace.',
+      title: `${daysUntil100} ${daysUntil100 === 1 ? 'Day' : 'Days'} to 100 Days of Daily Dose`,
+      text: 'Daily Dose reaches #100 on Sunday, August 2. We are giving thanks for every day of Scripture, reflection, and real life - one day at a time.',
       href: 'devotions.html',
       label: 'Read Today\u2019s Dose'
     },
