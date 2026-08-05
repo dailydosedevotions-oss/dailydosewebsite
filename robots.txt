@@ -1,7 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /portal/
 Disallow: /prayer-admin.html
 Disallow: /pwa-stats.html
 Disallow: /subscribe-health.html
+Disallow: /*.env$
+Disallow: /.git/
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /xmlrpc.php
+Disallow: /phpmyadmin/
 
 Sitemap: https://dailydosedevotions.ie/sitemap.xml
