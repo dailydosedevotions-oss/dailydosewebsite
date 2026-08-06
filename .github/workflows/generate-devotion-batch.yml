@@ -5,16 +5,12 @@ on:
     branches:
       - agent/add-devotions-149-190
     paths:
-      - devotion-source/full-review-manuscript-v2.md.gz.b64
-      - devotion-source/full-review-manuscript-v2.md.gz.b64.part-*
-      - tools/generate-devotion-batch.py
-      - tools/run-devotion-batch.py
-      - .github/workflows/generate-devotion-batch.yml
+      - devotion-source/READY.txt
   pull_request:
     branches:
       - main
     paths:
-      - devotion-source/full-review-manuscript-v2.md.gz.b64
+      - devotion-source/READY.txt
       - devotion-source/full-review-manuscript-v2.md.gz.b64.part-*
       - tools/generate-devotion-batch.py
       - tools/run-devotion-batch.py
