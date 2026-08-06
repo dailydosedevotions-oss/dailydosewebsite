@@ -6,14 +6,18 @@ on:
       - agent/add-devotions-149-190
     paths:
       - devotion-source/full-review-manuscript-v2.md.gz.b64
+      - devotion-source/full-review-manuscript-v2.md.gz.b64.part-*
       - tools/generate-devotion-batch.py
+      - tools/run-devotion-batch.py
       - .github/workflows/generate-devotion-batch.yml
   pull_request:
     branches:
       - main
     paths:
       - devotion-source/full-review-manuscript-v2.md.gz.b64
+      - devotion-source/full-review-manuscript-v2.md.gz.b64.part-*
       - tools/generate-devotion-batch.py
+      - tools/run-devotion-batch.py
       - .github/workflows/generate-devotion-batch.yml
   workflow_dispatch:
 
@@ -33,7 +37,7 @@ jobs:
         with:
           python-version: '3.x'
       - name: Generate Daily Dose #149-#190
-        run: python tools/generate-devotion-batch.py
+        run: python tools/run-devotion-batch.py
       - name: Commit generated devotion batch
         run: |
           git config user.name "github-actions[bot]"
@@ -51,4 +55,4 @@ jobs:
         with:
           python-version: '3.x'
       - name: Validate generated Daily Dose batch
-        run: python tools/generate-devotion-batch.py --check-only
+        run: python tools/run-devotion-batch.py --check-only
