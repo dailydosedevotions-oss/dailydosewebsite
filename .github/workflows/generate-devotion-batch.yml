@@ -1,0 +1,54 @@
+name: Generate devotion batch
+
+on:
+  push:
+    branches:
+      - agent/add-devotions-149-190
+    paths:
+      - devotion-source/full-review-manuscript-v2.md.gz.b64
+      - tools/generate-devotion-batch.py
+      - .github/workflows/generate-devotion-batch.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - devotion-source/full-review-manuscript-v2.md.gz.b64
+      - tools/generate-devotion-batch.py
+      - .github/workflows/generate-devotion-batch.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Generate Daily Dose #149-#190
+        run: python tools/generate-devotion-batch.py
+      - name: Commit generated devotion batch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add devotions devotions.html cloudflare-worker-paste.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Add Daily Dose devotions 149-190"
+          git push
+  validate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate generated Daily Dose batch
+        run: python tools/generate-devotion-batch.py --check-only
