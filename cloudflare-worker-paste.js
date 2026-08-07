@@ -222,7 +222,42 @@ async function loadTodayCandidates(env, date, collections = ["daily", "series"],
 }
 
 async function loadDevotionCandidate(env, collection, date) {
-  return loadWebsiteDevotionCandidate(env, collection, date);
+  const websiteCandidate = await loadWebsiteDevotionCandidate(env, collection, date);
+  if (websiteCandidate) return websiteCandidate;
+  if (collection === "daily") return loadGitHubJsonDevotionCandidate(env, collection, date);
+  return null;
+}
+
+async function loadGitHubJsonDevotionCandidate(env, collection, date) {
+  const owner = env.GITHUB_OWNER || "dailydosedevotions-oss";
+  const repo = env.GITHUB_REPO || "dailydosewebsite";
+  const branch = env.GITHUB_BRANCH || "main";
+  const template = env.GITHUB_DEVOTION_PATH_TEMPLATE || "devotions/{date}.json";
+  const path = template.replaceAll("{date}", date);
+  const apiUrl = new URL(`/repos/${owner}/${repo}/contents/${path}`, "https://api.github.com");
+  apiUrl.searchParams.set("ref", branch);
+
+  const headers = {
+    Accept: "application/vnd.github.raw+json",
+    "User-Agent": "daily-dose-devotions-worker"
+  };
+  if (env.GITHUB_TOKEN) headers.Authorization = `Bearer ${env.GITHUB_TOKEN}`;
+
+  const response = await fetch(apiUrl.href, {
+    headers,
+    cf: { cacheTtl: 0, cacheEverything: false }
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) return null;
+    throw new Error(`Could not load ${path} from GitHub: ${response.status} ${await response.text()}`);
+  }
+
+  const devotion = await response.json();
+  normalizeDevotion(devotion);
+  if (!devotion.url) devotion.url = `${getSiteUrl(env)}/devotions.html`;
+
+  return { collection, date, path, devotion, source: "github json" };
 }
 
 async function loadWebsiteDevotionCandidate(env, collection, date) {
@@ -436,7 +471,7 @@ function renderDevotionHtml(env, candidate) {
   const devotionUrl = getDevotionUrl(env, candidate);
   const label = collection === "series" ? "Daily Dose Series" : "Daily Dose Devotions";
   const intro = collection === "series" ? "A Sunday formation reflection from Daily Dose." : "Your daily devotion, sent with prayer and purpose.";
-  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 20px;">${escapeHtml(paragraph).replaceAll("\n", "<br>")}</p>`).join("");
+  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 20px;">${renderBodyParagraph(paragraph)}</p>`).join("");
 
   return `<!doctype html>
 <html>
@@ -496,11 +531,21 @@ function renderDevotionHtml(env, candidate) {
 </html>`;
 }
 
+function renderBodyParagraph(paragraph) {
+  return escapeHtml(paragraph)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replaceAll("\n", "<br>");
+}
+
+function plainText(value) {
+  return String(value || "").replace(/\*\*/g, "");
+}
+
 function renderDevotionText(env, candidate) {
   const { devotion, date } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
 
-  return [`Daily Dose Devotions - ${formatEmailDate(date)}`, devotion.title, devotion.scripture, devotion.body, `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
+  return [`Daily Dose Devotions - ${formatEmailDate(date)}`, plainText(devotion.title), plainText(devotion.scripture), plainText(devotion.body), `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
 }
 
 function renderMilestone100Html(env) {
