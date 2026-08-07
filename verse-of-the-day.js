@@ -1,13 +1,17 @@
 (function () {
-  const DATA_URL = "/verses-of-the-day.json?v=5";
+  const DATA_URL = "/verses-of-the-day.json?v=6";
   const TRACK_URL = "/api/votd-interaction";
 
-  function todayKeyLocal() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+  function todayKeyIreland() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Dublin",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date());
+
+    const value = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    return `${value.year}-${value.month}-${value.day}`;
   }
 
   function visitorId() {
@@ -44,129 +48,7 @@
   }
 
   function injectVerseStyles() {
-    if (document.getElementById("daily-dose-votd-feature-styles")) return;
-
-    const style = document.createElement("style");
-    style.id = "daily-dose-votd-feature-styles";
-    style.textContent = `
-      .verse-feature-section {
-        position: relative;
-        overflow: hidden;
-        padding: clamp(72px, 9vw, 118px) 20px;
-        background:
-          radial-gradient(circle at 50% 0%, rgba(198,160,90,.14), transparent 48%),
-          linear-gradient(180deg, #0d0c0b, #090807);
-        border-top: 1px solid rgba(198,160,90,.12);
-        border-bottom: 1px solid rgba(198,160,90,.12);
-      }
-      .verse-feature-section::before {
-        content: "";
-        position: absolute;
-        inset: 24px;
-        border: 1px solid rgba(198,160,90,.08);
-        pointer-events: none;
-      }
-      .verse-feature-wrap { max-width: 1040px; margin: 0 auto; position: relative; }
-      .verse-feature-card {
-        position: relative;
-        overflow: hidden;
-        text-align: center;
-        padding: clamp(42px, 7vw, 78px) clamp(24px, 7vw, 84px);
-        border: 1px solid rgba(198,160,90,.34);
-        border-radius: 12px;
-        background: linear-gradient(145deg, rgba(24,20,15,.98), rgba(11,10,9,.98));
-        box-shadow: 0 34px 100px rgba(0,0,0,.38);
-      }
-      .verse-feature-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 0 auto;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #c6a05a, transparent);
-      }
-      .verse-feature-ornament {
-        width: 42px;
-        height: 42px;
-        margin: 0 auto 18px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(198,160,90,.38);
-        border-radius: 50%;
-        color: #d8b66e;
-        font-size: 17px;
-      }
-      .verse-feature-card .date {
-        color: #d9c9af;
-        font-size: 12px;
-        letter-spacing: .16em;
-        text-transform: uppercase;
-        margin: 8px 0 30px;
-      }
-      .verse-feature-card .verse-text {
-        max-width: 820px;
-        margin: 0 auto 24px;
-        padding: 0;
-        border: 0;
-        color: #fffaf0;
-        font-family: var(--font-heading, "Playfair Display", serif);
-        font-size: clamp(28px, 4.3vw, 48px);
-        font-weight: 400;
-        line-height: 1.42;
-        font-style: italic;
-        text-wrap: balance;
-      }
-      .verse-feature-card .verse-reference {
-        margin: 0 0 34px;
-        color: var(--primary, #c6a05a);
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: .18em;
-        text-transform: uppercase;
-      }
-      .verse-feature-card .verse-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 12px;
-      }
-      .verse-feature-card .verse-fallback-note {
-        margin: 18px 0 0;
-        color: #b9aa96;
-        font-size: 12px;
-      }
-      .verse-share-status {
-        min-height: 20px;
-        margin-top: 12px;
-        color: var(--primary, #c6a05a);
-        font-size: 13px;
-      }
-      .votd-library-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 18px;
-        margin-top: 30px;
-      }
-      .votd-library-card {
-        border: 1px solid rgba(198,160,90,.22);
-        border-radius: 20px;
-        padding: 22px;
-        background: rgba(255,255,255,.035);
-      }
-      .votd-library-card h3 {
-        margin: 8px 0 12px;
-        font-family: var(--font-heading, "Playfair Display", serif);
-      }
-      .votd-library-card p { color: #ded6c9; line-height: 1.65; }
-      @media (max-width: 620px) {
-        .verse-feature-section { padding: 58px 16px; }
-        .verse-feature-section::before { inset: 10px; }
-        .verse-feature-card { padding: 42px 20px; }
-        .verse-feature-card .verse-text { font-size: clamp(26px, 8vw, 36px); line-height: 1.45; }
-        .verse-feature-card .verse-actions { flex-direction: column; }
-        .verse-feature-card .btn { width: 100%; }
-      }
-    `;
-    document.head.appendChild(style);
+    // Verse presentation lives in styles.css so it can be cached and maintained with the rest of the site.
   }
 
   function placeVerseSection() {
@@ -179,7 +61,51 @@
   }
 
   function shareText(verse) {
-    return `Verse of the Day - ${verse.reference}\n\n"${verse.text}"\n\nRead more Daily Dose Devotions:\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+    return `Daily Dose Devotions | Verse of the Day\n\n${verse.reference}\n“${verse.text}”\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+  }
+
+  function validateVerseSchedule(verses) {
+    const issues = [];
+    const seen = new Set();
+
+    verses.forEach((verse, index) => {
+      if (!verse || !/^\d{4}-\d{2}-\d{2}$/.test(verse.date || "") || !verse.reference?.trim() || !verse.text?.trim()) {
+        issues.push(`Invalid verse entry at position ${index + 1}`);
+        return;
+      }
+      if (seen.has(verse.date)) issues.push(`Duplicate verse date: ${verse.date}`);
+      seen.add(verse.date);
+    });
+
+    const dates = [...seen].sort();
+    for (let index = 1; index < dates.length; index += 1) {
+      const previous = new Date(`${dates[index - 1]}T00:00:00Z`);
+      const current = new Date(`${dates[index]}T00:00:00Z`);
+      if ((current - previous) / 86400000 !== 1) {
+        issues.push(`Schedule gap between ${dates[index - 1]} and ${dates[index]}`);
+      }
+    }
+
+    if (issues.length) console.warn("Verse schedule validation:", issues);
+    return issues;
+  }
+
+  async function findReflectionUrl(date) {
+    try {
+      const response = await fetch("/devotions.html");
+      if (!response.ok) return "devotions.html";
+      const documentCopy = new DOMParser().parseFromString(await response.text(), "text/html");
+      const expected = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+      const cards = [...documentCopy.querySelectorAll(".devotion-card")];
+      const match = cards.find(card => card.querySelector(".date")?.textContent.trim() === expected);
+      return match?.querySelector("a[href]")?.getAttribute("href") || "devotions.html";
+    } catch {
+      return "devotions.html";
+    }
   }
 
   function getVerseTheme(verse) {
@@ -215,6 +141,17 @@
 
     if (line) lines.push(line);
     return lines;
+  }
+
+  function fitVerseText(ctx, text, maxWidth, maxLines) {
+    for (let fontSize = 50; fontSize >= 30; fontSize -= 2) {
+      ctx.font = `italic ${fontSize}px Georgia, 'Times New Roman', serif`;
+      const lines = wrapCanvasText(ctx, text, maxWidth);
+      if (lines.length <= maxLines) return { lines, fontSize, lineHeight: Math.round(fontSize * 1.42) };
+    }
+
+    ctx.font = "italic 30px Georgia, 'Times New Roman', serif";
+    return { lines: wrapCanvasText(ctx, text, maxWidth), fontSize: 30, lineHeight: 43 };
   }
 
   async function createVerseStoryFile(verse) {
@@ -292,18 +229,12 @@
     ctx.fillText("“", 190, y + 150);
 
     ctx.fillStyle = "#2a2117";
-    ctx.font = "italic 50px Georgia, 'Times New Roman', serif";
-    const verseLines = wrapCanvasText(ctx, `“${verse.text}”`, 820);
-    const limitedLines = verseLines.slice(0, 10);
+    const fittedVerse = fitVerseText(ctx, `“${verse.text}”`, 820, 12);
     y += 185;
-    limitedLines.forEach(line => {
+    fittedVerse.lines.forEach(line => {
       ctx.fillText(line, 540, y);
-      y += 70;
+      y += fittedVerse.lineHeight;
     });
-
-    if (verseLines.length > limitedLines.length) {
-      ctx.fillText("...", 540, y + 20);
-    }
 
     ctx.fillStyle = "rgba(110,84,34,.72)";
     ctx.font = "600 26px Inter, Arial, sans-serif";
@@ -321,7 +252,7 @@
     ctx.fillText("Scripture • Reflection • Real Life", 540, 1702);
     ctx.fillStyle = "rgba(245,234,215,.58)";
     ctx.font = "400 25px Inter, Arial, sans-serif";
-    ctx.fillText("dailydosedevotions.ie", 540, 1756);
+    ctx.fillText("dailydosedevotions.ie  •  @dailydosedevotions3", 540, 1756);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
     return new File([blob], `daily-dose-verse-${verse.date || "today"}.png`, { type: "image/png" });
@@ -372,11 +303,12 @@
   function wireVerseButtons(verse) {
     const shareBtn = document.getElementById("shareVerseBtn");
     const downloadBtn = document.getElementById("downloadVerseStoryBtn");
+    const instagramBtn = document.getElementById("instagramVerseBtn");
     const copyBtn = document.getElementById("copyVerseBtn");
     const status = document.getElementById("verseShareStatus");
 
-    if (shareBtn) {
-      shareBtn.addEventListener("click", async () => {
+    if (shareBtn || instagramBtn) {
+      const openShare = async () => {
         if (status) status.textContent = "Creating story image...";
         try {
           await recordInteraction("share", verse);
@@ -413,7 +345,10 @@
         } catch {
           if (status) status.textContent = "Share cancelled. You can still download the story image.";
         }
-      });
+      };
+
+      shareBtn?.addEventListener("click", openShare);
+      instagramBtn?.addEventListener("click", openShare);
     }
 
     if (downloadBtn) {
@@ -440,12 +375,16 @@
     }
   }
 
-  function renderHomepageVerse(verse) {
+  function renderHomepageVerse(verse, options = {}) {
     const section = document.getElementById("verse-of-the-day");
     if (!section || !verse) return;
 
     section.className = "section verse-feature-section";
     section.setAttribute("aria-labelledby", "votdHeading");
+    const reflectionUrl = options.reflectionUrl || "devotions.html";
+    const brandedText = shareText(verse);
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(brandedText)}`;
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://dailydosedevotions.ie/#verse-of-the-day")}`;
     section.innerHTML = `
       <div class="container verse-feature-wrap">
         <article class="verse-feature-card reveal visible">
@@ -455,11 +394,15 @@
           <blockquote class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</blockquote>
           <p class="verse-reference" id="votdReference">${escapeHtml(verse.reference)}</p>
           <div class="verse-actions">
-            <a class="btn primary" href="devotions.html">Read Today&rsquo;s Reflection</a>
+            <a class="btn primary" href="${escapeHtml(reflectionUrl)}">Read Today&rsquo;s Reflection</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
-            <button class="btn outline" id="shareVerseBtn" type="button">Share Verse</button>
+            <button class="btn outline" id="instagramVerseBtn" type="button">Instagram / Share</button>
+            <a class="btn outline" href="${whatsappUrl}" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="btn outline" href="${facebookUrl}" target="_blank" rel="noopener">Facebook</a>
+            <button class="btn outline" id="downloadVerseStoryBtn" type="button">Download Story Image</button>
             <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
           </div>
+          ${options.scheduleExpired ? '<p class="verse-schedule-note">The verse schedule needs updating. Showing the most recently scheduled Scripture.</p>' : ""}
           <div class="verse-share-status" id="verseShareStatus" aria-live="polite"></div>
         </article>
       </div>
@@ -473,7 +416,7 @@
     if (!libraryContainer) return;
 
     const pastVerses = verses
-      .filter(v => v.date < todayKey)
+      .filter(v => v.date <= todayKey)
       .sort((a, b) => b.date.localeCompare(a.date));
 
     if (!pastVerses.length) {
@@ -483,7 +426,7 @@
 
     libraryContainer.innerHTML = pastVerses.map(v => `
       <article class="votd-library-card">
-        <div class="date">${escapeHtml(formatDate(v.date, false))}</div>
+        <div class="date">${v.date === todayKey ? '<span class="votd-today-badge">Today</span>' : ""}${escapeHtml(formatDate(v.date, false))}</div>
         <h3>${escapeHtml(v.reference)}</h3>
         <p>&ldquo;${escapeHtml(v.text)}&rdquo;</p>
       </article>
@@ -496,8 +439,11 @@
 
     try {
       const response = await fetch(DATA_URL);
+      if (!response.ok) throw new Error(`Verse schedule request failed: ${response.status}`);
       const verses = await response.json();
-      const todayKey = todayKeyLocal();
+      if (!Array.isArray(verses) || !verses.length) throw new Error("Verse schedule is empty");
+      validateVerseSchedule(verses);
+      const todayKey = todayKeyIreland();
 
       let todaysVerse = verses.find(v => v.date === todayKey);
 
@@ -508,7 +454,12 @@
         todaysVerse = previous[0] || verses[0];
       }
 
-      renderHomepageVerse(todaysVerse);
+      const latestDate = verses.map(verse => verse.date).sort().at(-1);
+      const reflectionUrl = await findReflectionUrl(todaysVerse.date);
+      renderHomepageVerse(todaysVerse, {
+        reflectionUrl,
+        scheduleExpired: todayKey > latestDate
+      });
       renderLibrary(verses, todayKey);
     } catch (error) {
       const section = document.getElementById("verse-of-the-day");
