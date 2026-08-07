@@ -301,11 +301,20 @@
   }
 
   function wireVerseButtons(verse) {
+    const shareToggle = document.getElementById("shareVerseToggle");
+    const sharePanel = document.getElementById("verseSharePanel");
     const shareBtn = document.getElementById("shareVerseBtn");
     const downloadBtn = document.getElementById("downloadVerseStoryBtn");
     const instagramBtn = document.getElementById("instagramVerseBtn");
     const copyBtn = document.getElementById("copyVerseBtn");
     const status = document.getElementById("verseShareStatus");
+
+    shareToggle?.addEventListener("click", () => {
+      const isOpen = shareToggle.getAttribute("aria-expanded") === "true";
+      shareToggle.setAttribute("aria-expanded", String(!isOpen));
+      sharePanel.hidden = isOpen;
+      if (!isOpen) instagramBtn?.focus();
+    });
 
     if (shareBtn || instagramBtn) {
       const openShare = async () => {
@@ -393,14 +402,26 @@
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
           <blockquote class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</blockquote>
           <p class="verse-reference" id="votdReference">${escapeHtml(verse.reference)}</p>
-          <div class="verse-actions">
+          <div class="verse-actions verse-primary-actions">
             <a class="btn primary" href="${escapeHtml(reflectionUrl)}">Read Today&rsquo;s Reflection</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
-            <button class="btn outline" id="instagramVerseBtn" type="button">Instagram / Share</button>
-            <a class="btn outline" href="${whatsappUrl}" target="_blank" rel="noopener">WhatsApp</a>
-            <a class="btn outline" href="${facebookUrl}" target="_blank" rel="noopener">Facebook</a>
-            <button class="btn outline" id="downloadVerseStoryBtn" type="button">Download Story Image</button>
-            <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
+            <button class="btn outline" id="shareVerseToggle" type="button" aria-expanded="false" aria-controls="verseSharePanel">Share This Verse</button>
+          </div>
+          <div class="verse-share-panel" id="verseSharePanel" hidden>
+            <div class="verse-story-preview" aria-label="Preview of the Daily Dose Instagram Story image">
+              <span>Verse of the Day</span>
+              <strong>${escapeHtml(verse.reference)}</strong>
+              <p>&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
+              <small>DAILY DOSE<br>Scripture &bull; Reflection &bull; Real Life</small>
+            </div>
+            <div class="verse-share-options">
+              <p>Choose where you would like to share today&rsquo;s Scripture.</p>
+              <button class="btn primary" id="instagramVerseBtn" type="button">Instagram / Stories</button>
+              <a class="btn outline" href="${whatsappUrl}" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn outline" href="${facebookUrl}" target="_blank" rel="noopener">Facebook</a>
+              <button class="btn outline" id="downloadVerseStoryBtn" type="button">Download Story Image</button>
+              <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
+            </div>
           </div>
           ${options.scheduleExpired ? '<p class="verse-schedule-note">The verse schedule needs updating. Showing the most recently scheduled Scripture.</p>' : ""}
           <div class="verse-share-status" id="verseShareStatus" aria-live="polite"></div>
