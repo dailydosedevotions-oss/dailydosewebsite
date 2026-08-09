@@ -338,7 +338,9 @@ function findArchiveCard(html, collection, date) {
 function parseDevotionPage(html, collection, path, env) {
   const eyebrow = textBetween(html, /<p\b[^>]*class=["'][^"']*eyebrow[^"']*["'][^>]*>/i, /<\/p>/i);
   const h1 = textBetween(html, /<h1\b[^>]*>/i, /<\/h1>/i);
-  const scripture = textBetween(html, /<h3\b[^>]*class=["'][^"']*scripture-heading[^"']*["'][^>]*>/i, /<\/h3>/i) || textBetween(html, /<div\b[^>]*class=["'][^"']*scripture-box[^"']*["'][^>]*>[\s\S]*?<h3\b[^>]*>/i, /<\/h3>/i);
+  const scriptureBoxHtml = textBetween(html, /<div\b[^>]*class=["'][^"']*scripture-box[^"']*["'][^>]*>/i, /<\/div>/i, true);
+  const scripture = textBetween(html, /<h3\b[^>]*class=["'][^"']*scripture-heading[^"']*["'][^>]*>/i, /<\/h3>/i) || textBetween(scriptureBoxHtml, /<h3\b[^>]*>/i, /<\/h3>/i);
+  const scriptureQuote = textBetween(scriptureBoxHtml, /<p\b[^>]*>/i, /<\/p>/i, true);
   const bodyHtml = textBetween(html, /<div\b[^>]*class=["'][^"']*devotion-body[^"']*["'][^>]*>/i, /<\/div>/i, true);
   const publishAt = attr(html, "data-publish-at");
   const pageUrl = `${getSiteUrl(env)}/${path}`;
@@ -347,7 +349,7 @@ function parseDevotionPage(html, collection, path, env) {
 
   if (!title || !body) throw new Error(`Could not parse devotion page ${path}.`);
 
-  return { title, scripture: scripture || undefined, body, publishAt: publishAt || undefined, url: pageUrl };
+  return { title, scripture: scripture || undefined, scriptureQuote: scriptureQuote ? htmlToMarkdownText(scriptureQuote) : undefined, body, publishAt: publishAt || undefined, url: pageUrl };
 }
 
 function extractReadableBody(bodyHtml) {
@@ -356,11 +358,17 @@ function extractReadableBody(bodyHtml) {
   let match;
 
   while ((match = blockPattern.exec(bodyHtml))) {
-    const text = stripTags(match[2]);
+    const text = htmlToMarkdownText(match[2]);
     if (text) chunks.push(text);
   }
 
   return chunks.join("\n\n");
+}
+
+function htmlToMarkdownText(value) {
+  return stripTags(String(value || "")
+    .replace(/<strong\b[^>]*>([\s\S]*?)<\/strong>/gi, "**$1**")
+    .replace(/<b\b[^>]*>([\s\S]*?)<\/b>/gi, "**$1**"));
 }
 
 async function getTextFromLiveSite(env, path) {
@@ -471,7 +479,8 @@ function renderDevotionHtml(env, candidate) {
   const devotionUrl = getDevotionUrl(env, candidate);
   const label = collection === "series" ? "Daily Dose Series" : "Daily Dose Devotions";
   const intro = collection === "series" ? "A Sunday formation reflection from Daily Dose." : "Your daily devotion, sent with prayer and purpose.";
-  const paragraphs = devotion.body.split(/\n{2,}/).map((paragraph) => `<p style="margin:0 0 20px;">${renderBodyParagraph(paragraph)}</p>`).join("");
+  const emailContent = prepareDevotionEmailContent(devotion);
+  const paragraphs = emailContent.paragraphs.map((paragraph) => `<p style="margin:0 0 20px;">${renderBodyParagraph(paragraph)}</p>`).join("");
 
   return `<!doctype html>
 <html>
@@ -505,6 +514,7 @@ function renderDevotionHtml(env, candidate) {
                     <td style="padding:18px 20px;text-align:center;">
                       <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6f6253;font-weight:700;margin-bottom:6px;">Today's Scripture</div>
                       <div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#2d5a4e;font-weight:700;">${escapeHtml(devotion.scripture)}</div>
+                      ${emailContent.scriptureQuote ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.65;color:#202620;font-weight:700;margin-top:12px;">${renderBodyParagraph(emailContent.scriptureQuote)}</div>` : ""}
                     </td>
                   </tr>
                 </table>
@@ -531,9 +541,30 @@ function renderDevotionHtml(env, candidate) {
 </html>`;
 }
 
+function prepareDevotionEmailContent(devotion) {
+  const paragraphs = String(devotion.body || "").split(/\n{2,}/).map((paragraph) => paragraph.trim()).filter(Boolean);
+  const openingQuote = extractOpeningScriptureQuote(paragraphs[0]);
+  const scriptureQuote = devotion.scriptureQuote || openingQuote;
+  const bodyParagraphs = scriptureQuote && openingQuote && samePlainText(scriptureQuote, openingQuote) ? paragraphs.slice(1) : paragraphs;
+
+  return { scriptureQuote, paragraphs: bodyParagraphs };
+}
+
+function extractOpeningScriptureQuote(paragraph) {
+  const value = String(paragraph || "").trim();
+  if (!value) return "";
+  const plain = plainText(value).trim();
+  if (!plain.startsWith('"') || !plain.endsWith('"')) return "";
+  return value;
+}
+
+function samePlainText(left, right) {
+  return plainText(left).trim() === plainText(right).trim();
+}
+
 function renderBodyParagraph(paragraph) {
   return escapeHtml(paragraph)
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong style=\"color:#243a32;background:#efe2c5;padding:1px 4px;border-radius:3px;font-weight:700;\">$1</strong>")
     .replaceAll("\n", "<br>");
 }
 
@@ -544,8 +575,16 @@ function plainText(value) {
 function renderDevotionText(env, candidate) {
   const { devotion, date } = candidate;
   const devotionUrl = getDevotionUrl(env, candidate);
+  const emailContent = prepareDevotionEmailContent(devotion);
 
-  return [`Daily Dose Devotions - ${formatEmailDate(date)}`, plainText(devotion.title), plainText(devotion.scripture), plainText(devotion.body), `${getFooterLinkText(candidate)}: ${devotionUrl}`].filter(Boolean).join("\n\n");
+  return [
+    `Daily Dose Devotions - ${formatEmailDate(date)}`,
+    plainText(devotion.title),
+    plainText(devotion.scripture),
+    plainText(emailContent.scriptureQuote),
+    plainText(emailContent.paragraphs.join("\n\n")),
+    `${getFooterLinkText(candidate)}: ${devotionUrl}`
+  ].filter(Boolean).join("\n\n");
 }
 
 function renderMilestone100Html(env) {
@@ -679,6 +718,7 @@ function normalizeDevotion(devotion) {
   devotion.title = normalizeEmailText(devotion.title);
   devotion.emailSubject = devotion.emailSubject ? normalizeEmailText(devotion.emailSubject) : undefined;
   devotion.scripture = devotion.scripture ? normalizeEmailText(devotion.scripture) : undefined;
+  devotion.scriptureQuote = devotion.scriptureQuote ? normalizeEmailText(devotion.scriptureQuote) : undefined;
   devotion.body = normalizeEmailText(devotion.body);
 }
 
