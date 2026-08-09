@@ -9,6 +9,13 @@ export default {
       if (url.pathname === "/preview-milestone-100") return previewMilestone100(env);
       if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
+      if (url.pathname === "/send-test-email") {
+        if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
+          return json({ ok: false, message: "Add ?confirm=SEND to send one preview email only to Daily Dose.", sendUrl: `${url.origin}${url.pathname}?confirm=SEND` }, 400);
+        }
+        return json(await sendTestEmail(env));
+      }
+
       if (url.pathname === "/send-daily-now" || url.pathname === "/send-today") {
         if (request.method === "GET" && url.searchParams.get("confirm") !== "SEND") {
           return json({ ok: false, message: "Add ?confirm=SEND to send only today's daily devotion.", sendUrl: `${url.origin}${url.pathname}?confirm=SEND` }, 400);
@@ -43,6 +50,7 @@ export default {
         check: "/check",
         previewEmail: "/preview-email",
         previewMilestone100: "/preview-milestone-100",
+        sendTestEmail: "/send-test-email?confirm=SEND",
         sendTodayOnly: "/send-daily-now?confirm=SEND",
         sendSeriesOnly: "/send-series-now?confirm=SEND",
         sendAllDue: "/send-due-now?confirm=SEND",
@@ -411,6 +419,31 @@ async function sendDevotionCampaign(env, candidate) {
   const sendResponse = await brevoFetch(env, `/emailCampaigns/${created.id}/sendNow`, { method: "POST" });
 
   if (!sendResponse.ok) throw new Error(`Brevo campaign send failed: ${sendResponse.status} ${await sendResponse.text()}`);
+}
+
+async function sendTestEmail(env) {
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
+  const candidate = await loadDevotionCandidate(env, "daily", local.date) || await loadDevotionCandidate(env, "series", local.date);
+  if (!candidate) return { ok: false, date: local.date, message: "No devotion found for today's test email." };
+
+  const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
+  const toEmail = env.NOTIFY_EMAIL || senderEmail;
+  if (!senderEmail || !toEmail) throw new Error("Set BREVO_SENDER_EMAIL or NOTIFY_EMAIL in Cloudflare variables.");
+
+  const response = await brevoFetch(env, "/smtp/email", {
+    method: "POST",
+    body: JSON.stringify({
+      sender: { name: env.BREVO_SENDER_NAME || "Daily Dose Devotions", email: senderEmail },
+      to: [{ email: toEmail, name: "Daily Dose" }],
+      subject: `Preview: ${candidate.devotion.title}`,
+      htmlContent: renderDevotionHtml(env, candidate),
+      textContent: renderDevotionText(env, candidate)
+    })
+  });
+
+  if (!response.ok) throw new Error(`Brevo test email failed: ${response.status} ${await response.text()}`);
+  const sent = await response.json();
+  return { ok: true, sentTo: toEmail, date: local.date, title: candidate.devotion.title, messageId: sent.messageId || null };
 }
 
 async function sendMilestone100Campaign(env) {
