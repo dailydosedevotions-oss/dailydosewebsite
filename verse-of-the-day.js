@@ -1,5 +1,5 @@
 (function () {
-  const DATA_URL = "/verses-of-the-day.json?v=6";
+  const DATA_URL = "/verses-of-the-day.json?v=7";
   const TRACK_URL = "/api/votd-interaction";
 
   function todayKeyIreland() {
@@ -47,6 +47,10 @@
       .replaceAll("'", "&#039;");
   }
 
+  function verseReferenceLabel(verse) {
+    return verse.translation ? `${verse.reference} (${verse.translation})` : verse.reference;
+  }
+
   function injectVerseStyles() {
     // Verse presentation lives in styles.css so it can be cached and maintained with the rest of the site.
   }
@@ -61,7 +65,7 @@
   }
 
   function shareText(verse) {
-    return `Daily Dose Devotions | Verse of the Day\n\n${verse.reference}\n“${verse.text}”\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+    return `Daily Dose Devotions | Verse of the Day\n\n${verseReferenceLabel(verse)}\n“${verse.text}”\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
   function validateVerseSchedule(verses) {
@@ -69,7 +73,7 @@
     const seen = new Set();
 
     verses.forEach((verse, index) => {
-      if (!verse || !/^\d{4}-\d{2}-\d{2}$/.test(verse.date || "") || !verse.reference?.trim() || !verse.text?.trim()) {
+      if (!verse || !/^\d{4}-\d{2}-\d{2}$/.test(verse.date || "") || !verse.reference?.trim() || !verse.text?.trim() || !["WEB", "BSB"].includes(verse.translation)) {
         issues.push(`Invalid verse entry at position ${index + 1}`);
         return;
       }
@@ -210,7 +214,7 @@
 
     ctx.fillStyle = "#17120c";
     ctx.font = "700 74px Georgia, 'Times New Roman', serif";
-    const referenceLines = wrapCanvasText(ctx, verse.reference, 760);
+    const referenceLines = wrapCanvasText(ctx, verseReferenceLabel(verse), 760);
     let y = 535;
     referenceLines.slice(0, 2).forEach(line => {
       ctx.fillText(line, 540, y);
@@ -330,8 +334,8 @@
         try {
           const file = await createVerseStoryFile(verse);
           const shareData = {
-            title: `Verse of the Day - ${verse.reference}`,
-            text: `Verse of the Day - ${verse.reference}\n\nDaily Dose Devotions`,
+            title: `Verse of the Day - ${verseReferenceLabel(verse)}`,
+            text: `Verse of the Day - ${verseReferenceLabel(verse)}\n\nDaily Dose Devotions`,
             files: [file]
           };
 
@@ -340,7 +344,7 @@
             if (status) status.textContent = "Story image ready. Choose Instagram/Stories if it appears.";
           } else if (navigator.share) {
             await navigator.share({
-              title: `Verse of the Day - ${verse.reference}`,
+              title: `Verse of the Day - ${verseReferenceLabel(verse)}`,
               text,
               url: "https://dailydosedevotions.ie/#verse-of-the-day"
             });
@@ -401,7 +405,7 @@
           <p class="eyebrow" id="votdHeading">Verse of the Day</p>
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
           <blockquote class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</blockquote>
-          <p class="verse-reference" id="votdReference">${escapeHtml(verse.reference)}</p>
+          <p class="verse-reference" id="votdReference">${escapeHtml(verseReferenceLabel(verse))}</p>
           <div class="verse-actions verse-primary-actions">
             <a class="btn primary" href="${escapeHtml(reflectionUrl)}">Read Today&rsquo;s Reflection</a>
             <a class="btn outline" href="verse-library.html">View Verse Library</a>
@@ -410,7 +414,7 @@
           <div class="verse-share-panel" id="verseSharePanel" hidden>
             <div class="verse-story-preview" aria-label="Preview of the Daily Dose Instagram Story image">
               <span>Verse of the Day</span>
-              <strong>${escapeHtml(verse.reference)}</strong>
+              <strong>${escapeHtml(verseReferenceLabel(verse))}</strong>
               <p>&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
               <small>DAILY DOSE<br>Scripture &bull; Reflection &bull; Real Life</small>
             </div>
@@ -448,7 +452,7 @@
     libraryContainer.innerHTML = pastVerses.map(v => `
       <article class="votd-library-card">
         <div class="date">${v.date === todayKey ? '<span class="votd-today-badge">Today</span>' : ""}${escapeHtml(formatDate(v.date, false))}</div>
-        <h3>${escapeHtml(v.reference)}</h3>
+        <h3>${escapeHtml(verseReferenceLabel(v))}</h3>
         <p>&ldquo;${escapeHtml(v.text)}&rdquo;</p>
       </article>
     `).join("");
