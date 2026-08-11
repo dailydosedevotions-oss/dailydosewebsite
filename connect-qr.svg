@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="980" viewBox="0 0 900 980" role="img" aria-labelledby="title desc">
+  <title id="title">Daily Dose Connect QR Code</title>
+  <desc id="desc">QR code linking to https://dailydosedevotions.ie/connect.html</desc>
+  <rect width="900" height="980" fill="#fffaf1"/>
+  <rect x="54" y="54" width="792" height="792" fill="#ffffff" stroke="#c6a05a" stroke-width="8"/>
+  <image x="78" y="78" width="744" height="744" href="https://api.qrserver.com/v1/create-qr-code/?format=svg&amp;size=900x900&amp;ecc=H&amp;margin=24&amp;data=https%3A%2F%2Fdailydosedevotions.ie%2Fconnect.html"/>
+  <text x="450" y="905" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" fill="#11100e">Daily Dose</text>
+  <text x="450" y="942" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" letter-spacing="3" fill="#6d5d48">SCAN TO CONNECT</text>
+</svg>
