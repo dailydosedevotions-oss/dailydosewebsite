@@ -1,5 +1,5 @@
 (function () {
-  const DATA_URL = "/verses-of-the-day.json?v=7";
+  const DATA_URL = "/verses-of-the-day.json?v=8";
   const TRACK_URL = "/api/votd-interaction";
 
   function todayKeyIreland() {
@@ -65,7 +65,7 @@
   }
 
   function shareText(verse) {
-    return `Daily Dose Devotions | Verse of the Day\n\n${verseReferenceLabel(verse)}\n“${verse.text}”\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+    return `Daily Dose Devotions | Verse of the Day\n\n${verseReferenceLabel(verse)}\n${verse.text}\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
   function validateVerseSchedule(verses) {
@@ -233,7 +233,7 @@
     ctx.fillText("“", 190, y + 150);
 
     ctx.fillStyle = "#2a2117";
-    const fittedVerse = fitVerseText(ctx, `“${verse.text}”`, 820, 12);
+    const fittedVerse = fitVerseText(ctx, verse.text, 820, 12);
     y += 185;
     fittedVerse.lines.forEach(line => {
       ctx.fillText(line, 540, y);
@@ -404,7 +404,7 @@
           <div class="verse-feature-ornament" aria-hidden="true">&#10013;</div>
           <p class="eyebrow" id="votdHeading">Verse of the Day</p>
           <div class="date" id="votdDate">${escapeHtml(formatDate(verse.date))}</div>
-          <blockquote class="verse-text" id="votdText">&ldquo;${escapeHtml(verse.text)}&rdquo;</blockquote>
+          <blockquote class="verse-text" id="votdText">${escapeHtml(verse.text)}</blockquote>
           <p class="verse-reference" id="votdReference">${escapeHtml(verseReferenceLabel(verse))}</p>
           <div class="verse-actions verse-primary-actions">
             <a class="btn primary" href="${escapeHtml(reflectionUrl)}">Read Today&rsquo;s Reflection</a>
@@ -415,7 +415,7 @@
             <div class="verse-story-preview" aria-label="Preview of the Daily Dose Instagram Story image">
               <span>Verse of the Day</span>
               <strong>${escapeHtml(verseReferenceLabel(verse))}</strong>
-              <p>&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
+              <p>${escapeHtml(verse.text)}</p>
               <small>DAILY DOSE<br>Scripture &bull; Reflection &bull; Real Life</small>
             </div>
             <div class="verse-share-options">
@@ -453,7 +453,7 @@
       <article class="votd-library-card">
         <div class="date">${v.date === todayKey ? '<span class="votd-today-badge">Today</span>' : ""}${escapeHtml(formatDate(v.date, false))}</div>
         <h3>${escapeHtml(verseReferenceLabel(v))}</h3>
-        <p>&ldquo;${escapeHtml(v.text)}&rdquo;</p>
+        <p>${escapeHtml(v.text)}</p>
       </article>
     `).join("");
   }
