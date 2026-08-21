@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v32-approved-verse-mockup';
+const CACHE_VERSION = 'daily-dose-pwa-v33-adaptive-verse-layout';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
