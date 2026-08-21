@@ -148,7 +148,7 @@
   }
 
   function fitVerseText(ctx, text, maxWidth, maxLines) {
-    for (let fontSize = 66; fontSize >= 34; fontSize -= 2) {
+    for (let fontSize = 60; fontSize >= 32; fontSize -= 2) {
       ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
       const lines = wrapCanvasText(ctx, text, maxWidth);
       if (lines.length <= maxLines) {
@@ -156,8 +156,8 @@
       }
     }
 
-    ctx.font = "400 34px Georgia, 'Times New Roman', serif";
-    return { lines: wrapCanvasText(ctx, text, maxWidth), fontSize: 34, lineHeight: 46 };
+    ctx.font = "400 32px Georgia, 'Times New Roman', serif";
+    return { lines: wrapCanvasText(ctx, text, maxWidth), fontSize: 32, lineHeight: 43 };
   }
 
   async function createVerseStoryFile(verse) {
@@ -176,9 +176,13 @@
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    ctx.fillStyle = "rgba(255,255,255,.012)";
-    for (let x = 0; x < canvasWidth; x += 18) ctx.fillRect(x, 0, 1, canvasHeight);
-    for (let y = 0; y < canvasHeight; y += 18) ctx.fillRect(0, y, canvasWidth, 1);
+    for (let i = 0; i < 6200; i += 1) {
+      const x = (i * 73) % canvasWidth;
+      const y = (i * 199) % canvasHeight;
+      const alpha = 0.006 + ((i * 17) % 9) / 1900;
+      ctx.fillStyle = `rgba(235,222,198,${alpha})`;
+      ctx.fillRect(x, y, 1, 1);
+    }
 
     const edgeShade = ctx.createRadialGradient(540, 850, 260, 540, 850, 1050);
     edgeShade.addColorStop(0, "rgba(0,0,0,0)");
@@ -195,9 +199,9 @@
     ctx.fillStyle = brandGold;
     ctx.fillRect(326, 220, 428, 3);
 
-    const fittedVerse = fitVerseText(ctx, verse.text, 820, 12);
+    const fittedVerse = fitVerseText(ctx, verse.text, 760, 12);
     const textHeight = fittedVerse.lines.length * fittedVerse.lineHeight;
-    const textTop = Math.max(350, 790 - textHeight / 2);
+    const textTop = Math.max(365, 765 - textHeight / 2);
     const textBottom = textTop + textHeight;
 
     const mark = new Image();
@@ -209,10 +213,10 @@
         mark.onerror = reject;
       });
       ctx.save();
-      ctx.globalAlpha = 0.18;
+      ctx.globalAlpha = 0.13;
       ctx.globalCompositeOperation = "screen";
       const markSize = 820;
-      const markY = Math.min(1010, Math.max(680, textTop + textHeight * 0.46));
+      const markY = Math.min(980, Math.max(670, textTop + textHeight * 0.42));
       ctx.drawImage(mark, 130, markY, markSize, markSize);
       ctx.restore();
     } catch (_) {
@@ -230,19 +234,23 @@
     });
     ctx.shadowBlur = 0;
 
-    const referenceY = Math.min(1395, Math.max(textBottom + 72, 1225));
+    const referenceY = Math.min(1500, Math.max(textBottom + 82, 1450));
     ctx.fillStyle = brandGold;
-    ctx.font = "600 30px Inter, Arial, sans-serif";
+    ctx.font = "500 29px Inter, Arial, sans-serif";
     ctx.fillText(verseReferenceLabel(verse).toUpperCase(), 540, referenceY);
 
     ctx.fillStyle = brandGold;
     ctx.font = "500 31px Inter, Arial, sans-serif";
     ctx.fillText("D A I L Y   D O S E   D E V O T I O N S", 540, 1618);
-    ctx.fillRect(398, 1658, 284, 2);
+    ctx.fillRect(282, 1658, 225, 2);
+    ctx.fillRect(573, 1658, 225, 2);
+    ctx.beginPath();
+    ctx.arc(540, 1659, 7, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.fillStyle = "rgba(215,173,78,.88)";
-    ctx.font = "400 24px Inter, Arial, sans-serif";
-    ctx.fillText("dailydosedevotions.ie", 540, 1722);
+    ctx.font = "400 21px Inter, Arial, sans-serif";
+    ctx.fillText("d a i l y d o s e d e v o t i o n s . i e", 540, 1722);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
     return new File([blob], `daily-dose-verse-${verse.date || "today"}.png`, { type: "image/png" });
