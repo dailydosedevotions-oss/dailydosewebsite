@@ -5,6 +5,7 @@ document.querySelectorAll('.devotion-article > .share-panel').forEach(panel => {
 let dailyDoseInstallPrompt = null;
 const installButton = document.querySelector('[data-install-app]');
 const pwaOpenedAsApp = isStandalone();
+const usingSamsungInternet = /SamsungBrowser/i.test(navigator.userAgent);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -14,6 +15,20 @@ if ('serviceWorker' in navigator) {
 
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault();
+
+  // Samsung Internet can route PWA installation through an obsolete WebAPK
+  // package that modern Android blocks. Direct Samsung users to Chrome's
+  // current PWA installer instead of invoking that unsafe package.
+  if (usingSamsungInternet) {
+    dailyDoseInstallPrompt = null;
+    if (installButton) {
+      installButton.hidden = false;
+      installButton.textContent = 'Install Safely with Chrome';
+    }
+    trackPwaEvent('samsung_safe_install_shown');
+    return;
+  }
+
   dailyDoseInstallPrompt = event;
   if (installButton) installButton.hidden = false;
   trackPwaEvent('prompt_shown');
@@ -21,6 +36,12 @@ window.addEventListener('beforeinstallprompt', event => {
 
 installButton?.addEventListener('click', async () => {
   trackPwaEvent('install_button_tap');
+
+  if (usingSamsungInternet) {
+    trackPwaEvent('samsung_open_chrome_tap');
+    showSamsungInstallHelp();
+    return;
+  }
 
   if (!dailyDoseInstallPrompt) {
     trackPwaEvent(isAppleMobile() ? 'ios_add_to_home_tap' : 'browser_install_help_tap');
@@ -53,6 +74,41 @@ if (installButton && isAppleMobile() && !isStandalone()) {
 if (pwaOpenedAsApp) {
   trackPwaEventOnceEver('first_standalone_open');
   trackPwaEventOncePerDay('standalone_open');
+}
+
+function showSamsungInstallHelp() {
+  const existing = document.getElementById('safeInstallDialog');
+  if (existing) {
+    existing.showModal?.();
+    return;
+  }
+
+  const dialog = document.createElement('dialog');
+  dialog.id = 'safeInstallDialog';
+  dialog.setAttribute('aria-labelledby', 'safeInstallTitle');
+  dialog.innerHTML = `
+    <div style="max-width:460px;padding:8px;color:#f4ede2">
+      <p class="eyebrow">Safe Android Install</p>
+      <h2 id="safeInstallTitle" style="margin:0 0 14px">Install Daily Dose with Chrome</h2>
+      <p style="margin:0 0 12px">Samsung Internet may create an older app package that Android blocks. There is no need to bypass Play Protect.</p>
+      <p style="margin:0 0 22px">Open Daily Dose in Chrome, then choose <strong>Install app</strong> or <strong>Add to Home screen</strong> from Chrome&rsquo;s menu.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <a class="btn primary" href="intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end">Open in Chrome</a>
+        <button class="btn outline" type="button" data-close-install-help>Close</button>
+      </div>
+    </div>
+  `;
+  dialog.style.cssText = 'max-width:540px;width:calc(100% - 32px);border:1px solid rgba(198,160,90,.45);border-radius:12px;background:#11100e;padding:24px;box-shadow:0 28px 90px rgba(0,0,0,.65)';
+  dialog.addEventListener('click', event => {
+    if (event.target === dialog || event.target.closest('[data-close-install-help]')) dialog.close();
+  });
+  document.body.appendChild(dialog);
+
+  if (typeof dialog.showModal === 'function') {
+    dialog.showModal();
+  } else {
+    window.location.href = 'intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end';
+  }
 }
 
 function isAppleMobile() {
