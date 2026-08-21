@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v23';
+const CACHE_VERSION = 'daily-dose-pwa-v24';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -19,7 +19,7 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles.css?v=home-focus-3',
+  '/styles.css?v=logo-1',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=pwa-4',
   '/verse-of-the-day.js?v=verse-story-3',
@@ -27,7 +27,9 @@ const CORE_ASSETS = [
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/icons/apple-touch-icon.png'
+  '/icons/apple-touch-icon.png',
+  '/icons/daily-dose-logo.png',
+  '/favicon.ico'
 ];
 
 self.addEventListener('install', event => {
