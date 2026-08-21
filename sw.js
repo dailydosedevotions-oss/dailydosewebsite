@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v30-safe-android-install';
+const CACHE_VERSION = 'daily-dose-pwa-v31-editorial-verse-share';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -22,7 +22,7 @@ const CORE_ASSETS = [
   '/styles-brand-v4.css',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=samsung-safe-install-1',
-  '/verse-of-the-day.js?v=verse-logo-bg-3',
+  '/verse-of-the-day.js?v=verse-editorial-share-1',
   '/verses-of-the-day.json',
   '/manifest.webmanifest?v=3',
   '/icons/icon-192-v3.png',
