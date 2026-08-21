@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v25-logo';
+const CACHE_VERSION = 'daily-dose-pwa-v26-brand';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -19,15 +19,16 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles.css?v=logo-1',
+  '/styles.css?v=brand-3',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=pwa-4',
   '/verse-of-the-day.js?v=verse-story-3',
   '/verses-of-the-day.json',
-  '/manifest.webmanifest?v=2',
-  '/icons/icon-192-v2.png',
-  '/icons/icon-512-v2.png',
-  '/icons/apple-touch-icon-v2.png',
+  '/manifest.webmanifest?v=3',
+  '/icons/icon-192-v3.png',
+  '/icons/icon-512-v3.png',
+  '/icons/apple-touch-icon-v3.png',
+  '/icons/brand-mark-v3.png',
   '/icons/daily-dose-logo-v2.png',
   '/favicon.ico'
 ];

@@ -7,9 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Daily Dose" />
-  <link rel="manifest" href="/manifest.webmanifest?v=2" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-v2.png" />
-  <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+  <link rel="manifest" href="/manifest.webmanifest?v=3" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-v3.png" />
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
   <title>Daily Dose Devotions</title>
   <meta name="description" content="Daily Dose is a space for Scripture, reflection and real life. Scripture-rooted, honest, personal devotions pointing people back to Christ." />
   <link rel="canonical" href="https://dailydosedevotions.ie/" />
@@ -30,7 +30,7 @@
     "@type": "Organization",
     "name": "Daily Dose Devotions",
     "url": "https://dailydosedevotions.ie/",
-    "logo": "https://dailydosedevotions.ie/icons/icon-512-v2.png",
+    "logo": "https://dailydosedevotions.ie/icons/icon-512-v3.png",
     "description": "Scripture-rooted, honest, personal devotions pointing people back to Christ.",
     "sameAs": [
       "https://www.facebook.com/share/1CuVbMziM4/",
@@ -42,13 +42,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=logo-1" />
+  <link rel="stylesheet" href="styles.css?v=brand-3" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
-      <a class="brand" href="#home"><img class="brand-logo" src="/icons/daily-dose-logo-v2.png" alt="" aria-hidden="true"><span>DAILY DOSE</span></a>
+      <a class="brand" href="#home"><img class="brand-logo" src="/icons/brand-mark-v3.png" alt="" aria-hidden="true"><span>DAILY DOSE</span></a>
       <div class="nav-links">
         <a href="#home">Home</a>
         <a href="start-here.html">Start Here</a>
@@ -94,16 +94,21 @@
           </div>
         </div>
 
-        <article class="today-dose-card reveal" id="todayDoseCard">
-          <p class="eyebrow">Today&rsquo;s Daily Dose</p>
-          <div class="today-dose-date" id="todayDoseDate">Latest devotion</div>
-          <h2 id="todayDoseTitle">Daily Dose Devotions</h2>
-          <p id="todayDoseExcerpt">Begin with today&rsquo;s Scripture-rooted reflection and take a few quiet minutes with God.</p>
-          <div class="today-dose-actions">
-            <a class="btn primary small" id="todayDoseLink" href="devotions.html">Read Today&rsquo;s Dose</a>
-            <a class="btn outline small" href="devotions.html">View Archive</a>
+        <div class="hero-brand-aside reveal">
+          <div class="hero-brand-emblem">
+            <img src="/icons/daily-dose-logo-v2.png" alt="Daily Dose Devotions" width="1254" height="1254">
           </div>
-        </article>
+          <article class="today-dose-card" id="todayDoseCard">
+            <p class="eyebrow">Today&rsquo;s Daily Dose</p>
+            <div class="today-dose-date" id="todayDoseDate">Latest devotion</div>
+            <h2 id="todayDoseTitle">Daily Dose Devotions</h2>
+            <p id="todayDoseExcerpt">Begin with today&rsquo;s Scripture-rooted reflection and take a few quiet minutes with God.</p>
+            <div class="today-dose-actions">
+              <a class="btn primary small" id="todayDoseLink" href="devotions.html">Read Today&rsquo;s Dose</a>
+              <a class="btn outline small" href="devotions.html">View Archive</a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -204,7 +209,8 @@
 
   <footer>
     <div class="container footer-grid">
-      <div>
+      <div class="footer-brand-block">
+        <img class="footer-brand-logo" src="/icons/daily-dose-logo-v2.png" alt="Daily Dose Devotions">
         <h3>DAILY DOSE</h3>
         <p>Scripture-Rooted. Honest. Personal.</p>
         <small>Each devotion is written to point people back toward Christ through the Word of God, honest faith, encouragement, challenge and daily reflection.</small>

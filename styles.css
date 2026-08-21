@@ -26,10 +26,11 @@ textarea:focus-visible{
 }
 .container{max-width:1180px;margin:0 auto;padding:0 24px}
 .narrow{max-width:760px}
-.navbar{position:fixed;inset:0 0 auto 0;z-index:50;transition:.35s;background:transparent}
-.navbar.scrolled{background:rgba(10,10,10,.84);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.navbar{position:fixed;inset:0 0 auto 0;z-index:50;transition:.35s;background:linear-gradient(180deg,rgba(7,7,7,.96),rgba(10,10,10,.88));backdrop-filter:blur(16px);border-bottom:1px solid rgba(198,160,90,.22);box-shadow:0 12px 38px rgba(0,0,0,.2)}
+.navbar.scrolled{background:rgba(8,8,8,.94);backdrop-filter:blur(20px);border-bottom-color:rgba(198,160,90,.38);box-shadow:0 14px 44px rgba(0,0,0,.38)}
 .nav-inner{max-width:1180px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
-.brand{font-family:var(--font-heading);color:var(--primary);font-size:22px;letter-spacing:.18em;display:inline-flex;align-items:center;gap:12px;line-height:1}.brand-logo{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid rgba(198,160,90,.45);box-shadow:0 0 22px rgba(198,160,90,.18)}
+.brand{font-family:var(--font-heading);color:var(--primary);font-size:20px;letter-spacing:.16em;display:inline-flex;align-items:center;gap:13px;line-height:1;text-shadow:0 0 22px rgba(198,160,90,.16)}.brand-logo{width:52px;height:52px;object-fit:cover;border-radius:10px;box-shadow:0 0 24px rgba(198,160,90,.14)}
+.brand span::after{content:'DEVOTIONS';display:block;margin-top:6px;font-family:var(--font-body);font-size:8px;letter-spacing:.42em;color:rgba(244,237,226,.58)}
 .nav-links{display:flex;gap:30px}
 .nav-links a{font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:rgba(244,237,226,.78);transition:.25s}
 .nav-links a:hover{color:var(--primary)}
@@ -43,6 +44,9 @@ textarea:focus-visible{
 .hero-bg{position:absolute;inset:0;background:url('https://media.base44.com/images/public/6a1e90e9afeaee4e0a0198e2/db946e890_generated_f22365e2.png') center/cover no-repeat}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,#080706 0%,rgba(8,7,6,.94) 48%,rgba(8,7,6,.64) 100%),linear-gradient(0deg,#080706 0%,transparent 45%,rgba(8,7,6,.52) 100%)}
 .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center}
+.hero-brand-aside{display:grid;gap:22px;justify-items:center}
+.hero-brand-emblem{width:clamp(150px,17vw,220px);aspect-ratio:1;border-radius:50%;padding:5px;background:radial-gradient(circle,rgba(198,160,90,.11),transparent 68%);filter:drop-shadow(0 18px 38px rgba(0,0,0,.5))}
+.hero-brand-emblem img{width:100%;height:100%;display:block;border-radius:50%;object-fit:cover}
 h1,h2,h3{font-family:var(--font-heading);font-weight:500;margin:0}
 h1{font-size:clamp(44px,7vw,76px);line-height:1.02;margin-bottom:28px}
 h1 span,h2 span{color:var(--primary)}
@@ -164,6 +168,8 @@ small{color:#d9cbb8}
 .final .vertical-line:last-child{margin:30px auto 0}
 footer{background:#111;border-top:1px solid var(--border);padding:62px 0 26px}
 .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:60px}
+.footer-brand-block{position:relative;padding-left:116px;min-height:100px}
+.footer-brand-logo{position:absolute;left:0;top:-8px;width:94px;height:94px;object-fit:cover;border-radius:50%;filter:drop-shadow(0 12px 26px rgba(0,0,0,.38))}
 footer h3{color:var(--primary);letter-spacing:.15em;font-size:22px}
 footer h4{text-transform:uppercase;font-size:12px;letter-spacing:.2em;color:rgba(232,225,214,.62)}
 footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
@@ -173,11 +179,14 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
 @media(max-width:900px){
   .nav-links{display:none}.menu-btn{display:block}
   .brand{font-size:18px;letter-spacing:.14em;gap:10px}
-  .brand-logo{width:40px;height:40px}
+  .brand-logo{width:44px;height:44px}
+  .brand span::after{font-size:7px;letter-spacing:.3em}
   .hero-grid,.split,.cards,.footer-grid,.prayer-wall-grid,.subscribe-band,.subscribe-band-fields,.pathway-grid{grid-template-columns:1fr}
   .stats-token-row{grid-template-columns:1fr}
   .hero{min-height:auto;padding-top:118px}
   .hero-grid{gap:38px}
+  .hero-brand-aside{gap:18px}
+  .hero-brand-emblem{width:170px}
   .hero-actions{gap:12px}
   .text-link-btn{padding-left:0}
   .subscribe-card{margin-top:10px}
@@ -185,6 +194,8 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
   .milestone-strip{align-items:flex-start;flex-direction:column;padding:22px}
   .prayer-wall-head{align-items:flex-start;flex-direction:column}
   .footer-bottom{flex-direction:column;text-align:center}
+  .footer-brand-block{padding-left:0;padding-top:112px;text-align:center}
+  .footer-brand-logo{left:50%;transform:translateX(-50%);top:0}
 }
 
 
