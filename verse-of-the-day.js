@@ -168,7 +168,7 @@
     const gold = theme.accent;
     const background = new Image();
     background.decoding = "async";
-    background.src = "/icons/verse-story-background.png?v=1";
+    background.src = "/icons/verse-story-background.jpg?v=2";
 
     try {
       await new Promise((resolve, reject) => {
@@ -412,7 +412,7 @@
             <button class="btn outline" id="shareVerseToggle" type="button" aria-expanded="false" aria-controls="verseSharePanel">Share This Verse</button>
           </div>
           <div class="verse-share-panel" id="verseSharePanel" hidden>
-            <div class="verse-story-preview verse-story-preview-branded" aria-label="Preview of the Daily Dose Instagram Story image" style="background-image:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.68)),url('/icons/verse-story-background.png?v=1');background-position:center;background-size:cover;">
+            <div class="verse-story-preview verse-story-preview-branded" aria-label="Preview of the Daily Dose Instagram Story image" style="background-image:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.68)),url('/icons/verse-story-background.jpg?v=2');background-position:center;background-size:cover;">
               <span>Verse of the Day</span>
               <strong>${escapeHtml(verseReferenceLabel(verse))}</strong>
               <p>${escapeHtml(verse.text)}</p>
