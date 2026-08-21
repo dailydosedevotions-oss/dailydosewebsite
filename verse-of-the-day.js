@@ -166,97 +166,97 @@
     const theme = getVerseTheme(verse);
 
     const gold = theme.accent;
-    const bg = ctx.createLinearGradient(0, 0, 1080, 1920);
-    bg.addColorStop(0, "#17120c");
-    bg.addColorStop(0.45, "#0d0c0a");
-    bg.addColorStop(1, "#080706");
-    ctx.fillStyle = bg;
+    const background = new Image();
+    background.decoding = "async";
+    background.src = "/icons/verse-story-background.png?v=1";
+
+    try {
+      await new Promise((resolve, reject) => {
+        background.onload = resolve;
+        background.onerror = reject;
+      });
+      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    } catch (_) {
+      const fallback = ctx.createLinearGradient(0, 0, 1080, 1920);
+      fallback.addColorStop(0, "#17120c");
+      fallback.addColorStop(1, "#080706");
+      ctx.fillStyle = fallback;
+      ctx.fillRect(0, 0, 1080, 1920);
+    }
+
+    const vignette = ctx.createRadialGradient(540, 850, 180, 540, 850, 1040);
+    vignette.addColorStop(0, "rgba(0,0,0,.12)");
+    vignette.addColorStop(0.72, "rgba(0,0,0,.34)");
+    vignette.addColorStop(1, "rgba(0,0,0,.68)");
+    ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, 1080, 1920);
 
-    const topLight = ctx.createRadialGradient(230, 120, 0, 230, 120, 760);
-    topLight.addColorStop(0, "rgba(211,173,99,.34)");
-    topLight.addColorStop(0.42, "rgba(211,173,99,.10)");
-    topLight.addColorStop(1, "rgba(211,173,99,0)");
-    ctx.fillStyle = topLight;
-    ctx.fillRect(0, 0, 1080, 1000);
-
-    const lowerWarmth = ctx.createRadialGradient(900, 1680, 0, 900, 1680, 620);
-    lowerWarmth.addColorStop(0, "rgba(255,244,220,.12)");
-    lowerWarmth.addColorStop(1, "rgba(255,244,220,0)");
-    ctx.fillStyle = lowerWarmth;
-    ctx.fillRect(0, 980, 1080, 940);
-
-    ctx.fillStyle = "rgba(255,255,255,.018)";
-    for (let x = -80; x < 1160; x += 54) {
-      ctx.fillRect(x, 0, 1, 1920);
-    }
-    for (let yLine = -40; yLine < 1960; yLine += 54) {
-      ctx.fillRect(0, yLine, 1080, 1);
-    }
-
-    ctx.fillStyle = "rgba(255,248,236,.945)";
-    roundRect(ctx, 90, 250, 900, 1250, 54);
+    ctx.fillStyle = "rgba(4,4,4,.72)";
+    roundRect(ctx, 76, 172, 928, 1330, 48);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(211,173,99,.72)";
-    ctx.lineWidth = 4;
-    roundRect(ctx, 116, 276, 848, 1198, 40);
+    ctx.strokeStyle = "rgba(228,180,67,.88)";
+    ctx.lineWidth = 3;
+    roundRect(ctx, 98, 194, 884, 1286, 36);
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(211,173,99,.10)";
-    roundRect(ctx, 150, 318, 780, 92, 46);
+    ctx.fillStyle = "rgba(228,180,67,.16)";
+    roundRect(ctx, 154, 244, 772, 88, 44);
     ctx.fill();
 
-    ctx.fillStyle = "#6e5422";
-    ctx.font = "700 28px Inter, Arial, sans-serif";
+    ctx.fillStyle = "#efc45d";
+    ctx.font = "700 27px Inter, Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("VERSE OF THE DAY", 540, 374);
+    ctx.fillText("VERSE OF THE DAY", 540, 300);
 
-    ctx.fillStyle = "#17120c";
-    ctx.font = "700 74px Georgia, 'Times New Roman', serif";
+    ctx.fillStyle = "#fffaf0";
+    ctx.font = "700 70px Georgia, 'Times New Roman', serif";
     const referenceLines = wrapCanvasText(ctx, verseReferenceLabel(verse), 760);
-    let y = 535;
+    let y = 455;
     referenceLines.slice(0, 2).forEach(line => {
       ctx.fillText(line, 540, y);
-      y += 82;
+      y += 78;
     });
 
-    ctx.strokeStyle = "rgba(211,173,99,.55)";
+    ctx.strokeStyle = "rgba(228,180,67,.72)";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(350, y + 22);
-    ctx.lineTo(730, y + 22);
+    ctx.moveTo(345, y + 16);
+    ctx.lineTo(735, y + 16);
     ctx.stroke();
 
-    ctx.fillStyle = "rgba(110,84,34,.18)";
-    ctx.font = "700 120px Georgia, 'Times New Roman', serif";
-    ctx.fillText("“", 190, y + 150);
+    ctx.fillStyle = "rgba(239,196,93,.40)";
+    ctx.font = "700 116px Georgia, 'Times New Roman', serif";
+    ctx.fillText("“", 190, y + 142);
 
-    ctx.fillStyle = "#2a2117";
-    const fittedVerse = fitVerseText(ctx, verse.text, 820, 12);
-    y += 185;
+    ctx.fillStyle = "#fffaf0";
+    ctx.shadowColor = "rgba(0,0,0,.92)";
+    ctx.shadowBlur = 10;
+    const fittedVerse = fitVerseText(ctx, verse.text, 810, 12);
+    y += 180;
     fittedVerse.lines.forEach(line => {
       ctx.fillText(line, 540, y);
       y += fittedVerse.lineHeight;
     });
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = "rgba(110,84,34,.72)";
-    ctx.font = "600 26px Inter, Arial, sans-serif";
-    ctx.fillText(theme.label.toUpperCase(), 540, 1358);
+    ctx.fillStyle = "rgba(239,196,93,.90)";
+    ctx.font = "600 25px Inter, Arial, sans-serif";
+    ctx.fillText(theme.label.toUpperCase(), 540, 1380);
 
-    ctx.fillStyle = "rgba(211,173,99,.95)";
-    roundRect(ctx, 330, 1556, 420, 4, 2);
+    ctx.fillStyle = "rgba(228,180,67,.95)";
+    roundRect(ctx, 340, 1550, 400, 4, 2);
     ctx.fill();
 
-    ctx.fillStyle = "#fff8ec";
-    ctx.font = "700 44px Inter, Arial, sans-serif";
-    ctx.fillText("DAILY DOSE", 540, 1648);
-    ctx.fillStyle = "rgba(245,234,215,.72)";
-    ctx.font = "400 27px Inter, Arial, sans-serif";
-    ctx.fillText("Scripture • Reflection • Real Life", 540, 1702);
-    ctx.fillStyle = "rgba(245,234,215,.58)";
-    ctx.font = "400 25px Inter, Arial, sans-serif";
-    ctx.fillText("dailydosedevotions.ie  •  @dailydosedevotions3", 540, 1756);
+    ctx.fillStyle = "#fffaf0";
+    ctx.font = "700 40px Inter, Arial, sans-serif";
+    ctx.fillText("DAILY DOSE DEVOTIONS", 540, 1638);
+    ctx.fillStyle = "rgba(255,250,240,.82)";
+    ctx.font = "400 26px Inter, Arial, sans-serif";
+    ctx.fillText("Scripture • Reflection • Real Life", 540, 1692);
+    ctx.fillStyle = "rgba(255,250,240,.68)";
+    ctx.font = "400 24px Inter, Arial, sans-serif";
+    ctx.fillText("dailydosedevotions.ie  •  @dailydosedevotions3", 540, 1746);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
     return new File([blob], `daily-dose-verse-${verse.date || "today"}.png`, { type: "image/png" });
@@ -412,7 +412,7 @@
             <button class="btn outline" id="shareVerseToggle" type="button" aria-expanded="false" aria-controls="verseSharePanel">Share This Verse</button>
           </div>
           <div class="verse-share-panel" id="verseSharePanel" hidden>
-            <div class="verse-story-preview" aria-label="Preview of the Daily Dose Instagram Story image">
+            <div class="verse-story-preview verse-story-preview-branded" aria-label="Preview of the Daily Dose Instagram Story image" style="background-image:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.68)),url('/icons/verse-story-background.png?v=1');background-position:center;background-size:cover;">
               <span>Verse of the Day</span>
               <strong>${escapeHtml(verseReferenceLabel(verse))}</strong>
               <p>${escapeHtml(verse.text)}</p>
