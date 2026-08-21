@@ -148,10 +148,10 @@
   }
 
   function fitVerseText(ctx, text, maxWidth, maxLines, maxHeight) {
-    for (let fontSize = 60; fontSize >= 34; fontSize -= 2) {
+    for (let fontSize = 52; fontSize >= 34; fontSize -= 2) {
       ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
       const lines = wrapCanvasText(ctx, text, maxWidth);
-      const lineHeight = Math.round(fontSize * 1.48);
+      const lineHeight = Math.round(fontSize * 1.62);
       const height = Math.max(0, (lines.length - 1) * lineHeight) + fontSize;
       if (lines.length <= maxLines && height <= maxHeight) {
         return { lines, fontSize, lineHeight, height };
@@ -160,7 +160,7 @@
 
     ctx.font = "400 34px Georgia, 'Times New Roman', serif";
     const lines = wrapCanvasText(ctx, text, maxWidth);
-    const lineHeight = 50;
+    const lineHeight = 55;
     return {
       lines,
       fontSize: 34,
@@ -210,9 +210,9 @@
 
     // Let the Scripture determine the composition. Wider, naturally balanced
     // lines and generous leading keep the words open and readable.
-    const fittedVerse = fitVerseText(ctx, verse.text, 820, 11, 870);
+    const fittedVerse = fitVerseText(ctx, verse.text, 860, 11, 820);
     const textHeight = fittedVerse.height;
-    const textTop = Math.max(350, 805 - textHeight / 2);
+    const textTop = Math.max(400, 750 - textHeight / 2);
     const firstBaseline = textTop + fittedVerse.fontSize;
     const textBottom = textTop + textHeight;
 
@@ -225,16 +225,12 @@
         mark.onerror = reject;
       });
       ctx.save();
-      // The watermark follows the verse instead of reserving space for itself.
-      // Longer passages receive a softer, slightly smaller mark so Scripture
-      // always remains the clear focus.
-      const lineCount = fittedVerse.lines.length;
-      const markAlpha = lineCount >= 9 ? 0.055 : lineCount >= 7 ? 0.07 : lineCount >= 5 ? 0.085 : 0.10;
-      const markSize = lineCount >= 9 ? 660 : lineCount >= 7 ? 710 : lineCount >= 5 ? 760 : 800;
-      const markCenterY = Math.min(1120, Math.max(720, textTop + textHeight * 0.58));
-      ctx.globalAlpha = markAlpha;
+      // Approved final treatment: the standalone DD-and-dove mark sits broadly
+      // behind the Scripture with a warm, visible gold presence and no ring.
+      const markSize = 1020;
+      ctx.globalAlpha = 0.21;
       ctx.globalCompositeOperation = "screen";
-      ctx.drawImage(mark, (canvasWidth - markSize) / 2, markCenterY - markSize / 2, markSize, markSize);
+      ctx.drawImage(mark, 30, 436, markSize, markSize);
       ctx.restore();
     } catch (_) {
       // The Scripture image remains usable if the decorative watermark is unavailable.
@@ -251,7 +247,7 @@
     });
     ctx.shadowBlur = 0;
 
-    const referenceY = Math.min(1490, Math.max(textBottom + 105, 1395));
+    const referenceY = Math.min(1490, Math.max(textBottom + 100, 1390));
     ctx.fillStyle = brandGold;
     ctx.font = "500 29px Inter, Arial, sans-serif";
     ctx.fillText(verseReferenceLabel(verse).toUpperCase(), 540, referenceY);
