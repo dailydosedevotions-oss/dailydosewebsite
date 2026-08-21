@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v26-brand';
+const CACHE_VERSION = 'daily-dose-pwa-v27-verse-card';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -19,7 +19,7 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles.css?v=brand-3',
+  '/styles.css?v=brand-4',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=pwa-4',
   '/verse-of-the-day.js?v=verse-story-3',

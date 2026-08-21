@@ -232,6 +232,22 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
 .share-btn:hover{transform:translateY(-2px);border-color:rgba(241,211,140,.95);background:#211a12;color:#fff}
 .share-note{margin:16px auto 0;color:#e6d8c3;font-size:14px;max-width:620px}.copy-status{margin:10px 0 0;color:#f0c970;font-size:14px;min-height:20px;font-weight:700}
 @media (max-width:620px){.share-buttons{flex-direction:column}.share-btn{width:100%}}
+
+/* Verse of the Day feature */
+.verse-feature-section{position:relative;overflow:hidden;padding:clamp(72px,9vw,118px) 20px;background:radial-gradient(circle at 50% 0%,rgba(198,160,90,.14),transparent 48%),linear-gradient(180deg,#0d0c0b,#090807);border-top:1px solid rgba(198,160,90,.12);border-bottom:1px solid rgba(198,160,90,.12)}
+.verse-feature-section::before{content:"";position:absolute;inset:24px;border:1px solid rgba(198,160,90,.08);pointer-events:none}
+.verse-feature-wrap{max-width:1040px;margin:0 auto;position:relative}
+.verse-feature-card{position:relative;overflow:hidden;text-align:center;padding:clamp(42px,7vw,78px) clamp(24px,7vw,84px);border:1px solid rgba(198,160,90,.34);border-radius:12px;background:linear-gradient(145deg,rgba(24,20,15,.98),rgba(11,10,9,.98));box-shadow:0 34px 100px rgba(0,0,0,.38)}
+.verse-feature-card::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c6a05a,transparent)}
+.verse-feature-ornament{width:42px;height:42px;margin:0 auto 18px;display:grid;place-items:center;border:1px solid rgba(198,160,90,.38);border-radius:50%;color:#d8b66e;font-size:17px}
+.verse-feature-card .date{color:#d9c9af;font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:8px 0 30px}
+.verse-feature-card .verse-text{max-width:820px;margin:0 auto 24px;padding:0;border:0;color:#fffaf0;font-family:var(--font-heading,"Playfair Display",serif);font-size:clamp(28px,4.3vw,48px);font-weight:400;line-height:1.42;font-style:italic;text-wrap:balance}
+.verse-feature-card .verse-reference{margin:0 0 34px;color:var(--primary,#c6a05a);font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+.verse-feature-card .verse-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.verse-feature-card .verse-fallback-note{margin:18px 0 0;color:#b9aa96;font-size:12px}
+.verse-share-status{min-height:20px;margin-top:12px;color:var(--primary,#c6a05a);font-size:13px}
+@media(max-width:620px){.verse-feature-section{padding:58px 16px}.verse-feature-section::before{inset:10px}.verse-feature-card{padding:42px 20px}.verse-feature-card .verse-text{font-size:clamp(26px,8vw,36px);line-height:1.45}.verse-feature-card .verse-actions{flex-direction:column}.verse-feature-card .btn{width:100%}}
+
 /* VERSE OF THE DAY */
 
 .verse-of-the-day-section {
