@@ -148,14 +148,16 @@
   }
 
   function fitVerseText(ctx, text, maxWidth, maxLines) {
-    for (let fontSize = 50; fontSize >= 30; fontSize -= 2) {
-      ctx.font = `italic ${fontSize}px Georgia, 'Times New Roman', serif`;
+    for (let fontSize = 66; fontSize >= 34; fontSize -= 2) {
+      ctx.font = `400 ${fontSize}px Georgia, 'Times New Roman', serif`;
       const lines = wrapCanvasText(ctx, text, maxWidth);
-      if (lines.length <= maxLines) return { lines, fontSize, lineHeight: Math.round(fontSize * 1.42) };
+      if (lines.length <= maxLines) {
+        return { lines, fontSize, lineHeight: Math.round(fontSize * 1.34) };
+      }
     }
 
-    ctx.font = "italic 30px Georgia, 'Times New Roman', serif";
-    return { lines: wrapCanvasText(ctx, text, maxWidth), fontSize: 30, lineHeight: 43 };
+    ctx.font = "400 34px Georgia, 'Times New Roman', serif";
+    return { lines: wrapCanvasText(ctx, text, maxWidth), fontSize: 34, lineHeight: 46 };
   }
 
   async function createVerseStoryFile(verse) {
@@ -163,100 +165,84 @@
     canvas.width = 1080;
     canvas.height = 1920;
     const ctx = canvas.getContext("2d");
-    const theme = getVerseTheme(verse);
+    const brandGold = "#d7ad4e";
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
 
-    const gold = theme.accent;
-    const background = new Image();
-    background.decoding = "async";
-    background.src = "/icons/verse-story-background.jpg?v=2";
+    const background = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+    background.addColorStop(0, "#060606");
+    background.addColorStop(0.5, "#0a0908");
+    background.addColorStop(1, "#050505");
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
+    ctx.fillStyle = "rgba(255,255,255,.012)";
+    for (let x = 0; x < canvasWidth; x += 18) ctx.fillRect(x, 0, 1, canvasHeight);
+    for (let y = 0; y < canvasHeight; y += 18) ctx.fillRect(0, y, canvasWidth, 1);
+
+    const edgeShade = ctx.createRadialGradient(540, 850, 260, 540, 850, 1050);
+    edgeShade.addColorStop(0, "rgba(0,0,0,0)");
+    edgeShade.addColorStop(0.72, "rgba(0,0,0,.16)");
+    edgeShade.addColorStop(1, "rgba(0,0,0,.64)");
+    ctx.fillStyle = edgeShade;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = brandGold;
+    ctx.font = "600 29px Inter, Arial, sans-serif";
+    ctx.fillText("V E R S E   O F   T H E   D A Y", 540, 178);
+
+    ctx.fillStyle = brandGold;
+    ctx.fillRect(326, 220, 428, 3);
+
+    const fittedVerse = fitVerseText(ctx, verse.text, 820, 12);
+    const textHeight = fittedVerse.lines.length * fittedVerse.lineHeight;
+    const textTop = Math.max(350, 790 - textHeight / 2);
+    const textBottom = textTop + textHeight;
+
+    const mark = new Image();
+    mark.decoding = "async";
+    mark.src = "/icons/brand-mark-v3.png?v=3";
     try {
       await new Promise((resolve, reject) => {
-        background.onload = resolve;
-        background.onerror = reject;
+        mark.onload = resolve;
+        mark.onerror = reject;
       });
-      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.globalCompositeOperation = "screen";
+      const markSize = 820;
+      const markY = Math.min(1010, Math.max(680, textTop + textHeight * 0.46));
+      ctx.drawImage(mark, 130, markY, markSize, markSize);
+      ctx.restore();
     } catch (_) {
-      const fallback = ctx.createLinearGradient(0, 0, 1080, 1920);
-      fallback.addColorStop(0, "#17120c");
-      fallback.addColorStop(1, "#080706");
-      ctx.fillStyle = fallback;
-      ctx.fillRect(0, 0, 1080, 1920);
+      // The Scripture image remains usable if the decorative watermark is unavailable.
     }
 
-    const vignette = ctx.createRadialGradient(540, 850, 180, 540, 850, 1040);
-    vignette.addColorStop(0, "rgba(0,0,0,.12)");
-    vignette.addColorStop(0.72, "rgba(0,0,0,.34)");
-    vignette.addColorStop(1, "rgba(0,0,0,.68)");
-    ctx.fillStyle = vignette;
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    ctx.fillStyle = "rgba(4,4,4,.72)";
-    roundRect(ctx, 76, 172, 928, 1330, 48);
-    ctx.fill();
-
-    ctx.strokeStyle = "rgba(228,180,67,.88)";
-    ctx.lineWidth = 3;
-    roundRect(ctx, 98, 194, 884, 1286, 36);
-    ctx.stroke();
-
-    ctx.fillStyle = "rgba(228,180,67,.16)";
-    roundRect(ctx, 154, 244, 772, 88, 44);
-    ctx.fill();
-
-    ctx.fillStyle = "#efc45d";
-    ctx.font = "700 27px Inter, Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("VERSE OF THE DAY", 540, 300);
-
-    ctx.fillStyle = "#fffaf0";
-    ctx.font = "700 70px Georgia, 'Times New Roman', serif";
-    const referenceLines = wrapCanvasText(ctx, verseReferenceLabel(verse), 760);
-    let y = 455;
-    referenceLines.slice(0, 2).forEach(line => {
-      ctx.fillText(line, 540, y);
-      y += 78;
-    });
-
-    ctx.strokeStyle = "rgba(228,180,67,.72)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(345, y + 16);
-    ctx.lineTo(735, y + 16);
-    ctx.stroke();
-
-    ctx.fillStyle = "rgba(239,196,93,.40)";
-    ctx.font = "700 116px Georgia, 'Times New Roman', serif";
-    ctx.fillText("“", 190, y + 142);
-
-    ctx.fillStyle = "#fffaf0";
-    ctx.shadowColor = "rgba(0,0,0,.92)";
-    ctx.shadowBlur = 10;
-    const fittedVerse = fitVerseText(ctx, verse.text, 810, 12);
-    y += 180;
+    ctx.fillStyle = "#fffaf1";
+    ctx.shadowColor = "rgba(0,0,0,.96)";
+    ctx.shadowBlur = 12;
+    ctx.font = `400 ${fittedVerse.fontSize}px Georgia, 'Times New Roman', serif`;
+    let y = textTop;
     fittedVerse.lines.forEach(line => {
       ctx.fillText(line, 540, y);
       y += fittedVerse.lineHeight;
     });
     ctx.shadowBlur = 0;
 
-    ctx.fillStyle = "rgba(239,196,93,.90)";
-    ctx.font = "600 25px Inter, Arial, sans-serif";
-    ctx.fillText(theme.label.toUpperCase(), 540, 1380);
+    const referenceY = Math.min(1395, Math.max(textBottom + 72, 1225));
+    ctx.fillStyle = brandGold;
+    ctx.font = "600 30px Inter, Arial, sans-serif";
+    ctx.fillText(verseReferenceLabel(verse).toUpperCase(), 540, referenceY);
 
-    ctx.fillStyle = "rgba(228,180,67,.95)";
-    roundRect(ctx, 340, 1550, 400, 4, 2);
-    ctx.fill();
+    ctx.fillStyle = brandGold;
+    ctx.font = "500 31px Inter, Arial, sans-serif";
+    ctx.fillText("D A I L Y   D O S E   D E V O T I O N S", 540, 1618);
+    ctx.fillRect(398, 1658, 284, 2);
 
-    ctx.fillStyle = "#fffaf0";
-    ctx.font = "700 40px Inter, Arial, sans-serif";
-    ctx.fillText("DAILY DOSE DEVOTIONS", 540, 1638);
-    ctx.fillStyle = "rgba(255,250,240,.82)";
-    ctx.font = "400 26px Inter, Arial, sans-serif";
-    ctx.fillText("Scripture • Reflection • Real Life", 540, 1692);
-    ctx.fillStyle = "rgba(255,250,240,.68)";
+    ctx.fillStyle = "rgba(215,173,78,.88)";
     ctx.font = "400 24px Inter, Arial, sans-serif";
-    ctx.fillText("dailydosedevotions.ie  •  @dailydosedevotions3", 540, 1746);
+    ctx.fillText("dailydosedevotions.ie", 540, 1722);
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
     return new File([blob], `daily-dose-verse-${verse.date || "today"}.png`, { type: "image/png" });
@@ -310,6 +296,8 @@
     const shareBtn = document.getElementById("shareVerseBtn");
     const downloadBtn = document.getElementById("downloadVerseStoryBtn");
     const instagramBtn = document.getElementById("instagramVerseBtn");
+    const whatsappBtn = document.getElementById("whatsappVerseBtn");
+    const facebookBtn = document.getElementById("facebookVerseBtn");
     const copyBtn = document.getElementById("copyVerseBtn");
     const status = document.getElementById("verseShareStatus");
 
@@ -320,72 +308,64 @@
       if (!isOpen) instagramBtn?.focus();
     });
 
-    if (shareBtn || instagramBtn) {
-      const openShare = async () => {
-        if (status) status.textContent = "Creating story image...";
-        try {
-          await recordInteraction("share", verse);
-        } catch {
-          // Sharing still continues even if tracking fails.
+    const shareImage = async platform => {
+      if (status) status.textContent = `Creating the Daily Dose image for ${platform}...`;
+      try {
+        await recordInteraction("share", verse);
+      } catch {
+        // Sharing still continues even if tracking fails.
+      }
+
+      try {
+        const file = await createVerseStoryFile(verse);
+        const shareData = {
+          title: `Verse of the Day - ${verseReferenceLabel(verse)}`,
+          text: `Daily Dose Devotions | Verse of the Day\n${verseReferenceLabel(verse)}`,
+          files: [file]
+        };
+
+        if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+          await navigator.share(shareData);
+          if (status) status.textContent = `Image ready. Choose ${platform} from your share menu.`;
+          return;
         }
 
-        const text = shareText(verse);
-
-        try {
-          const file = await createVerseStoryFile(verse);
-          const shareData = {
-            title: `Verse of the Day - ${verseReferenceLabel(verse)}`,
-            text: `Verse of the Day - ${verseReferenceLabel(verse)}\n\nDaily Dose Devotions`,
-            files: [file]
-          };
-
-          if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-            await navigator.share(shareData);
-            if (status) status.textContent = "Story image ready. Choose Instagram/Stories if it appears.";
-          } else if (navigator.share) {
-            await navigator.share({
-              title: `Verse of the Day - ${verseReferenceLabel(verse)}`,
-              text,
-              url: "https://dailydosedevotions.ie/#verse-of-the-day"
-            });
-            if (status) status.textContent = "Shared. If Instagram did not appear, use Download Story Image.";
-          } else if (navigator.clipboard) {
-            await navigator.clipboard.writeText(text);
-            if (status) status.textContent = "Verse copied. Use Download Story Image for Instagram Stories.";
-          } else {
-            if (status) status.textContent = "Use Download Story Image for Instagram Stories.";
-          }
-        } catch {
-          if (status) status.textContent = "Share cancelled. You can still download the story image.";
+        await downloadVerseStory(verse);
+        if (status) {
+          status.textContent = `Image downloaded. Open ${platform} and upload the saved Daily Dose image.`;
         }
-      };
-
-      shareBtn?.addEventListener("click", openShare);
-      instagramBtn?.addEventListener("click", openShare);
-    }
-
-    if (downloadBtn) {
-      downloadBtn.addEventListener("click", async () => {
-        try {
-          if (status) status.textContent = "Preparing download...";
-          await downloadVerseStory(verse);
-          if (status) status.textContent = "Story image downloaded. Upload it to Instagram Stories.";
-        } catch {
-          if (status) status.textContent = "Could not create the image. Please try again.";
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          if (status) status.textContent = "Share cancelled. The image has not been changed.";
+        } else if (status) {
+          status.textContent = "Could not create the share image. Please try again.";
         }
-      });
-    }
+      }
+    };
 
-    if (copyBtn) {
-      copyBtn.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(shareText(verse));
-          if (status) status.textContent = "Verse copied.";
-        } catch {
-          if (status) status.textContent = "Copy failed. You can copy the verse from the page.";
-        }
-      });
-    }
+    shareBtn?.addEventListener("click", () => shareImage("your preferred app"));
+    instagramBtn?.addEventListener("click", () => shareImage("Instagram / Stories"));
+    whatsappBtn?.addEventListener("click", () => shareImage("WhatsApp"));
+    facebookBtn?.addEventListener("click", () => shareImage("Facebook"));
+
+    downloadBtn?.addEventListener("click", async () => {
+      try {
+        if (status) status.textContent = "Preparing download...";
+        await downloadVerseStory(verse);
+        if (status) status.textContent = "Daily Dose share image downloaded.";
+      } catch {
+        if (status) status.textContent = "Could not create the image. Please try again.";
+      }
+    });
+
+    copyBtn?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(shareText(verse));
+        if (status) status.textContent = "Verse copied.";
+      } catch {
+        if (status) status.textContent = "Copy failed. You can copy the verse from the page.";
+      }
+    });
   }
 
   function renderHomepageVerse(verse, options = {}) {
@@ -395,9 +375,6 @@
     section.className = "section verse-feature-section";
     section.setAttribute("aria-labelledby", "votdHeading");
     const reflectionUrl = options.reflectionUrl || "devotions.html";
-    const brandedText = shareText(verse);
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(brandedText)}`;
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://dailydosedevotions.ie/#verse-of-the-day")}`;
     section.innerHTML = `
       <div class="container verse-feature-wrap">
         <article class="verse-feature-card reveal visible">
@@ -412,17 +389,19 @@
             <button class="btn outline" id="shareVerseToggle" type="button" aria-expanded="false" aria-controls="verseSharePanel">Share This Verse</button>
           </div>
           <div class="verse-share-panel" id="verseSharePanel" hidden>
-            <div class="verse-story-preview verse-story-preview-branded" aria-label="Preview of the Daily Dose Instagram Story image" style="background-image:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.68)),url('/icons/verse-story-background.jpg?v=2');background-position:center;background-size:cover;">
-              <span>Verse of the Day</span>
-              <strong>${escapeHtml(verseReferenceLabel(verse))}</strong>
-              <p>${escapeHtml(verse.text)}</p>
-              <small>DAILY DOSE<br>Scripture &bull; Reflection &bull; Real Life</small>
+            <div class="verse-story-preview verse-story-preview-branded" aria-label="Preview of the standard Daily Dose share image" style="position:relative;overflow:hidden;background:#080807;color:#fffaf1;">
+              <span style="position:relative;z-index:2;color:#d7ad4e;letter-spacing:.24em;">Verse of the Day</span>
+              <span aria-hidden="true" style="position:relative;z-index:2;display:block;width:42%;height:1px;margin:10px auto 16px;background:#d7ad4e;"></span>
+              <img src="/icons/brand-mark-v3.png?v=3" alt="" aria-hidden="true" style="position:absolute;z-index:0;width:82%;left:9%;top:36%;opacity:.18;mix-blend-mode:screen;">
+              <p style="position:relative;z-index:2;color:#fffaf1;font-family:Georgia,'Times New Roman',serif;">${escapeHtml(verse.text)}</p>
+              <strong style="position:relative;z-index:2;color:#d7ad4e;">${escapeHtml(verseReferenceLabel(verse))}</strong>
+              <small style="position:relative;z-index:2;color:#d7ad4e;">DAILY DOSE DEVOTIONS<br>dailydosedevotions.ie</small>
             </div>
             <div class="verse-share-options">
               <p>Choose where you would like to share today&rsquo;s Scripture.</p>
               <button class="btn primary" id="instagramVerseBtn" type="button">Instagram / Stories</button>
-              <a class="btn outline" href="${whatsappUrl}" target="_blank" rel="noopener">WhatsApp</a>
-              <a class="btn outline" href="${facebookUrl}" target="_blank" rel="noopener">Facebook</a>
+              <button class="btn outline" id="whatsappVerseBtn" type="button">WhatsApp</button>
+              <button class="btn outline" id="facebookVerseBtn" type="button">Facebook</button>
               <button class="btn outline" id="downloadVerseStoryBtn" type="button">Download Story Image</button>
               <button class="btn text-link-btn" id="copyVerseBtn" type="button">Copy Verse</button>
             </div>
