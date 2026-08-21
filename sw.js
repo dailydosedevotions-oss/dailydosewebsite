@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v28-verse-card';
+const CACHE_VERSION = 'daily-dose-pwa-v29-verse-logo-live';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -22,7 +22,7 @@ const CORE_ASSETS = [
   '/styles-brand-v4.css',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=pwa-4',
-  '/verse-of-the-day.js?v=verse-story-3',
+  '/verse-of-the-day.js?v=verse-logo-bg-3',
   '/verses-of-the-day.json',
   '/manifest.webmanifest?v=3',
   '/icons/icon-192-v3.png',
@@ -30,6 +30,7 @@ const CORE_ASSETS = [
   '/icons/apple-touch-icon-v3.png',
   '/icons/brand-mark-v3.png',
   '/icons/daily-dose-logo-v2.png',
+  '/icons/verse-story-background.jpg?v=2',
   '/favicon.ico'
 ];
 
