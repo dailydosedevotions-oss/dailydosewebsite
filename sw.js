@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v31-brand-coherence';
+const CACHE_VERSION = 'daily-dose-pwa-v32-ring-free-assets';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -29,7 +29,6 @@ const CORE_ASSETS = [
   '/icons/icon-512-v3.png',
   '/icons/apple-touch-icon-v3.png',
   '/icons/brand-mark-v3.png',
-  '/icons/daily-dose-logo-v2.png',
   '/icons/verse-story-background.jpg?v=2',
   '/favicon.ico'
 ];
