@@ -593,3 +593,97 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     addToArchivePage();
   }
 })();
+
+
+// EDITORIAL SITE SYSTEM V7
+(function () {
+  const navItems = [
+    ['Home', '/'],
+    ['Start Here', '/start-here.html'],
+    ['Devotions', '/devotions.html'],
+    ['Current Series', '/series.html'],
+    ['Verse Library', '/verse-library.html'],
+    ['Prayer', '/prayer/'],
+    ['Subscribe', '/subscribe.html']
+  ];
+
+  const links = navItems.map(([label, href]) => `<a href="${href}">${label}</a>`).join('');
+  document.querySelectorAll('.nav-links').forEach(nav => { nav.innerHTML = links; });
+
+  document.querySelectorAll('.mobile-menu').forEach(mobile => {
+    mobile.querySelectorAll(':scope > a').forEach(link => link.remove());
+    const close = mobile.querySelector('.close-btn');
+    close?.insertAdjacentHTML('afterend', links);
+  });
+
+  const article = document.querySelector('.devotion-article');
+  const meta = article?.querySelector('.devotion-meta');
+  if (article && meta && !article.querySelector('.devotion-byline')) {
+    const byline = document.createElement('p');
+    byline.className = 'devotion-byline';
+    byline.textContent = 'Written and published by Daily Dose Devotions';
+    meta.insertAdjacentElement('afterend', byline);
+  }
+
+  if (!document.querySelector('body > footer')) {
+    const footer = document.createElement('footer');
+    footer.className = 'editorial-footer';
+    footer.innerHTML = `
+      <div class="container editorial-footer-inner">
+        <div>
+          <h3>DAILY DOSE</h3>
+          <p>Scripture · Reflection · Real Life</p>
+        </div>
+        <div class="editorial-footer-links">
+          <a href="/story.html">Our Story</a>
+          <a href="/what-we-believe.html">What We Believe</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="mailto:dailydosedevotions@gmail.com">Contact</a>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(footer);
+  }
+})();
+
+(function () {
+  const grid = document.getElementById('archiveGrid');
+  if (!grid || document.getElementById('archiveSearch')) return;
+
+  const cards = Array.from(grid.querySelectorAll('.devotion-card'));
+  const controls = document.createElement('div');
+  controls.className = 'archive-controls';
+  controls.innerHTML = `
+    <label for="archiveSearch">Find a devotion</label>
+    <div class="archive-search-row">
+      <input id="archiveSearch" type="search" placeholder="Search by title, Scripture, or theme">
+      <span id="archiveCount" aria-live="polite"></span>
+    </div>
+  `;
+  grid.before(controls);
+
+  const loadMore = document.createElement('button');
+  loadMore.type = 'button';
+  loadMore.className = 'btn outline archive-load-more';
+  loadMore.textContent = 'Show more devotions';
+  grid.after(loadMore);
+
+  const search = controls.querySelector('#archiveSearch');
+  const count = controls.querySelector('#archiveCount');
+  let limit = 18;
+
+  function render() {
+    const term = search.value.trim().toLowerCase();
+    const matches = cards.filter(card => !term || card.textContent.toLowerCase().includes(term));
+    cards.forEach(card => {
+      const index = matches.indexOf(card);
+      card.hidden = index === -1 || index >= limit;
+    });
+    count.textContent = `${matches.length} devotion${matches.length === 1 ? '' : 's'}`;
+    loadMore.hidden = matches.length <= limit;
+  }
+
+  search.addEventListener('input', () => { limit = 18; render(); });
+  loadMore.addEventListener('click', () => { limit += 18; render(); });
+  render();
+})();
