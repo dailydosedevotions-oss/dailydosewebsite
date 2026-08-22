@@ -660,8 +660,6 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       <span id="archiveCount" aria-live="polite"></span>
     </div>
     <p id="archiveSearchHint" class="search-hint">Search by date in common formats, month, year, title, Scripture, or theme.</p>
-    <div hidden>
-    </div>
   `;
   grid.before(controls);
 
