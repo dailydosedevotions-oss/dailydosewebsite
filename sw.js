@@ -19,7 +19,7 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles-brand-v4.css',
+  '/styles-brand-v4.css?v=brand-coherence-5',
   '/script.js?v=home-focus-2',
   '/pwa.js?v=samsung-safe-install-1',
   '/verse-of-the-day.js?v=verse-approved-mockup-1',
