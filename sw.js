@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v33-editorial-logo-restraint';
+const CACHE_VERSION = 'daily-dose-pwa-v34-editorial-system';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -21,6 +21,7 @@ const CORE_ASSETS = [
   '/offline',
   '/styles-brand-v4.css?v=editorial-logo-6',
   '/script.js?v=home-focus-2',
+  '/script-brand-share-v6.js?v=editorial-system-7',
   '/pwa.js?v=samsung-safe-install-1',
   '/verse-of-the-day.js?v=verse-approved-mockup-1',
   '/verses-of-the-day.json',
