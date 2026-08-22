@@ -452,19 +452,33 @@
     const controls = document.createElement("div");
     controls.className = "verse-library-controls";
     controls.innerHTML = `
-      <label for="verseLibrarySearch">Find a verse</label>
-      <input id="verseLibrarySearch" type="search" placeholder="Search by Scripture reference or words">
+      <label for="verseLibrarySearch">Find by date</label>
+      <input id="verseLibrarySearch" type="search" inputmode="search" placeholder="Try 22 August 2026 or 22/08/2026" aria-describedby="verseLibrarySearchHint">
+      <p id="verseLibrarySearchHint" class="search-hint">Search by day, month, or year.</p>
     `;
     libraryContainer.before(controls);
 
     function render(term = "") {
       const query = term.trim().toLowerCase();
-      const matches = pastVerses.filter(verse =>
-        !query || `${verse.reference} ${verse.text} ${verse.translation || ""}`.toLowerCase().includes(query)
-      );
+      const matches = pastVerses.filter(verse => {
+        if (!query) return true;
+        const [year, month, day] = verse.date.split("-").map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+        const dateTerms = [
+          verse.date,
+          `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`,
+          `${day}/${month}/${year}`,
+          `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}`,
+          new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date),
+          new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(date),
+          new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date),
+          String(year)
+        ].join(" ").toLowerCase();
+        return dateTerms.includes(query);
+      });
 
       if (!matches.length) {
-        libraryContainer.innerHTML = '<p class="empty-state">No verses match that search.</p>';
+        libraryContainer.innerHTML = '<p class="empty-state">No verses were found for that date.</p>';
         return;
       }
 
