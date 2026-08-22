@@ -442,20 +442,58 @@
 
     const pastVerses = verses
       .filter(v => v.date <= todayKey)
-      .sort((a, b) => b.date.localeCompare(a.date));
+      .sort((left, right) => right.date.localeCompare(left.date));
 
     if (!pastVerses.length) {
       libraryContainer.innerHTML = '<p class="thanks-note">No previous verses are available yet.</p>';
       return;
     }
 
-    libraryContainer.innerHTML = pastVerses.map(v => `
-      <article class="votd-library-card">
-        <div class="date">${v.date === todayKey ? '<span class="votd-today-badge">Today</span>' : ""}${escapeHtml(formatDate(v.date, false))}</div>
-        <h3>${escapeHtml(verseReferenceLabel(v))}</h3>
-        <p>${escapeHtml(v.text)}</p>
-      </article>
-    `).join("");
+    const controls = document.createElement("div");
+    controls.className = "verse-library-controls";
+    controls.innerHTML = `
+      <label for="verseLibrarySearch">Find a verse</label>
+      <input id="verseLibrarySearch" type="search" placeholder="Search by Scripture reference or words">
+    `;
+    libraryContainer.before(controls);
+
+    function render(term = "") {
+      const query = term.trim().toLowerCase();
+      const matches = pastVerses.filter(verse =>
+        !query || `${verse.reference} ${verse.text} ${verse.translation || ""}`.toLowerCase().includes(query)
+      );
+
+      if (!matches.length) {
+        libraryContainer.innerHTML = '<p class="empty-state">No verses match that search.</p>';
+        return;
+      }
+
+      const groups = new Map();
+      matches.forEach(verse => {
+        const label = new Date(verse.date + "T00:00:00").toLocaleDateString("en-IE", {
+          month: "long",
+          year: "numeric"
+        });
+        if (!groups.has(label)) groups.set(label, []);
+        groups.get(label).push(verse);
+      });
+
+      libraryContainer.innerHTML = Array.from(groups.entries()).map(([label, items]) => `
+        <section class="votd-month-group">
+          <h2 class="votd-month-heading">${escapeHtml(label)}</h2>
+          ${items.map(v => `
+            <article class="votd-library-card">
+              <div class="date">${v.date === todayKey ? '<span class="votd-today-badge">Today</span>' : ""}${escapeHtml(formatDate(v.date, false))}</div>
+              <h3>${escapeHtml(verseReferenceLabel(v))}</h3>
+              <p>${escapeHtml(v.text)}</p>
+            </article>
+          `).join("")}
+        </section>
+      `).join("");
+    }
+
+    controls.querySelector("input").addEventListener("input", event => render(event.target.value));
+    render();
   }
 
   async function loadVerseOfTheDay() {
