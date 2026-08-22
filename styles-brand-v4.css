@@ -483,3 +483,37 @@ footer{
   .hero{padding-top:112px}
   .today-dose-card,.card,.subscribe-band,.prose-panel,.verse-feature-card{padding-left:24px;padding-right:24px}
 }
+
+
+/* EDITORIAL LOGO RESTRAINT V6 */
+.brand{gap:11px}
+.brand-logo{
+  width:40px;
+  height:40px;
+  opacity:.92;
+  filter:none;
+}
+.brand span{font-size:18px;letter-spacing:.18em}
+.brand span::after{margin-top:5px;opacity:.78}
+.hero-brand-aside{display:block}
+.hero-brand-emblem{display:none!important}
+.footer-brand-block{
+  min-height:0;
+  padding-left:0;
+}
+.footer-brand-logo{display:none!important}
+footer h3{
+  font-size:24px;
+  letter-spacing:.22em;
+  margin-bottom:10px;
+}
+.today-dose-card{
+  max-width:560px;
+  margin-left:auto;
+}
+@media(max-width:900px){
+  .brand-logo{width:36px;height:36px}
+  .brand span{font-size:16px}
+  .footer-brand-block{padding-top:0}
+  .today-dose-card{max-width:none;margin-left:0}
+}
