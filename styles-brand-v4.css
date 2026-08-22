@@ -300,3 +300,186 @@ footer p, footer a{display:block;color:#d9cbb8;font-size:14px;margin:8px 0}
 .share-invite-section h2{font-size:clamp(34px,5vw,52px);margin:0 0 12px}
 .share-invite-copy{color:#f1e8dc;font-size:17px;margin:0 auto 28px;max-width:620px}
 @media(max-width:900px){.subscribe-landing{padding:130px 0 70px}.subscribe-landing-grid{grid-template-columns:1fr;gap:34px}.subscribe-page-card{max-width:none;margin-left:0}}
+
+
+/* BRAND COHERENCE V5 — RING-FREE EDITORIAL SYSTEM */
+:root{
+  --background:#070707;
+  --foreground:#f6f0e6;
+  --card:#0d0c0b;
+  --primary:#d7ad4e;
+  --muted:#a78646;
+  --border:rgba(215,173,78,.24);
+}
+body{
+  background:
+    radial-gradient(circle at 50% -20%,rgba(215,173,78,.055),transparent 34rem),
+    #070707;
+  letter-spacing:.005em;
+}
+.navbar{
+  background:rgba(6,6,6,.94);
+  border-bottom:1px solid rgba(215,173,78,.28);
+  box-shadow:none;
+}
+.navbar.scrolled{background:rgba(6,6,6,.97);box-shadow:0 18px 48px rgba(0,0,0,.28)}
+.brand{color:#d7ad4e;text-shadow:none}
+.brand-logo{
+  width:58px;
+  height:58px;
+  object-fit:contain;
+  border-radius:0;
+  box-shadow:none;
+  background:transparent;
+}
+.hero-overlay{
+  background:
+    linear-gradient(90deg,#060606 0%,rgba(6,6,6,.95) 49%,rgba(6,6,6,.70) 100%),
+    linear-gradient(0deg,#070707 0%,transparent 42%,rgba(6,6,6,.48) 100%);
+}
+.hero-brand-emblem{
+  width:clamp(220px,24vw,330px);
+  aspect-ratio:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  filter:drop-shadow(0 24px 46px rgba(0,0,0,.48));
+}
+.hero-brand-emblem img{
+  width:100%;
+  height:auto;
+  max-height:300px;
+  object-fit:contain;
+  border-radius:0;
+  background:transparent;
+}
+.hero-copy h1{letter-spacing:-.018em}
+.eyebrow{color:#d7ad4e!important;font-weight:600}
+.line{width:74px;background:linear-gradient(90deg,transparent,#d7ad4e,transparent)}
+.btn{border-radius:0;font-weight:600}
+.btn.primary{background:#d7ad4e;color:#090806}
+.btn.outline{border-color:rgba(215,173,78,.58);color:#e0ba61}
+input,textarea,select{
+  border-radius:0;
+  background:#0d0c0b;
+  border-color:rgba(215,173,78,.34);
+}
+.section{background:transparent}
+.subscribe-band-section,.about-preview-section,.split-section{
+  background:#090909;
+  border-color:rgba(215,173,78,.15);
+}
+.today-dose-card,
+.milestone-strip,
+.subscribe-card,
+.contact-card,
+.subscribe-band,
+.card,
+.pathway-step,
+.ministry-note,
+.support-item,
+.about-full .container,
+.series-panel,
+.series-collection-card,
+.prayer-wall,
+.prayer-item,
+.stats-panel,
+.stat-card,
+.prose-panel,
+.archive-panel,
+.devotion-card,
+.share-box,
+.verse-feature-card,
+.votd-library-card{
+  border-radius:2px;
+  background:linear-gradient(145deg,rgba(16,15,13,.98),rgba(9,9,9,.98));
+  border-color:rgba(215,173,78,.26);
+  box-shadow:none;
+}
+.today-dose-card,
+.card,
+.series-collection-card,
+.prose-panel,
+.prayer-wall,
+.verse-feature-card{position:relative}
+.today-dose-card::before,
+.card::before,
+.series-collection-card::before,
+.prose-panel::before,
+.prayer-wall::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(215,173,78,.82),transparent);
+}
+.card:hover,.devotion-card:hover{
+  border-color:rgba(215,173,78,.58);
+  transform:translateY(-2px);
+}
+.icon{
+  width:auto;
+  height:auto;
+  min-height:42px;
+  border-radius:0;
+  background:none;
+  color:#d7ad4e;
+}
+.page-hero{
+  background:
+    linear-gradient(180deg,rgba(6,6,6,.82),#070707),
+    radial-gradient(circle at 84% 15%,rgba(215,173,78,.10),transparent 34%);
+  border-bottom-color:rgba(215,173,78,.22);
+}
+.page-hero h1{letter-spacing:-.02em}
+.footer-brand-block{padding-left:150px;min-height:112px}
+.footer-brand-logo{
+  width:128px;
+  height:108px;
+  top:-4px;
+  object-fit:contain;
+  border-radius:0;
+  filter:drop-shadow(0 14px 24px rgba(0,0,0,.32));
+  background:transparent;
+}
+footer{
+  background:#060606;
+  border-top-color:rgba(215,173,78,.28);
+}
+.footer-bottom{border-top-color:rgba(215,173,78,.18)}
+.verse-feature-ornament{
+  width:58px!important;
+  height:1px!important;
+  margin:0 auto 24px!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden;
+  color:transparent!important;
+  background:linear-gradient(90deg,transparent,#d7ad4e,transparent)!important;
+}
+.verse-story-preview img{border-radius:0!important}
+.devotion-shell{
+  background:linear-gradient(180deg,#080807 0%,#17130d 260px,#0b0a09 100%);
+}
+.devotion-article{
+  border-radius:2px;
+  border:1px solid #b98a35;
+  box-shadow:0 34px 90px rgba(0,0,0,.38);
+}
+.devotion-body,.scripture-box,.milestone-note,.devotion-body blockquote,.formed-body blockquote{
+  border-radius:2px;
+}
+.share-btn{border-radius:0}
+.votd-today-badge,.scripture-heading,.subscribe-points span,.social-strip a{border-radius:2px}
+@media(max-width:900px){
+  .brand-logo{width:48px;height:48px}
+  .hero-brand-emblem{width:min(270px,72vw)}
+  .footer-brand-block{padding-left:0;padding-top:128px}
+  .footer-brand-logo{width:150px;height:110px}
+}
+@media(max-width:620px){
+  .container{padding-left:20px;padding-right:20px}
+  .hero{padding-top:112px}
+  .today-dose-card,.card,.subscribe-band,.prose-panel,.verse-feature-card{padding-left:24px;padding-right:24px}
+}
