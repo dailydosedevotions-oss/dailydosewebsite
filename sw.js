@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v32-ring-free-assets';
+const CACHE_VERSION = 'daily-dose-pwa-v33-editorial-logo-restraint';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
