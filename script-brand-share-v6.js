@@ -656,8 +656,11 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   controls.innerHTML = `
     <label for="archiveSearch">Find a devotion</label>
     <div class="archive-search-row">
-      <input id="archiveSearch" type="search" placeholder="Search by title, Scripture, or theme">
+      <input id="archiveSearch" type="search" placeholder="Try 22 August 2026, 22/08/2026, or a title" aria-describedby="archiveSearchHint">
       <span id="archiveCount" aria-live="polite"></span>
+    </div>
+    <p id="archiveSearchHint" class="search-hint">Search by date in common formats, month, year, title, Scripture, or theme.</p>
+    <div hidden>
     </div>
   `;
   grid.before(controls);
@@ -672,9 +675,53 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   const count = controls.querySelector('#archiveCount');
   let limit = 18;
 
+  function normaliseSearch(value) {
+    return value
+      .toLowerCase()
+      .replace(/(\d)(st|nd|rd|th)\b/g, '$1')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+
+  function dateSearchTerms(card) {
+    const published = card.dataset.publishAt;
+    if (!published) return '';
+    const date = new Date(published);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const day = date.getUTCDate();
+    const month = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear();
+    const shortYear = String(year).slice(-2);
+    const dd = String(day).padStart(2, '0');
+    const mm = String(month).padStart(2, '0');
+    const longMonth = new Intl.DateTimeFormat('en-GB', { month: 'long', timeZone: 'UTC' }).format(date);
+    const shortMonth = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'UTC' }).format(date);
+
+    return [
+      `${year}-${mm}-${dd}`,
+      `${dd}/${mm}/${year}`, `${day}/${month}/${year}`,
+      `${mm}/${dd}/${year}`, `${month}/${day}/${year}`,
+      `${dd}-${mm}-${year}`, `${day}-${month}-${year}`,
+      `${mm}-${dd}-${year}`, `${month}-${day}-${year}`,
+      `${dd}.${mm}.${year}`, `${day}.${month}.${year}`,
+      `${dd}/${mm}/${shortYear}`, `${mm}/${dd}/${shortYear}`,
+      `${day} ${longMonth} ${year}`, `${day} ${shortMonth} ${year}`,
+      `${longMonth} ${day} ${year}`, `${shortMonth} ${day} ${year}`,
+      `${longMonth} ${year}`, `${shortMonth} ${year}`,
+      `${day} ${longMonth}`, `${longMonth} ${day}`,
+      String(year)
+    ].join(' ');
+  }
+
   function render() {
-    const term = search.value.trim().toLowerCase();
-    const matches = cards.filter(card => !term || card.textContent.toLowerCase().includes(term));
+    const term = normaliseSearch(search.value);
+    const matches = cards.filter(card => {
+      if (!term) return true;
+      const searchable = normaliseSearch(`${card.textContent} ${dateSearchTerms(card)}`);
+      return searchable.includes(term);
+    });
     cards.forEach(card => {
       const index = matches.indexOf(card);
       card.hidden = index === -1 || index >= limit;
