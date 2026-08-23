@@ -155,6 +155,11 @@ async function sendScheduledForLocalTime(env) {
   if (local.date === "2026-08-02" && local.hour === 10) return sendMilestone100Email(env);
   if (local.hour === 19) return sendDueDevotions(env, { collections: ["series"] });
 
+  // One-time recovery for Blessed Are Part 1 after its missing library link blocked the 7pm run.
+  if (local.date === "2026-08-23" && local.hour === 20) {
+    return sendDueDevotions(env, { collections: ["series"] });
+  }
+
   return { ok: true, skipped: true, localTime: local.time, reason: "Not the local 7am or 7pm send window." };
 }
 
