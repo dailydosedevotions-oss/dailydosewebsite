@@ -361,15 +361,38 @@ function parseDevotionPage(html, collection, path, env) {
   const scriptureBoxHtml = textBetween(html, /<div\b[^>]*class=["'][^"']*scripture-box[^"']*["'][^>]*>/i, /<\/div>/i, true);
   const scripture = textBetween(html, /<h3\b[^>]*class=["'][^"']*scripture-heading[^"']*["'][^>]*>/i, /<\/h3>/i) || textBetween(scriptureBoxHtml, /<h3\b[^>]*>/i, /<\/h3>/i);
   const scriptureQuote = textBetween(scriptureBoxHtml, /<p\b[^>]*>/i, /<\/p>/i, true);
-  const bodyHtml = textBetween(html, /<div\b[^>]*class=["'][^"']*devotion-body[^"']*["'][^>]*>/i, /<\/div>/i, true);
+  const bodyHtml = extractBalancedDivInnerHtml(html, /<div\b[^>]*class=["'][^"']*devotion-body[^"']*["'][^>]*>/i);
   const publishAt = attr(html, "data-publish-at");
   const pageUrl = `${getSiteUrl(env)}/${path}`;
-  const title = [eyebrow, h1].filter(Boolean).join(": ") || stripTags(textBetween(html, /<title\b[^>]*>/i, /<\/title>/i));
+  const title = h1 || eyebrow || stripTags(textBetween(html, /<title\b[^>]*>/i, /<\/title>/i));
   const body = extractReadableBody(bodyHtml);
 
   if (!title || !body) throw new Error(`Could not parse devotion page ${path}.`);
 
   return { title, scripture: scripture || undefined, scriptureQuote: scriptureQuote ? htmlToMarkdownText(scriptureQuote) : undefined, body, publishAt: publishAt || undefined, url: pageUrl };
+}
+
+function extractBalancedDivInnerHtml(html, openingPattern) {
+  const start = html.search(openingPattern);
+  if (start < 0) return "";
+
+  const openingMatch = html.slice(start).match(openingPattern);
+  if (!openingMatch) return "";
+
+  const contentStart = start + openingMatch[0].length;
+  const divPattern = /<\/?div\b[^>]*>/gi;
+  divPattern.lastIndex = contentStart;
+  let depth = 1;
+  let match;
+
+  while ((match = divPattern.exec(html))) {
+    if (/^<\/div/i.test(match[0])) depth -= 1;
+    else depth += 1;
+
+    if (depth === 0) return html.slice(contentStart, match.index);
+  }
+
+  return "";
 }
 
 function extractReadableBody(bodyHtml) {
