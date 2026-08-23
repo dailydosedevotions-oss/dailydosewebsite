@@ -292,7 +292,14 @@ async function findSeriesArchiveCard(env, archiveHtml, date) {
   const card = findArchiveCard(archiveHtml, "series", date);
   if (card) return card;
 
-  for (const href of findSeriesPageLinks(archiveHtml)) {
+  // Keep scheduled series discoverable even if the public library card is delayed or changed.
+  const scheduledSeriesPages = [
+    "series/blessed-are.html",
+    "series/formed.html"
+  ];
+  const seriesPages = [...new Set([...findSeriesPageLinks(archiveHtml), ...scheduledSeriesPages])];
+
+  for (const href of seriesPages) {
     const pagePath = normalizeSitePath(href);
     const pageHtml = await getTextFromLiveSite(env, pagePath);
     const pageCard = findArchiveCard(pageHtml, "series", date);
