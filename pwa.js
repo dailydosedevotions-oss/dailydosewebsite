@@ -14,7 +14,9 @@ if ('serviceWorker' in navigator) {
 }
 
 if (installButton) {
-  installButton.hidden = pwaOpenedAsApp;
+  // Keep this visible on phones, including when Daily Dose is opened from
+  // an existing home-screen shortcut.
+  installButton.hidden = false;
 }
 
 window.addEventListener('beforeinstallprompt', event => {
@@ -37,6 +39,12 @@ window.addEventListener('beforeinstallprompt', event => {
 installButton?.addEventListener('click', async () => {
   trackPwaEvent('add_to_home_button_tap');
 
+  if (pwaOpenedAsApp) {
+    trackPwaEvent('already_on_home_screen_tap');
+    showAddToHomeScreenHelp(true);
+    return;
+  }
+
   if (usingSamsungInternet) {
     trackPwaEvent('samsung_open_chrome_tap');
     showAddToHomeScreenHelp();
@@ -57,12 +65,12 @@ installButton?.addEventListener('click', async () => {
     trackPwaEvent('install_prompt_dismissed');
   }
   dailyDoseInstallPrompt = null;
-  if (choice?.outcome === 'accepted') installButton.hidden = true;
+  if (choice?.outcome === 'accepted') showAddToHomeScreenHelp(true);
 });
 
 window.addEventListener('appinstalled', () => {
   dailyDoseInstallPrompt = null;
-  if (installButton) installButton.hidden = true;
+  if (installButton) installButton.hidden = false;
   trackPwaEvent('app_installed');
 });
 
@@ -71,7 +79,7 @@ if (pwaOpenedAsApp) {
   trackPwaEventOncePerDay('standalone_open');
 }
 
-function showAddToHomeScreenHelp() {
+function showAddToHomeScreenHelp(alreadyAdded = false) {
   const existing = document.getElementById('safeInstallDialog');
   if (existing) {
     existing.showModal?.();
@@ -84,10 +92,10 @@ function showAddToHomeScreenHelp() {
   dialog.innerHTML = `
     <div style="max-width:460px;padding:8px;color:#f4ede2">
       <p class="eyebrow">Daily Dose on Your Home Screen</p>
-      <h2 id="safeInstallTitle" style="margin:0 0 14px">Add Daily Dose to Home Screen</h2>
-      <p style="margin:0 0 22px">${getAddToHomeScreenInstructions()}</p>
+      <h2 id="safeInstallTitle" style="margin:0 0 14px">${alreadyAdded ? 'Daily Dose Is on Your Home Screen' : 'Add Daily Dose to Home Screen'}</h2>
+      <p style="margin:0 0 22px">${alreadyAdded ? 'You already have quick access to Daily Dose from your home screen.' : getAddToHomeScreenInstructions()}</p>
       <div style="display:flex;flex-wrap:wrap;gap:12px">
-        <a class="btn primary" href="intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end">Open in Chrome</a>
+        ${usingSamsungInternet && !alreadyAdded ? '<a class="btn primary" href="intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end">Open in Chrome</a>' : ''}
         <button class="btn outline" type="button" data-close-install-help>Close</button>
       </div>
     </div>
