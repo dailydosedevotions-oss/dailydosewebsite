@@ -713,3 +713,99 @@ body{font-size:16px}
   .editorial-footer-inner{display:grid;align-items:start}
   .editorial-footer-links{gap:14px}
 }
+
+
+/* HOMEPAGE HOME-SCREEN PROMPT */
+.hero-home-actions{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  margin-top:-18px;
+}
+.home-screen-card{
+  appearance:none;
+  width:min(100%,410px);
+  min-height:72px;
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) 22px;
+  align-items:center;
+  gap:14px;
+  padding:12px 15px 12px 12px;
+  border:1px solid rgba(215,173,78,.32);
+  border-radius:2px;
+  background:linear-gradient(105deg,rgba(215,173,78,.11),rgba(255,255,255,.025));
+  color:#f6f0e6;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  transition:border-color .22s ease,background .22s ease,transform .22s ease;
+}
+.home-screen-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(215,173,78,.7);
+  background:linear-gradient(105deg,rgba(215,173,78,.17),rgba(255,255,255,.035));
+}
+.home-screen-card:focus-visible{
+  outline:2px solid #e0ba61;
+  outline-offset:3px;
+}
+.home-screen-icon-wrap{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(215,173,78,.42);
+  background:#0b0a09;
+  color:#e0ba61;
+}
+.home-screen-icon{
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.65;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.home-screen-copy{display:block;min-width:0}
+.home-screen-copy strong{
+  display:block;
+  color:#f2d48e;
+  font-size:11px;
+  line-height:1.3;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.home-screen-copy small{
+  display:block;
+  margin-top:5px;
+  color:#c9bda9;
+  font-size:12px;
+  line-height:1.35;
+  letter-spacing:.01em;
+}
+.home-screen-arrow{
+  color:#d7ad4e;
+  font-size:20px;
+  line-height:1;
+  transition:transform .22s ease;
+}
+.home-screen-card:hover .home-screen-arrow{transform:translateX(3px)}
+.hero-start-link{
+  color:#c9bda9;
+  font-size:13px;
+  line-height:1.4;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.hero-start-link span{
+  color:#f4ead4;
+  border-bottom:1px solid rgba(215,173,78,.42);
+}
+.hero-start-link:hover span{color:#e0ba61;border-bottom-color:#e0ba61}
+@media(max-width:620px){
+  .hero-home-actions{display:grid;gap:16px;margin-top:-16px}
+  .home-screen-card{width:100%}
+  .hero-start-link{padding-left:2px}
+}
