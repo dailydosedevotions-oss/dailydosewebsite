@@ -865,3 +865,25 @@ body{font-size:16px}
   .home-screen-card{width:auto;min-width:0;min-height:38px;padding:5px 10px 5px 7px}
   .home-screen-brand-mark{width:25px;height:25px;flex-basis:25px}
 }
+
+
+/* HOME ACTION SPACING FIX */
+.hero-home-actions{
+  margin-top:16px;
+  flex-wrap:wrap;
+}
+@media(max-width:620px){
+  .hero-home-actions{
+    width:100%;
+    margin-top:14px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:13px;
+  }
+  .hero-start-link{
+    display:block;
+    padding:0 0 0 2px;
+    line-height:1.5;
+  }
+}
