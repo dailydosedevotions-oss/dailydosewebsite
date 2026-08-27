@@ -13,39 +13,39 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+if (installButton) {
+  installButton.hidden = pwaOpenedAsApp;
+}
+
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault();
 
   // Samsung Internet can route PWA installation through an obsolete WebAPK
-  // package that modern Android blocks. Direct Samsung users to Chrome's
-  // current PWA installer instead of invoking that unsafe package.
+  // package that modern Android blocks. Keep the branded home-screen control
+  // visible, but direct Samsung users to Chrome's current PWA support.
   if (usingSamsungInternet) {
     dailyDoseInstallPrompt = null;
-    if (installButton) {
-      installButton.hidden = false;
-      installButton.textContent = 'Install Safely with Chrome';
-    }
-    trackPwaEvent('samsung_safe_install_shown');
+    trackPwaEvent('samsung_add_to_home_shown');
     return;
   }
 
   dailyDoseInstallPrompt = event;
-  if (installButton) installButton.hidden = false;
+  if (installButton && !pwaOpenedAsApp) installButton.hidden = false;
   trackPwaEvent('prompt_shown');
 });
 
 installButton?.addEventListener('click', async () => {
-  trackPwaEvent('install_button_tap');
+  trackPwaEvent('add_to_home_button_tap');
 
   if (usingSamsungInternet) {
     trackPwaEvent('samsung_open_chrome_tap');
-    showSamsungInstallHelp();
+    showAddToHomeScreenHelp();
     return;
   }
 
   if (!dailyDoseInstallPrompt) {
-    trackPwaEvent(isAppleMobile() ? 'ios_add_to_home_tap' : 'browser_install_help_tap');
-    installButton.textContent = isAppleMobile() ? 'Use Share > Add to Home Screen' : 'Use Browser Menu to Install';
+    trackPwaEvent(isAppleMobile() ? 'ios_add_to_home_tap' : 'browser_add_to_home_help_tap');
+    showAddToHomeScreenHelp();
     return;
   }
 
@@ -57,7 +57,7 @@ installButton?.addEventListener('click', async () => {
     trackPwaEvent('install_prompt_dismissed');
   }
   dailyDoseInstallPrompt = null;
-  installButton.hidden = true;
+  if (choice?.outcome === 'accepted') installButton.hidden = true;
 });
 
 window.addEventListener('appinstalled', () => {
@@ -66,17 +66,12 @@ window.addEventListener('appinstalled', () => {
   trackPwaEvent('app_installed');
 });
 
-if (installButton && isAppleMobile() && !isStandalone()) {
-  installButton.hidden = false;
-  installButton.textContent = 'Add to Home Screen';
-}
-
 if (pwaOpenedAsApp) {
   trackPwaEventOnceEver('first_standalone_open');
   trackPwaEventOncePerDay('standalone_open');
 }
 
-function showSamsungInstallHelp() {
+function showAddToHomeScreenHelp() {
   const existing = document.getElementById('safeInstallDialog');
   if (existing) {
     existing.showModal?.();
@@ -88,10 +83,9 @@ function showSamsungInstallHelp() {
   dialog.setAttribute('aria-labelledby', 'safeInstallTitle');
   dialog.innerHTML = `
     <div style="max-width:460px;padding:8px;color:#f4ede2">
-      <p class="eyebrow">Safe Android Install</p>
-      <h2 id="safeInstallTitle" style="margin:0 0 14px">Install Daily Dose with Chrome</h2>
-      <p style="margin:0 0 12px">Samsung Internet may create an older app package that Android blocks. There is no need to bypass Play Protect.</p>
-      <p style="margin:0 0 22px">Open Daily Dose in Chrome, then choose <strong>Install app</strong> or <strong>Add to Home screen</strong> from Chrome&rsquo;s menu.</p>
+      <p class="eyebrow">Daily Dose on Your Home Screen</p>
+      <h2 id="safeInstallTitle" style="margin:0 0 14px">Add Daily Dose to Home Screen</h2>
+      <p style="margin:0 0 22px">${getAddToHomeScreenInstructions()}</p>
       <div style="display:flex;flex-wrap:wrap;gap:12px">
         <a class="btn primary" href="intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end">Open in Chrome</a>
         <button class="btn outline" type="button" data-close-install-help>Close</button>
@@ -109,6 +103,16 @@ function showSamsungInstallHelp() {
   } else {
     window.location.href = 'intent://dailydosedevotions.ie/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fdailydosedevotions.ie%2F;end';
   }
+}
+
+function getAddToHomeScreenInstructions() {
+  if (isAppleMobile()) {
+    return 'Tap the <strong>Share</strong> button in your browser, then choose <strong>Add to Home Screen</strong>.';
+  }
+  if (usingSamsungInternet) {
+    return 'Open Daily Dose in Chrome, open Chrome&rsquo;s menu, then choose <strong>Add to Home screen</strong>.';
+  }
+  return 'Open your browser menu, then choose <strong>Add to Home screen</strong>.';
 }
 
 function isAppleMobile() {
