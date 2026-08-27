@@ -809,3 +809,24 @@ body{font-size:16px}
   .home-screen-card{width:100%}
   .hero-start-link{padding-left:2px}
 }
+
+
+/* COMPACT HOME-SCREEN CONTROL */
+.hero-home-actions{gap:18px;margin-top:-20px}
+.home-screen-card{
+  width:auto;
+  min-width:238px;
+  min-height:48px;
+  grid-template-columns:30px auto 16px;
+  gap:10px;
+  padding:7px 12px 7px 8px;
+  background:rgba(215,173,78,.055);
+}
+.home-screen-icon-wrap{width:30px;height:30px}
+.home-screen-icon{width:17px;height:17px}
+.home-screen-copy strong{font-size:10px;letter-spacing:.14em;white-space:nowrap}
+.home-screen-arrow{font-size:16px}
+@media(max-width:620px){
+  .hero-home-actions{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:-18px}
+  .home-screen-card{width:auto;min-width:220px}
+}
