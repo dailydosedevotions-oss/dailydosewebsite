@@ -61,6 +61,8 @@ h1 span,h2 span{color:var(--primary)}
 .btn.outline:hover{background:rgba(198,160,90,.1)}
 .install-app-btn{border-color:rgba(244,237,226,.26);color:#f4ede2;background:rgba(244,237,226,.06)}
 .install-app-btn:hover{border-color:rgba(198,160,90,.55);background:rgba(198,160,90,.12)}
+.install-app-btn{gap:9px}
+.home-screen-icon{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .text-link-btn{border-color:transparent;color:#f4ead4;background:transparent;padding-left:8px;padding-right:8px}
 .text-link-btn:hover{color:var(--primary)}
 .btn.full{width:100%}
