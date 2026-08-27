@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v38-home-screen-visible';
+const CACHE_VERSION = 'daily-dose-pwa-v39-compact-logo-control';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -19,7 +19,7 @@ const CORE_ASSETS = [
   '/pwa-stats.html',
   '/subscribe-health.html',
   '/offline',
-  '/styles-brand-v4.css?v=editorial-system-7',
+  '/styles-brand-v4.css?v=compact-logo-control-1',
   '/script.js?v=home-focus-2',
   '/script-brand-share-v6.js?v=archive-date-search-1',
   '/pwa.js?v=add-to-home-3',
