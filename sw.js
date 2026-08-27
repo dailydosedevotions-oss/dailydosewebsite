@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v37-archive-date-search';
+const CACHE_VERSION = 'daily-dose-pwa-v38-home-screen-visible';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -22,7 +22,7 @@ const CORE_ASSETS = [
   '/styles-brand-v4.css?v=editorial-system-7',
   '/script.js?v=home-focus-2',
   '/script-brand-share-v6.js?v=archive-date-search-1',
-  '/pwa.js?v=samsung-safe-install-1',
+  '/pwa.js?v=add-to-home-3',
   '/verse-of-the-day.js?v=date-search-1',
   '/verses-of-the-day.json',
   '/manifest.webmanifest?v=3',
