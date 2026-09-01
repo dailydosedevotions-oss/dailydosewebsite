@@ -446,15 +446,38 @@ async function getTextFromLiveSite(env, path) {
   return response.text();
 }
 
-async function sendDevotionCampaign(env, candidate) {
-  const { devotion, date, collection } = candidate;
-  const emailContent = prepareDevotionEmailContent(devotion);
-  const readableBody = plainText(emailContent.paragraphs.join(" "));
+async function ensureFullSeriesContent(env, candidate) {
+  if (candidate.collection !== "series" || plainText(candidate.devotion.body).length >= 250) return candidate;
 
-  if (collection === "series" && (emailContent.paragraphs.length === 0 || readableBody.length < 250)) {
-    throw new Error(`Series email blocked: full devotion content was not extracted for ${date}.`);
+  const owner = env.GITHUB_OWNER || "dailydosedevotions-oss";
+  const repo = env.GITHUB_REPO || "dailydosewebsite";
+  const branch = env.GITHUB_BRANCH || "main";
+  const path = String(candidate.path || "").replace(/^\/+/, "");
+
+  if (!path) return candidate;
+
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+    const response = await fetch(rawUrl, { cf: { cacheTtl: 0, cacheEverything: false } });
+    if (!response.ok) return candidate;
+
+    const pageHtml = await response.text();
+    const devotion = parseDevotionPage(pageHtml, "series", path, env);
+    normalizeDevotion(devotion);
+
+    if (plainText(devotion.body).length >= 250) {
+      return { ...candidate, devotion, source: "github raw full-content fallback" };
+    }
+  } catch (_error) {
+    // Keep the live-site candidate so a temporary fallback failure never cancels the scheduled send.
   }
 
+  return candidate;
+}
+
+async function sendDevotionCampaign(env, candidate) {
+  candidate = await ensureFullSeriesContent(env, candidate);
+  const { devotion, date, collection } = candidate;
   const html = renderDevotionHtml(env, candidate);
   const text = renderDevotionText(env, candidate);
   const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
