@@ -5,7 +5,7 @@ compatibility_date = "2026-06-19"
 # Preserve the existing production schedule exactly. The paired UTC hours
 # keep delivery at 7am daily and 7pm Sunday in Europe/Dublin across DST.
 [triggers]
-crons = ["0 6 * * *", "0 7 * * *", "0 18 * * 0", "0 19 * * 0"]
+crons = ["0 6 * * *", "0 7 * * *", "0 18 * * SUN", "0 19 * * SUN"]
 
 [vars]
 APP_TIME_ZONE = "Europe/Dublin"
