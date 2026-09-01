@@ -1,3 +1,4 @@
+// Production mailer: full daily and Sunday devotion delivery.
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
