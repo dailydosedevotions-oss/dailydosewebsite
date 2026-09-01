@@ -306,14 +306,24 @@ async function loadWebsiteDevotionCandidate(env, collection, date) {
   if (!card) return null;
 
   const pagePath = normalizeSitePath(card.href);
-  const pageHtml = await getTextFromLiveSite(env, pagePath);
+  let pageHtml;
+  let source = "live website";
+
+  try {
+    pageHtml = await getTextFromLiveSite(env, pagePath);
+  } catch (error) {
+    if (collection !== "series") throw error;
+    pageHtml = await getTextFromGitHubRaw(env, pagePath);
+    source = "github raw scheduled-content fallback";
+  }
+
   const devotion = parseDevotionPage(pageHtml, collection, pagePath, env);
 
   if (!devotion.publishAt && card.publishAt) devotion.publishAt = card.publishAt;
   if (!devotion.url) devotion.url = `${getSiteUrl(env)}/${pagePath}`;
   normalizeDevotion(devotion);
 
-  return { collection, date, path: pagePath, devotion, source: "live website" };
+  return { collection, date, path: pagePath, devotion, source };
 }
 
 async function findSeriesArchiveCard(env, archiveHtml, date) {
@@ -447,6 +457,21 @@ async function getTextFromLiveSite(env, path) {
   });
 
   if (!response.ok) throw new Error(`Could not load ${path} from live website: ${response.status} ${await response.text()}`);
+  return response.text();
+}
+
+async function getTextFromGitHubRaw(env, path) {
+  const owner = env.GITHUB_OWNER || "dailydosedevotions-oss";
+  const repo = env.GITHUB_REPO || "dailydosewebsite";
+  const branch = env.GITHUB_BRANCH || "main";
+  const cleanPath = String(path || "").replace(/^\/+/, "");
+  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${cleanPath}`;
+  const response = await fetch(rawUrl, { cf: { cacheTtl: 0, cacheEverything: false } });
+
+  if (!response.ok) {
+    throw new Error(`Could not load ${cleanPath} from GitHub fallback: ${response.status}`);
+  }
+
   return response.text();
 }
 
