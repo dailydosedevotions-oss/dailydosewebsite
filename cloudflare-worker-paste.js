@@ -7,7 +7,10 @@ export default {
       if (request.method === "OPTIONS") return json(null, 204);
       if (url.pathname === "/check") return checkToday(env);
       if (url.pathname === "/preview-email") return previewEmail(env);
-      if (url.pathname === "/preview-series-email") return previewCollectionEmail(env, "series", url.searchParams.get("date"));
+      if (url.pathname === "/preview-series-email") {
+        return previewCollectionEmail(env, "series", url.searchParams.get("date"))
+          .catch((error) => json({ ok: false, error: String(error && error.message ? error.message : error) }, 500));
+      }
       if (url.pathname === "/preview-milestone-100") return previewMilestone100(env);
       if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
