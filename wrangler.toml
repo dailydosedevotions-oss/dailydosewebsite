@@ -1,11 +1,11 @@
-name = "daily-dose-devotions-mailer"
+name = "daily-dose-auto-email"
 main = "cloudflare-worker-paste.js"
 compatibility_date = "2026-06-19"
 
-# Cloudflare cron uses UTC, so this runs hourly and the Worker checks
-# Europe/Dublin local time internally. That handles daylight saving time.
+# Preserve the existing production schedule exactly. The paired UTC hours
+# keep delivery at 7am daily and 7pm Sunday in Europe/Dublin across DST.
 [triggers]
-crons = ["0 * * * *"]
+crons = ["0 6 * * *", "0 7 * * *", "0 18 * * 0", "0 19 * * 0"]
 
 [vars]
 APP_TIME_ZONE = "Europe/Dublin"
