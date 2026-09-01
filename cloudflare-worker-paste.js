@@ -6,6 +6,7 @@ export default {
       if (request.method === "OPTIONS") return json(null, 204);
       if (url.pathname === "/check") return checkToday(env);
       if (url.pathname === "/preview-email") return previewEmail(env);
+      if (url.pathname === "/preview-series-email") return previewCollectionEmail(env, "series", url.searchParams.get("date"));
       if (url.pathname === "/preview-milestone-100") return previewMilestone100(env);
       if (url.pathname === "/subscribe" && request.method === "POST") return subscribe(request, env);
 
@@ -49,6 +50,7 @@ export default {
         message: "Daily Dose Auto Email Worker is live",
         check: "/check",
         previewEmail: "/preview-email",
+        previewSeriesEmail: "/preview-series-email?date=YYYY-MM-DD",
         previewMilestone100: "/preview-milestone-100",
         sendTestEmail: "/send-test-email?confirm=SEND",
         sendTodayOnly: "/send-daily-now?confirm=SEND",
@@ -98,6 +100,23 @@ async function previewEmail(env) {
   }
 
   return new Response(renderDevotionHtml(env, candidate), { headers: { "content-type": "text/html; charset=utf-8" } });
+}
+
+async function previewCollectionEmail(env, collection, requestedDate) {
+  const local = getLocalParts(env.APP_TIME_ZONE || "Europe/Dublin", new Date());
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "") ? requestedDate : local.date;
+  const candidate = await loadDevotionCandidate(env, collection, date);
+
+  if (!candidate) {
+    return new Response(`No ${collection} devotion found for ${date}.`, {
+      status: 404,
+      headers: { "content-type": "text/plain; charset=utf-8" }
+    });
+  }
+
+  return new Response(renderDevotionHtml(env, candidate), {
+    headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" }
+  });
 }
 
 async function previewMilestone100(env) {
@@ -429,6 +448,13 @@ async function getTextFromLiveSite(env, path) {
 
 async function sendDevotionCampaign(env, candidate) {
   const { devotion, date, collection } = candidate;
+  const emailContent = prepareDevotionEmailContent(devotion);
+  const readableBody = plainText(emailContent.paragraphs.join(" "));
+
+  if (collection === "series" && (emailContent.paragraphs.length === 0 || readableBody.length < 250)) {
+    throw new Error(`Series email blocked: full devotion content was not extracted for ${date}.`);
+  }
+
   const html = renderDevotionHtml(env, candidate);
   const text = renderDevotionText(env, candidate);
   const senderEmail = env.BREVO_SENDER_EMAIL || env.NOTIFY_EMAIL;
