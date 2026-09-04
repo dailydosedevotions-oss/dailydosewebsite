@@ -74,6 +74,8 @@ h1 span,h2 span{color:var(--primary)}
 .today-dose-date{color:#e5d1ad;font-size:12px;text-transform:uppercase;letter-spacing:.18em;font-weight:700;margin-bottom:14px}
 .today-dose-card h2{font-size:clamp(31px,4vw,48px);line-height:1.08;color:#fff;margin-bottom:18px}
 .today-dose-card p:not(.eyebrow){color:#f2e7d8;font-size:17px;line-height:1.78;margin:0 0 26px}
+.today-dose-card h2{min-height:2.16em}
+.today-dose-card p:not(.eyebrow){min-height:5.34em}
 .today-dose-actions{display:flex;gap:12px;flex-wrap:wrap}
 .milestone-strip-section{padding:28px 0;background:#0d0c0b;border-top:1px solid rgba(198,160,90,.14);border-bottom:1px solid rgba(198,160,90,.14)}
 .milestone-strip-section[hidden]{display:none}
@@ -481,6 +483,7 @@ footer{
   .footer-brand-logo{width:150px;height:110px}
 }
 @media(max-width:620px){
+  .today-dose-card h2,.today-dose-card p:not(.eyebrow){min-height:0}
   .container{padding-left:20px;padding-right:20px}
   .hero{padding-top:112px}
   .today-dose-card,.card,.subscribe-band,.prose-panel,.verse-feature-card{padding-left:24px;padding-right:24px}
