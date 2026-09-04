@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v40-home-spacing-fix';
+const CACHE_VERSION = 'daily-dose-pwa-v41-analytics-consent';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -20,6 +20,8 @@ const CORE_ASSETS = [
   '/subscribe-health.html',
   '/offline',
   '/styles-brand-v4.css?v=home-spacing-fix-1',
+  '/analytics-consent.css?v=1',
+  '/analytics-consent.js?v=1',
   '/script.js?v=home-focus-2',
   '/script-brand-share-v6.js?v=archive-date-search-1',
   '/pwa.js?v=add-to-home-3',
