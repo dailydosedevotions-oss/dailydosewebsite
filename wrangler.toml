@@ -10,6 +10,7 @@ crons = ["0 6 * * *", "0 7 * * *", "0 18 * * SUN", "0 19 * * SUN"]
 [vars]
 APP_TIME_ZONE = "Europe/Dublin"
 BREVO_LIST_ID = "2"
+BREVO_SENDER_EMAIL = "devotions@dailydosedevotions.ie"
 NOTIFY_EMAIL = "dailydosedevotions@gmail.com"
 BREVO_SENDER_NAME = "Daily Dose Devotions"
 GITHUB_OWNER = "dailydosedevotions-oss"
