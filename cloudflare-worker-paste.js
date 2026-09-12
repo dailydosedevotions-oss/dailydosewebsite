@@ -713,7 +713,7 @@ function renderDevotionHtml(env, candidate) {
               <td style="padding:10px 32px 38px;text-align:center;">
                 <a href="${escapeHtml(devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">${escapeHtml(getFooterLinkText(candidate))}</a>
                 <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
-                <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
+                <img src="https://dailydosedevotions.ie/icons/icon-192.png" width="56" height="56" alt="Daily Dose Devotions" style="display:block;margin:0 auto 14px;border-radius:12px;"><p style="margin:0;font-family:Arial,sans-serif;font-size:13px;line-height:1.7;color:#776b5f;"><strong style="color:#2f5c50;font-size:14px;">Shaun Loughlin</strong><br>Daily Dose Devotions<br><span style="font-size:12px;">Helping hearts return to the Word, one day at a time.</span></p>
               </td>
             </tr>
           </table>
@@ -809,7 +809,7 @@ function renderMilestone100Html(env) {
               <td style="padding:10px 32px 38px;text-align:center;">
                 <a href="${escapeHtml(content.devotionUrl)}" style="display:inline-block;background:#2f5c50;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:14px 22px;border-radius:4px;">Read Daily Dose #100</a>
                 <div style="height:1px;background:#ded2c0;margin:30px auto 18px;width:72%;"></div>
-                <p style="margin:0;font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#776b5f;">Daily Dose Devotions<br>Helping hearts return to the Word, one day at a time.</p>
+                <img src="https://dailydosedevotions.ie/icons/icon-192.png" width="56" height="56" alt="Daily Dose Devotions" style="display:block;margin:0 auto 14px;border-radius:12px;"><p style="margin:0;font-family:Arial,sans-serif;font-size:13px;line-height:1.7;color:#776b5f;"><strong style="color:#2f5c50;font-size:14px;">Shaun Loughlin</strong><br>Daily Dose Devotions<br><span style="font-size:12px;">Helping hearts return to the Word, one day at a time.</span></p>
               </td>
             </tr>
           </table>
