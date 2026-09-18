@@ -137,6 +137,7 @@ async function getDevotionFromGitHub(env: Env, date: string): Promise<Devotion> 
     throw new Error(`Devotion ${path} must include at least "title" and "body".`);
   }
 
+  devotion.title = devotion.title.replace(/^Daily Dose\s*#\d+\s*[:—–-]\s*/i, "");
   return devotion;
 }
 

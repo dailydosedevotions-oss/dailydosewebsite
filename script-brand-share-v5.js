@@ -84,7 +84,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   if (archiveGrid && emptyMsg && archiveGrid.children.length === 0) emptyMsg.hidden = false;
 })();
 
-// Homepage milestone banner: celebrates Daily Dose #100 without needing a manual site change.
+// Homepage milestone banner: celebrates 100 Days of Daily Dose without needing a manual site change.
 (function () {
   const section = document.getElementById('dailyDoseMilestone');
   const eyebrow = document.getElementById('milestoneEyebrow');
@@ -106,16 +106,16 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     build: {
       eyebrow: '100 Days of Daily Dose',
       title: `${daysUntil100} ${daysUntil100 === 1 ? 'Day' : 'Days'} to 100 Days of Daily Dose`,
-      text: 'Daily Dose reaches #100 on Sunday, August 2. We are giving thanks for every day of Scripture, reflection, and real life - one day at a time.',
+      text: 'Daily Dose marks 100 days on Sunday, August 2. We are giving thanks for every day of Scripture, reflection, and real life - one day at a time.',
       href: 'devotions.html',
       label: 'Read Today\u2019s Dose'
     },
     day: {
-      eyebrow: 'Today: Daily Dose #100',
+      eyebrow: 'Today: 100 Days of Daily Dose',
       title: '100 Days of Daily Dose',
-      text: '100 days of opening the Word, turning back to Christ, and remembering grace. Today\u2019s Daily Dose is #100.',
+      text: '100 days of opening the Word, turning back to Christ, and remembering grace. Thank you for sharing these days with us.',
       href: 'devotions/daily-dose-100.html',
-      label: 'Read Daily Dose #100'
+      label: 'Read the anniversary devotion'
     },
     thanks: {
       eyebrow: 'Thank You for 100 Days',
