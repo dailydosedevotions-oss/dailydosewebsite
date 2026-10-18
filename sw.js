@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v43-daily-encouragement';
+const CACHE_VERSION = 'daily-dose-pwa-v44-send-me-dose';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

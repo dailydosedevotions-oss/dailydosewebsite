@@ -604,7 +604,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     ['Current Series', '/series.html'],
     ['Verse Library', '/verse-library.html'],
     ['Prayer', '/prayer/'],
-    ['Daily Encouragement', '/subscribe.html']
+    ['Send me Daily Dose', '/subscribe.html']
   ];
 
   const links = navItems.map(([label, href]) => `<a href="${href}">${label}</a>`).join('');
