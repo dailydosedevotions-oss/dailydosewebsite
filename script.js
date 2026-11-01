@@ -474,7 +474,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   function getShareUrl() {
     const url = new URL(window.location.href);
     url.hash = '';
-    url.searchParams.set('share', 'gold-v6');
+    url.searchParams.set('share', 'dd-v7');
     return url.toString();
   }
 

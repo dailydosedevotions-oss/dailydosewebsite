@@ -154,5 +154,31 @@ export async function onRequest(context) {
     }
   }
 
-  return context.next();
+  // Keep share crawlers and older devotion pages on the approved DD artwork.
+  // Run only after all publication guards and downstream middleware.
+  const response = await context.next();
+  if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
+  const shareVersion = 'dd-v7';
+  const imageUrl = 'https://dailydosedevotions.ie/daily-dose-share-v6.jpg?v=' + shareVersion;
+  return new HTMLRewriter()
+    .on('meta[property="og:image"], meta[property="og:image:secure_url"], meta[name="twitter:image"]', {
+      element(element) { element.setAttribute('content', imageUrl); }
+    })
+    .on('meta[property="og:url"]', {
+      element(element) {
+        const shareUrl = new URL(element.getAttribute('content') || url.href, url);
+        shareUrl.searchParams.set('share', shareVersion);
+        element.setAttribute('content', shareUrl.href);
+      }
+    })
+    .on('script[src]', {
+      element(element) {
+        const src = new URL(element.getAttribute('src'), url);
+        if (src.origin === url.origin && /^\/(script|script-brand-share-v[56])\.js$/.test(src.pathname)) {
+          src.searchParams.set('v', shareVersion);
+          element.setAttribute('src', src.pathname + src.search);
+        }
+      }
+    })
+    .transform(response);
 }
