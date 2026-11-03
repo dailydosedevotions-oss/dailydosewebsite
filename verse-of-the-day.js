@@ -65,7 +65,7 @@
   }
 
   function shareText(verse) {
-    return `Daily Dose Devotions | Verse of the Day\n\n${verseReferenceLabel(verse)}\n${verse.text}\n\nScripture • Reflection • Real Life\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
+    return `Daily Dose Devotions | Verse of the Day\n\n${verseReferenceLabel(verse)}\n${verse.text}\n\nScripture • Prayer • Truth\nhttps://dailydosedevotions.ie/#verse-of-the-day`;
   }
 
   function validateVerseSchedule(verses) {
@@ -169,7 +169,43 @@
     };
   }
 
+  // Approved 3 November 2026 template. Keep older archived exports unchanged.
   async function createVerseStoryFile(verse) {
+    if (verse.date && verse.date < '2026-11-03') return createLegacyVerseStoryFile(verse);
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080; canvas.height = 1920;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Image rendering unavailable');
+    const template = new Image();
+    await new Promise((resolve, reject) => {
+      template.onload = resolve; template.onerror = reject;
+      template.src = '/icons/verse-story-template-v4.jpg';
+    });
+    ctx.drawImage(template, 0, 0, 1080, 1920);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    // Fixed safe area leaves the heading and approved footer untouched.
+    let size = 124, lines, lineHeight;
+    for (; size >= 16; size -= 2) {
+      ctx.font = `400 ${size}px Georgia, 'Times New Roman', serif`;
+      lines = wrapCanvasText(ctx, verse.text, 850);
+      lineHeight = Math.round(size * 1.11);
+      if (lines.length * lineHeight <= 560 && lines.every(line => ctx.measureText(line).width <= 850)) break;
+    }
+    if (size < 16) throw new Error('Verse is too long for the image template');
+    ctx.fillStyle = '#e9e1d1';
+    lines.forEach((line, index) => ctx.fillText(line, 120, 560 + index * lineHeight));
+    const reference = verseReferenceLabel(verse).toUpperCase();
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+    let referenceSize = 38;
+    do { ctx.font = `400 ${referenceSize}px Georgia, 'Times New Roman', serif`; if (ctx.measureText(reference).width <= 840) break; referenceSize -= 1; } while (referenceSize > 16);
+    ctx.fillStyle = '#d5aa55';
+    ctx.fillText(reference, 124, 1190);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) throw new Error('Could not encode verse image');
+    return new File([blob], `daily-dose-verse-${verse.date || 'today'}.png`, {type:'image/png'});
+  }
+
+  async function createLegacyVerseStoryFile(verse) {
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
     canvas.height = 1920;
@@ -434,6 +470,21 @@
     `;
 
     wireVerseButtons(verse);
+    // Show the actual exported artwork, not a different CSS approximation.
+    const preview = section.querySelector('.verse-story-preview');
+    if (preview) {
+      preview.textContent = 'Preparing verse image…';
+      createVerseStoryFile(verse).then(file => {
+        const imageUrl = URL.createObjectURL(file);
+        const image = document.createElement('img');
+        image.alt = `Verse of the Day: ${verseReferenceLabel(verse)}. ${verse.text}`;
+        image.style.cssText = 'display:block;width:100%;height:auto;position:static;max-width:none;opacity:1;';
+        image.src = imageUrl;
+        preview.style.cssText = 'padding:0;overflow:hidden;background:#080807;';
+        preview.replaceChildren(image);
+        window.addEventListener('pagehide', event => { if (!event.persisted) URL.revokeObjectURL(imageUrl); });
+      }).catch(() => { preview.textContent = 'Image preview unavailable. Please try downloading again.'; });
+    }
   }
 
   function renderLibrary(verses, todayKey) {

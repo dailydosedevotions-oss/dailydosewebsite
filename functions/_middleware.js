@@ -174,6 +174,10 @@ export async function onRequest(context) {
     .on('script[src]', {
       element(element) {
         const src = new URL(element.getAttribute('src'), url);
+        if (src.origin === url.origin && src.pathname === '/verse-of-the-day.js') {
+          src.searchParams.set('v', 'verse-template-4');
+          element.setAttribute('src', src.pathname + src.search);
+        }
         if (src.origin === url.origin && /^\/(script|script-brand-share-v[56])\.js$/.test(src.pathname)) {
           src.searchParams.set('v', shareVersion);
           element.setAttribute('src', src.pathname + src.search);

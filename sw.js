@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v49-prayer-truth';
+const CACHE_VERSION = 'daily-dose-pwa-v50-verse-template';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -26,7 +26,7 @@ const CORE_ASSETS = [
   '/script.js?v=dd-v8',
   '/script-brand-share-v6.js?v=dd-v8',
   '/pwa.js?v=add-to-home-3',
-  '/verse-of-the-day.js?v=date-search-1',
+  '/verse-of-the-day.js?v=verse-template-4',
   '/verses-of-the-day.json',
   '/manifest.webmanifest?v=3',
   '/icons/icon-192-v3.png',
@@ -34,6 +34,7 @@ const CORE_ASSETS = [
   '/icons/apple-touch-icon-v3.png',
   '/icons/brand-mark-v3.png',
   '/icons/verse-story-background.jpg?v=2',
+  '/icons/verse-story-template-v4.jpg',
   '/favicon.ico'
 ];
 
