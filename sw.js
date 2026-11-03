@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'daily-dose-pwa-v50-verse-template';
+const CACHE_VERSION = 'daily-dose-pwa-v51-simple-sharing';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const CORE_ASSETS = [
-  '/devotion-stories.js?v=story-4',
+  '/devotion-stories.js?v=story-5',
   '/',
   '/devotions',
   '/subscribe',

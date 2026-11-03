@@ -186,7 +186,7 @@ export async function onRequest(context) {
     })
     .on('body', {
       element(element) {
-        element.append('<script src="/devotion-stories.js?v=story-4" defer></script>', {html:true});
+        element.append('<script src="/devotion-stories.js?v=story-5" defer></script>', {html:true});
       }
     })
     .transform(response);
