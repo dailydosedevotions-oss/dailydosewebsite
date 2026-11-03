@@ -27,10 +27,15 @@
     tools.innerHTML = '<h2>Share this devotion</h2><p>The familiar Daily Dose card, with a direct link to this devotion. Save the card for your story, then add the link so people can read it.</p><div class="dd-story-actions"><button type="button" class="dd-open-card">Card &amp; story link</button><button type="button" class="dd-quick-link">Copy devotion link</button></div><p class="dd-quick-status" role="status" aria-live="polite"></p>';
     article.append(tools);
     // Replace the old link-only Instagram action, keeping WhatsApp, Facebook and copy-link tools intact.
-    document.querySelectorAll('.instagram-share').forEach(button => button.remove());
-    document.querySelectorAll('.share-note').forEach(note => {
-      if (note.textContent.includes('Instagram')) note.textContent = 'For Stories and TikTok photos, use the story-card options on this page.';
-    });
+    function cleanLegacySharing() {
+      document.querySelectorAll('.instagram-share').forEach(button => button.remove());
+      document.querySelectorAll('.share-note').forEach(note => {
+        if (note.textContent.includes('Instagram')) note.textContent = 'For Stories and TikTok photos, use Card & story link on this page.';
+      });
+    }
+    cleanLegacySharing();
+    // Older page scripts can insert their share toolbar after this script runs.
+    new MutationObserver(cleanLegacySharing).observe(document.body, {childList:true, subtree:true});
     const dialog = document.createElement('dialog');
     dialog.className = 'dd-story-dialog'; dialog.setAttribute('aria-labelledby', 'dd-story-heading');
     dialog.innerHTML = '<button class="dd-close" type="button" aria-label="Close story preview">Close</button><h2 id="dd-story-heading">Your card and devotion link</h2><p class="dd-instructions">1. Save the card. 2. Copy the devotion link. 3. In Instagram, create a Story with the card, choose Stickers → Link, paste the link, and label it “Read the devotion”.</p><div class="dd-story-actions"><a class="dd-download" hidden>1. Save card</a><button type="button" class="dd-copy-link">2. Copy devotion link</button><button type="button" class="dd-share-image" disabled>Share image…</button><button type="button" class="dd-copy-caption">Copy caption</button></div><p class="dd-story-status" role="status" aria-live="polite"></p><img class="dd-story-preview" alt="Daily Dose sharing card with the devotion title" hidden><label for="dd-devotion-url">Direct link to this devotion</label><textarea id="dd-devotion-url" aria-label="Direct devotion link" readonly></textarea><p><strong>Facebook:</strong> the Facebook share button on the devotion shares a clickable link. For a Story, add the saved card and a Link sticker if your account offers it.</p><p><strong>TikTok:</strong> upload the card as a photo post and copy the caption. A URL written in the image or caption is not a clickable devotion button. Use a website/profile link only if your account offers that option.</p><p>Saving or sharing the image does not add a clickable link automatically. These tools do not open Instagram Stories directly.</p>';
