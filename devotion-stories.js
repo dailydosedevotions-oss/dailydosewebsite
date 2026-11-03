@@ -8,7 +8,7 @@
     const title = article.querySelector('h1').textContent.trim();
     const reference = article.querySelector('.scripture-box h3, .scripture-box h2, .scripture-reference, .scripture-heading')?.textContent.trim() || '';
     const link = new URL(document.querySelector('link[rel="canonical"]')?.href || location.href);
-    link.hash = ''; link.searchParams.set('share', 'dd-v7');
+    link.hash = ''; link.searchParams.set('share', 'dd-v8');
     const caption = `${title}\n${reference ? reference + '\n' : ''}\nScripture, prayer and truth for the days you need God most.\nRead the devotion: ${link.href}\n\n#DailyDose #DailyDevotion`;
     const style = document.createElement('style');
     style.textContent = `
@@ -60,7 +60,7 @@
       // Reuse the exact WhatsApp artwork; add the devotion details underneath,
       // like a link-preview card, rather than inventing another logo or design.
       const artwork = new Image();
-      await new Promise((resolve, reject) => { artwork.onload = resolve; artwork.onerror = reject; artwork.src = '/daily-dose-share-v6.jpg?v=dd-v7'; });
+      await new Promise((resolve, reject) => { artwork.onload = resolve; artwork.onerror = reject; artwork.src = '/daily-dose-share-v8.jpg?v=dd-v8'; });
       const canvas = document.createElement('canvas'); canvas.width = 1200;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas unavailable');

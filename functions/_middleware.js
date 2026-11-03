@@ -158,8 +158,8 @@ export async function onRequest(context) {
   // Run only after all publication guards and downstream middleware.
   const response = await context.next();
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
-  const shareVersion = 'dd-v7';
-  const imageUrl = 'https://dailydosedevotions.ie/daily-dose-share-v6.jpg?v=' + shareVersion;
+  const shareVersion = 'dd-v8';
+  const imageUrl = 'https://dailydosedevotions.ie/daily-dose-share-v8.jpg?v=' + shareVersion;
   return new HTMLRewriter()
     .on('meta[property="og:image"], meta[property="og:image:secure_url"], meta[name="twitter:image"]', {
       element(element) { element.setAttribute('content', imageUrl); }
@@ -182,7 +182,7 @@ export async function onRequest(context) {
     })
     .on('body', {
       element(element) {
-        element.append('<script src="/devotion-stories.js?v=story-3" defer></script>', {html:true});
+        element.append('<script src="/devotion-stories.js?v=story-4" defer></script>', {html:true});
       }
     })
     .transform(response);
