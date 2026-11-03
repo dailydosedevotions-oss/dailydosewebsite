@@ -1,8 +1,9 @@
-const CACHE_VERSION = 'daily-dose-pwa-v45-dd-share';
+const CACHE_VERSION = 'daily-dose-pwa-v46-story-cards';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const CORE_ASSETS = [
+  '/devotion-stories.js?v=story-1',
   '/',
   '/devotions',
   '/subscribe',
