@@ -18,13 +18,13 @@
       .dd-story-tools button:focus-visible,.dd-story-dialog button:focus-visible,.dd-story-dialog a:focus-visible{outline:3px solid #e9bb54;outline-offset:4px}
       .dd-story-dialog{box-sizing:border-box;width:min(92vw,720px);max-height:90dvh;overflow:auto;border:1px solid #9e874f;border-radius:14px;padding:24px;background:#f8f5ef;color:#20201d}
       .dd-story-dialog::backdrop{background:rgba(0,0,0,.75)}.dd-story-dialog h2{font-size:24px;margin:0 0 12px;color:#20201d}.dd-story-dialog p{font:15px/1.6 Arial,sans-serif;color:#49463e}
-      .dd-story-dialog [hidden]{display:none!important}.dd-story-preview{display:block;width:min(100%,240px);height:auto;margin:16px auto;border-radius:8px}.dd-story-dialog .dd-close{float:right;background:transparent;border-color:#aaa;color:#222;margin:0 0 12px 12px}
+      .dd-story-dialog [hidden]{display:none!important}.dd-story-preview{display:block;width:100%;max-width:640px;height:auto;margin:16px auto;border-radius:8px}.dd-story-dialog .dd-close{float:right;background:transparent;border-color:#aaa;color:#222;margin:0 0 12px 12px}
       .dd-story-dialog button:disabled{opacity:.55;cursor:wait}.dd-story-dialog textarea{box-sizing:border-box;width:100%;min-height:110px;background:white;color:#222;border:1px solid #aaa;border-radius:6px;padding:10px;font:14px/1.5 Arial,sans-serif}
     `;
     document.head.append(style);
     const tools = document.createElement('section');
     tools.id = 'dd-story-tools'; tools.className = 'dd-story-tools scheduled-sensitive';
-    tools.innerHTML = '<h2>Take this encouragement further</h2><p>Create a story card for Instagram, Facebook or a TikTok photo post. Keep the devotion close, or share it with someone who needs it.</p><div class="dd-story-actions"><button type="button" data-platform="Instagram">Instagram Stories</button><button type="button" data-platform="Facebook">Facebook Stories</button><button type="button" data-platform="TikTok">TikTok photo</button><button type="button" data-platform="Save">Save story card</button></div>';
+    tools.innerHTML = '<h2>Share this devotion</h2><p>The familiar Daily Dose card, with a direct link to this devotion. Save the card for your story, then add the link so people can read it.</p><div class="dd-story-actions"><button type="button" class="dd-open-card">Card &amp; story link</button><button type="button" class="dd-quick-link">Copy devotion link</button></div><p class="dd-quick-status" role="status" aria-live="polite"></p>';
     article.append(tools);
     // Replace the old link-only Instagram action, keeping WhatsApp, Facebook and copy-link tools intact.
     document.querySelectorAll('.instagram-share').forEach(button => button.remove());
@@ -33,8 +33,9 @@
     });
     const dialog = document.createElement('dialog');
     dialog.className = 'dd-story-dialog'; dialog.setAttribute('aria-labelledby', 'dd-story-heading');
-    dialog.innerHTML = '<button class="dd-close" type="button" aria-label="Close story preview">Close</button><h2 id="dd-story-heading">Your story card</h2><p class="dd-instructions"></p><img class="dd-story-preview" alt="Portrait Daily Dose story card" hidden><p class="dd-story-status" role="status" aria-live="polite"></p><div class="dd-story-actions"><button type="button" class="dd-share-image" disabled>Share image</button><a class="dd-download" hidden>Download image</a><button type="button" class="dd-copy-caption">Copy caption</button><button type="button" class="dd-copy-link">Copy devotion link</button></div><textarea aria-label="Text to copy" readonly hidden></textarea><p>The image does not contain a clickable link. On Instagram or Facebook, add a Link sticker using “Copy devotion link” if that option is available. On TikTok, paste the caption and add the photo in the app.</p>';
+    dialog.innerHTML = '<button class="dd-close" type="button" aria-label="Close story preview">Close</button><h2 id="dd-story-heading">Your card and devotion link</h2><p class="dd-instructions">1. Save the card. 2. Copy the devotion link. 3. In Instagram, create a Story with the card, choose Stickers → Link, paste the link, and label it “Read the devotion”.</p><div class="dd-story-actions"><a class="dd-download" hidden>1. Save card</a><button type="button" class="dd-copy-link">2. Copy devotion link</button><button type="button" class="dd-share-image" disabled>Share image…</button><button type="button" class="dd-copy-caption">Copy caption</button></div><p class="dd-story-status" role="status" aria-live="polite"></p><img class="dd-story-preview" alt="Daily Dose sharing card with the devotion title" hidden><label for="dd-devotion-url">Direct link to this devotion</label><textarea id="dd-devotion-url" aria-label="Direct devotion link" readonly></textarea><p><strong>Facebook:</strong> the Facebook share button on the devotion shares a clickable link. For a Story, add the saved card and a Link sticker if your account offers it.</p><p><strong>TikTok:</strong> upload the card as a photo post and copy the caption. A URL written in the image or caption is not a clickable devotion button. Use a website/profile link only if your account offers that option.</p><p>Saving or sharing the image does not add a clickable link automatically. These tools do not open Instagram Stories directly.</p>';
     document.body.append(dialog);
+    dialog.querySelector('textarea').value = link.href;
     const status = dialog.querySelector('.dd-story-status');
     const preview = dialog.querySelector('img');
     const shareButton = dialog.querySelector('.dd-share-image');
@@ -51,62 +52,63 @@
       if (line) lines.push(line); return lines;
     }
     async function prepare() {
-      const canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 1920;
+      // Reuse the exact WhatsApp artwork; add the devotion details underneath,
+      // like a link-preview card, rather than inventing another logo or design.
+      const artwork = new Image();
+      await new Promise((resolve, reject) => { artwork.onload = resolve; artwork.onerror = reject; artwork.src = '/daily-dose-share-v6.jpg?v=dd-v7'; });
+      const canvas = document.createElement('canvas'); canvas.width = 1200;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas unavailable');
-      ctx.fillStyle = '#111310'; ctx.fillRect(0, 0, 1080, 1920);
-      ctx.strokeStyle = '#ad9255'; ctx.lineWidth = 2; ctx.strokeRect(60, 60, 960, 1800);
-      const logo = new Image();
-      await new Promise((resolve, reject) => { logo.onload = resolve; logo.onerror = reject; logo.src = '/icons/brand-mark-v3.png'; });
-      ctx.drawImage(logo, 410, 170, 260, 260);
-      ctx.textAlign = 'center'; ctx.fillStyle = '#dfc78d'; ctx.font = '500 32px Arial';
-      ctx.fillText('D A I L Y   D O S E', 540, 490);
-      ctx.fillStyle = '#f8f3e9';
-      let size = 86, lines;
-      do { ctx.font = `${size}px Georgia,serif`; lines = wrap(ctx, title, 830); if (lines.length <= 6 && lines.every(l => ctx.measureText(l).width <= 830)) break; size -= 2; } while (size > 24);
-      const lineHeight = size * 1.2;
-      const start = 840 - ((lines.length - 1) * lineHeight / 2);
-      lines.forEach((line, i) => ctx.fillText(line, 540, start + i * lineHeight));
-      ctx.strokeStyle = '#ad9255'; ctx.beginPath(); ctx.moveTo(410, 1210); ctx.lineTo(670, 1210); ctx.stroke();
-      ctx.fillStyle = '#dfc78d'; ctx.font = '30px Arial';
-      wrap(ctx, reference, 820).forEach((line, i) => ctx.fillText(line, 540, 1300 + i * 42));
-      ctx.fillStyle = '#eee6d7'; ctx.font = '36px Georgia,serif';
-      ctx.fillText('For the days you need God most.', 540, 1480);
-      ctx.font = '25px Arial'; ctx.fillStyle = '#c7bda9';
-      ctx.fillText('SCRIPTURE  ·  PRAYER  ·  TRUTH', 540, 1550);
-      ctx.font = '29px Arial'; ctx.fillStyle = '#dfc78d';
-      ctx.fillText('Read the devotion', 540, 1690); ctx.fillText('dailydosedevotions.ie', 540, 1740);
+      let size = 62, lines;
+      do { ctx.font = size + 'px Georgia,serif'; lines = wrap(ctx, title, 1040); if (lines.length <= 4 && lines.every(l => ctx.measureText(l).width <= 1040)) break; size -= 2; } while (size > 24);
+      const lineHeight = size * 1.22;
+      ctx.font = '28px Arial';
+      const refs = reference ? wrap(ctx, reference, 1040) : [];
+      const footerHeight = 160 + lines.length * lineHeight + refs.length * 38;
+      canvas.height = Math.ceil(630 + footerHeight);
+      ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(artwork, 0, 0, 1200, 630);
+      ctx.textAlign = 'left'; ctx.fillStyle = '#f4ead7'; ctx.font = size + 'px Georgia,serif';
+      let y = 700;
+      lines.forEach(line => { ctx.fillText(line, 80, y); y += lineHeight; });
+      ctx.fillStyle = '#d9bb77'; ctx.font = '28px Arial';
+      refs.forEach(line => { ctx.fillText(line, 80, y + 8); y += 38; });
+      ctx.font = '25px Arial'; ctx.fillStyle = '#c5c0b5';
+      ctx.fillText('Read the devotion · dailydosedevotions.ie', 80, canvas.height - 42);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('Image unavailable');
-      file = new File([blob], 'daily-dose-' + (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 70) || 'story') + '.png', {type:'image/png'});
+      file = new File([blob], 'daily-dose-' + (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '').slice(0, 70) || 'card') + '.png', {type:'image/png'});
       imageUrl = URL.createObjectURL(blob); preview.src = imageUrl; preview.hidden = false;
       download.href = imageUrl; download.download = file.name; download.hidden = false;
-      shareButton.disabled = false; status.textContent = 'Your 1080 × 1920 story card is ready.';
+      shareButton.disabled = false; status.textContent = 'Your full-size card is ready. Remember to add the devotion link separately.';
     }
-    tools.querySelectorAll('button').forEach(button => button.onclick = async () => {
-      const platform = button.dataset.platform;
-      dialog.querySelector('.dd-instructions').textContent = platform === 'Save' ? 'Download your card to keep it, or upload it in your favourite social app.' : `Tap Share image and choose ${platform} if your phone offers it. If Stories or ${platform} is missing, download the image, open ${platform}, and choose ${platform === 'TikTok' ? 'a new photo post' : 'Create story'} to upload it. On iPhone, you may need to save the downloaded image to Photos first.`;
+    async function openCard() {
       dialog.showModal();
       if (!file) {
-        status.textContent = 'Preparing your story card…';
+        status.textContent = 'Preparing your card…';
         try { if (!preparing) preparing = prepare(); await preparing; }
-        catch (error) { console.error('Story card generation failed', error); preparing = null; status.textContent = 'The card could not load. Close this preview and try again, or copy the devotion link below.'; }
+        catch (error) { console.error('Story card generation failed', error); preparing = null; status.textContent = 'The card could not load. You can still copy the devotion link below.'; }
       }
-    });
+    }
+    tools.querySelector('.dd-open-card').onclick = openCard;
+    tools.querySelector('.dd-quick-link').onclick = async () => {
+      try { await navigator.clipboard.writeText(link.href); tools.querySelector('.dd-quick-status').textContent = 'Devotion link copied. In Instagram Stories, paste it into a Link sticker.'; }
+      catch { await openCard(); const field = dialog.querySelector('textarea'); field.value = link.href; field.focus(); field.select(); status.textContent = 'Select and copy the devotion link below.'; }
+    };
     shareButton.onclick = async () => {
       if (!file) return;
       if (!navigator.canShare || !navigator.canShare({files:[file]})) {
-        status.textContent = 'This browser cannot share image files directly. Use Download image, then upload it in the app.'; return;
+        status.textContent = 'This browser cannot share image files directly. Use Save card, then upload it in the app.'; return;
       }
       try { await navigator.share({files:[file]}); status.textContent = 'Share menu closed. Finish your post in the app you chose.'; }
-      catch (error) { status.textContent = error.name === 'AbortError' ? 'Sharing cancelled. Your card is still ready.' : 'Your phone could not share this image. Download it and upload it in the app instead.'; }
+      catch (error) { status.textContent = error.name === 'AbortError' ? 'Sharing cancelled. Your card is still ready.' : 'Your phone could not share this image. Save it and upload it in the app instead.'; }
     };
-    async function copy(text) {
-      try { await navigator.clipboard.writeText(text); status.textContent = 'Copied. Paste it into your story or post.'; }
+    async function copy(text, message) {
+      try { await navigator.clipboard.writeText(text); status.textContent = message; }
       catch { const field = dialog.querySelector('textarea'); field.hidden = false; field.value = text; field.focus(); field.select(); status.textContent = 'Select and copy the text below.'; }
     }
-    dialog.querySelector('.dd-copy-caption').onclick = () => copy(caption);
-    dialog.querySelector('.dd-copy-link').onclick = () => copy(link.href);
+    dialog.querySelector('.dd-copy-caption').onclick = () => copy(caption, 'Caption copied. Paste it into your post. Add the clickable devotion link separately.');
+    dialog.querySelector('.dd-copy-link').onclick = () => copy(link.href, 'Devotion link copied. In Instagram Stories, choose Stickers → Link and paste it there.');
     window.addEventListener('pagehide', event => { if (!event.persisted && imageUrl) URL.revokeObjectURL(imageUrl); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true}); else init();
