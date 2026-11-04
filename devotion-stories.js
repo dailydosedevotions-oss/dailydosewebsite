@@ -41,31 +41,11 @@
     }
     section.querySelector('.dd-copy').onclick=copyLink;
     let file,imageUrl,preparing;
-    async function shareCard(whatsapp) {
-      if (!navigator.share) {
-        if (whatsapp) location.href = section.querySelector('.dd-whatsapp').href;
-        else await copyLink();
-        return;
-      }
-      if (!file && preparing) {
-        status.textContent = 'Preparing the card. Tap again when it is ready.';
-        preparing.then(() => { status.textContent = file ? 'Card ready. Tap WhatsApp or Share.' : 'Image unavailable. Tap again to share the link.'; });
-        return;
-      }
-      const data = {title, text:title+'\n'+link.href};
-      if (file && navigator.canShare?.({files:[file]})) data.files = [file];
-      else data.url = link.href;
-      try {
-        status.textContent = whatsapp ? 'Choose WhatsApp in the share menu.' : '';
-        await navigator.share(data);
-      } catch(error) {
-        if (error.name !== 'AbortError') status.textContent = 'Sharing could not open. Use Save image and Copy link instead.';
-        else status.textContent = '';
-      }
-    }
-    section.querySelector('.dd-share').onclick=()=>shareCard(false);
-    section.querySelector('.dd-whatsapp').onclick=event=>{
-      if (navigator.share) { event.preventDefault(); shareCard(true); }
+    // Share the page URL so messaging apps render one clickable preview card.
+    section.querySelector('.dd-share').onclick=async()=>{
+      if(!navigator.share){await copyLink();return;}
+      try{await navigator.share({title,url:link.href});status.textContent='';}
+      catch(error){if(error.name!=='AbortError')await copyLink();}
     };
     function wrap(ctx, text, width) {
       const lines = []; let line = '';
@@ -109,8 +89,6 @@
 
     }
 
-    // Prepare ahead of the tap: file sharing must retain browser user activation.
-    preparing = prepare().catch(() => { preparing = null; });
     section.querySelector('.dd-save').onclick=async(event)=>{
       const button=event.currentTarget;button.disabled=true;status.textContent='Preparing image…';
       try{

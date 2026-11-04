@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'daily-dose-pwa-v52-full-card-share';
+const CACHE_VERSION = 'daily-dose-pwa-v53-clickable-preview';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const CORE_ASSETS = [
-  '/devotion-stories.js?v=story-6',
+  '/devotion-stories.js?v=story-7',
   '/',
   '/devotions',
   '/subscribe',

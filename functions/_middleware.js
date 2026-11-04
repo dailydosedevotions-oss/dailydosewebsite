@@ -189,7 +189,7 @@ export async function onRequest(context) {
     })
     .on('body', {
       element(element) {
-        element.append('<script src="/devotion-stories.js?v=story-6" defer></script>', {html:true});
+        element.append('<script src="/devotion-stories.js?v=story-7" defer></script>', {html:true});
       }
     })
     .transform(response);
