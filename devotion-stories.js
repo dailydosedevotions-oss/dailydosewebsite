@@ -8,7 +8,7 @@
     const title = article.querySelector('h1').textContent.trim();
     const reference = article.querySelector('.scripture-box h3, .scripture-box h2, .scripture-reference, .scripture-heading')?.textContent.trim() || '';
     const link = new URL(document.querySelector('link[rel="canonical"]')?.href || location.href);
-    link.hash = ''; link.searchParams.set('share', 'dd-v8');
+    link.hash = ''; link.searchParams.set('share', 'dd-v9');
     const style = document.createElement('style');
     style.textContent = `
       #dd-story-tools{margin:32px 0;padding:24px;border-top:1px solid #b49b68;background:transparent;color:inherit}
@@ -40,12 +40,33 @@
       catch{field.hidden=false;field.focus();field.select();status.textContent='Select and copy the link below.';}
     }
     section.querySelector('.dd-copy').onclick=copyLink;
-    section.querySelector('.dd-share').onclick=async()=>{
-      if(!navigator.share){await copyLink();return;}
-      try{await navigator.share({title,url:link.href});status.textContent='';}
-      catch(error){if(error.name!=='AbortError')await copyLink();}
-    };
     let file,imageUrl,preparing;
+    async function shareCard(whatsapp) {
+      if (!navigator.share) {
+        if (whatsapp) location.href = section.querySelector('.dd-whatsapp').href;
+        else await copyLink();
+        return;
+      }
+      if (!file && preparing) {
+        status.textContent = 'Preparing the card. Tap again when it is ready.';
+        preparing.then(() => { status.textContent = file ? 'Card ready. Tap WhatsApp or Share.' : 'Image unavailable. Tap again to share the link.'; });
+        return;
+      }
+      const data = {title, text:title+'\n'+link.href};
+      if (file && navigator.canShare?.({files:[file]})) data.files = [file];
+      else data.url = link.href;
+      try {
+        status.textContent = whatsapp ? 'Choose WhatsApp in the share menu.' : '';
+        await navigator.share(data);
+      } catch(error) {
+        if (error.name !== 'AbortError') status.textContent = 'Sharing could not open. Use Save image and Copy link instead.';
+        else status.textContent = '';
+      }
+    }
+    section.querySelector('.dd-share').onclick=()=>shareCard(false);
+    section.querySelector('.dd-whatsapp').onclick=event=>{
+      if (navigator.share) { event.preventDefault(); shareCard(true); }
+    };
     function wrap(ctx, text, width) {
       const lines = []; let line = '';
       for (const word of text.split(/\s+/)) {
@@ -60,7 +81,7 @@
       // like a link-preview card, rather than inventing another logo or design.
       const artwork = new Image();
       await new Promise((resolve, reject) => { artwork.onload = resolve; artwork.onerror = reject; artwork.src = '/daily-dose-share-v8.jpg?v=dd-v8'; });
-      const canvas = document.createElement('canvas'); canvas.width = 1200;
+      const canvas = document.createElement('canvas'); canvas.width = artwork.naturalWidth;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas unavailable');
       let size = 62, lines;
@@ -69,8 +90,10 @@
       ctx.font = '28px Arial';
       const refs = reference ? wrap(ctx, reference, 1040) : [];
       const footerHeight = 160 + lines.length * lineHeight + refs.length * 38;
-      canvas.height = Math.ceil(630 + footerHeight);
-      ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const scale = canvas.width / 1200;
+      canvas.height = Math.ceil((630 + footerHeight) * scale);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = '#111111'; ctx.fillRect(0, 0, 1200, 630 + footerHeight);
       ctx.drawImage(artwork, 0, 0, 1200, 630);
       ctx.textAlign = 'left'; ctx.fillStyle = '#f4ead7'; ctx.font = size + 'px Georgia,serif';
       let y = 700;
@@ -78,7 +101,7 @@
       ctx.fillStyle = '#d9bb77'; ctx.font = '28px Arial';
       refs.forEach(line => { ctx.fillText(line, 80, y + 8); y += 38; });
       ctx.font = '25px Arial'; ctx.fillStyle = '#c5c0b5';
-      ctx.fillText('Read the devotion · dailydosedevotions.ie', 80, canvas.height - 42);
+      ctx.fillText('Read the devotion · dailydosedevotions.ie', 80, 630 + footerHeight - 42);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('Image unavailable');
       file = new File([blob], 'daily-dose-' + (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '').slice(0, 70) || 'card') + '.png', {type:'image/png'});
@@ -86,6 +109,8 @@
 
     }
 
+    // Prepare ahead of the tap: file sharing must retain browser user activation.
+    preparing = prepare().catch(() => { preparing = null; });
     section.querySelector('.dd-save').onclick=async(event)=>{
       const button=event.currentTarget;button.disabled=true;status.textContent='Preparing image…';
       try{

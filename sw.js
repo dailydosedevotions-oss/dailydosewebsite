@@ -1,9 +1,9 @@
-const CACHE_VERSION = 'daily-dose-pwa-v51-simple-sharing';
+const CACHE_VERSION = 'daily-dose-pwa-v52-full-card-share';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
 const CORE_ASSETS = [
-  '/devotion-stories.js?v=story-5',
+  '/devotion-stories.js?v=story-6',
   '/',
   '/devotions',
   '/subscribe',
@@ -23,8 +23,8 @@ const CORE_ASSETS = [
   '/styles-brand-v4.css?v=home-spacing-fix-1',
   '/analytics-consent.css?v=1',
   '/analytics-consent.js?v=1',
-  '/script.js?v=dd-v8',
-  '/script-brand-share-v6.js?v=dd-v8',
+  '/script.js?v=dd-v9',
+  '/script-brand-share-v6.js?v=dd-v9',
   '/pwa.js?v=add-to-home-3',
   '/verse-of-the-day.js?v=verse-template-4',
   '/verses-of-the-day.json',
