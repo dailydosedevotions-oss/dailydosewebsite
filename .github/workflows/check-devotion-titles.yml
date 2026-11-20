@@ -12,3 +12,4 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/check-devotion-titles.cjs
+      - run: node scripts/check-release-schedule.cjs

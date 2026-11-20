@@ -115,13 +115,27 @@ const blessedAreSchedule = {
 function scheduledResponse(eyebrow, title, message, backHref, backText) {
   return new Response(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><link rel="stylesheet" href="/styles.css"></head><body><main class="devotion-shell"><div class="container"><article class="devotion-article reveal visible"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1><p>${message}</p><p><a class="btn primary small" href="${backHref}">${backText}</a></p></article></div></main></body></html>`, {
     status: 403,
-    headers: { 'content-type': 'text/html; charset=UTF-8' }
+    headers: { 'content-type': 'text/html; charset=UTF-8', 'cache-control': 'no-store, max-age=0', 'x-robots-tag': 'noindex' }
   });
 }
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   const now = new Date();
+
+  // Dated email-source files must not bypass the website's release window.
+  // The mail worker reads its source from GitHub, not this public route.
+  const jsonDate = url.pathname.match(/^\/devotions\/(\d{4}-\d{2}-\d{2})\.json\/?$/)?.[1];
+  if (jsonDate) {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Dublin', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', hourCycle: 'h23'
+    }).formatToParts(now).map(part => [part.type, part.value]));
+    const today = `${parts.year}-${parts.month}-${parts.day}`;
+    if (jsonDate > today || (jsonDate === today && Number(parts.hour) < 7)) {
+      return scheduledResponse('Daily Dose', 'Scheduled Devotion', 'This devotion will be available at 7am on its release date.', '/devotions.html', 'Back to Devotions');
+    }
+  }
 
   const devotionMatch = url.pathname.match(/^\/devotions\/daily-dose-(\d+)\.html$/);
   if (devotionMatch && schedule[devotionMatch[1]]) {
@@ -156,8 +170,19 @@ export async function onRequest(context) {
 
   // Keep share crawlers and older devotion pages on the approved DD artwork.
   // Run only after all publication guards and downstream middleware.
-  const response = await context.next();
+  let response = await context.next();
   if (!response.ok || !(response.headers.get('content-type') || '').includes('text/html')) return response;
+  // Use the page's own timestamp: covers new entries and both clean/.html URLs.
+  // Never send the unreleased body to the browser and rely on JavaScript to hide it.
+  if (/^\/(devotions|series)\//.test(url.pathname)) {
+    const html = await response.text();
+    const release = html.match(/<body\b[^>]*\bdata-publish-at=["']([^"']+)["']/i)?.[1];
+    if (release && (!Number.isFinite(Date.parse(release)) || now.getTime() < Date.parse(release))) {
+      return scheduledResponse('Daily Dose', 'Scheduled Devotion', 'This devotion is scheduled and will be available at its release time.', '/devotions.html', 'Back to Devotions');
+    }
+    response = new Response(html, {status: response.status, statusText: response.statusText, headers: response.headers});
+    if (release) response.headers.set('cache-control', 'no-store, max-age=0');
+  }
   const shareVersion = 'dd-v9';
   const imageUrl = 'https://dailydosedevotions.ie/daily-dose-share-v8.jpg?v=' + shareVersion;
   return new HTMLRewriter()
