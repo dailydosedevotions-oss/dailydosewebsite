@@ -183,7 +183,8 @@ export async function onRequest(context) {
     response = new Response(html, {status: response.status, statusText: response.statusText, headers: response.headers});
     if (release) response.headers.set('cache-control', 'no-store, max-age=0');
   }
-  const shareVersion = 'dd-v9';
+  const isSignup = /^\/subscribe(?:\.html)?\/?$/.test(url.pathname);
+  const shareVersion = isSignup ? 'signup-v1' : 'dd-v9';
   const imageUrl = 'https://dailydosedevotions.ie/daily-dose-share-v8.jpg?v=' + shareVersion;
   return new HTMLRewriter()
     .on('meta[property="og:image"], meta[property="og:image:secure_url"], meta[name="twitter:image"]', {
@@ -194,7 +195,7 @@ export async function onRequest(context) {
     .on('meta[name="twitter:card"]', { element(el) { el.setAttribute('content', 'summary_large_image'); } })
     .on('meta[property="og:url"]', {
       element(element) {
-        const shareUrl = new URL(element.getAttribute('content') || url.href, url);
+        const shareUrl = new URL(isSignup ? 'https://dailydosedevotions.ie/subscribe' : (element.getAttribute('content') || url.href), url);
         shareUrl.searchParams.set('share', shareVersion);
         element.setAttribute('content', shareUrl.href);
       }

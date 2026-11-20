@@ -1,5 +1,5 @@
 (() => {
-  const url = 'https://dailydosedevotions.ie/subscribe';
+  const url = 'https://dailydosedevotions.ie/subscribe?share=signup-v1';
   const status = document.getElementById('signupShareStatus');
   const fallback = document.getElementById('signupLinkFallback');
   async function copy() {
