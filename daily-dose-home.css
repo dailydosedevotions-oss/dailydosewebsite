@@ -1,0 +1,71 @@
+#heroTodayDevotionLink{display:none}.hero-copy h1{font-size:clamp(42px,5vw,68px);line-height:1.1}.hero-copy>p{max-width:460px}.hero-actions{margin:22px 0 0}.hero-home-actions{margin-top:18px}.today-dose-card h2,.today-dose-card p:not(.eyebrow){min-height:0}.today-dose-card p:not(.eyebrow){margin-bottom:24px}.today-dose-actions{display:flex;gap:12px;flex-wrap:wrap}@media(max-width:767px){.hero-copy h1{font-size:clamp(38px,10vw,50px)}.hero-actions{display:flex}.hero-actions .btn{width:auto}.hero-home-actions{margin-top:18px}.hero-grid{gap:28px}}@media(max-width:767px){#heroTodayDevotionLink{display:inline-flex}}
+
+/* Refined home page hierarchy, scoped to the private proposal. */
+.hero .hero-grid{gap:clamp(40px,6vw,88px);align-items:center}
+.hero-copy h1{max-width:600px;letter-spacing:-.02em}
+.hero-copy>p:not(.eyebrow){font-size:18px;line-height:1.65;max-width:450px}
+.today-dose-card{border-radius:4px;padding:clamp(28px,3.5vw,44px)}
+.today-dose-card h2{font-size:clamp(32px,3.3vw,46px);line-height:1.14;max-width:420px}
+.today-dose-actions{align-items:center}
+.today-dose-actions .btn{min-height:46px}
+.editorial-paths-section .section-head h2,.about-preview h2{line-height:1.2}
+.editorial-paths small{line-height:1.65}
+.subscribe-band-copy h2{line-height:1.2}
+@media(max-width:767px){
+ .hero .hero-grid{gap:24px}
+ .hero-copy h1{font-size:clamp(36px,10vw,46px);line-height:1.1}
+ .hero-copy>p:not(.eyebrow){font-size:16px;line-height:1.6;margin-bottom:20px}
+ .hero-copy .eyebrow{margin-bottom:18px}
+ .hero-actions{margin:0}
+ .hero-actions .hero-subscribe{display:none}
+ .hero-home-actions{margin:16px 0 0;gap:12px}
+ .today-dose-card{padding:26px 22px}
+ .today-dose-card h2{font-size:32px;line-height:1.16}
+ .today-dose-card p:not(.eyebrow){font-size:16px;line-height:1.55}
+ .today-dose-actions{gap:10px}
+}
+
+/* Homepage-only verse and opening refinement. */
+.hero-brand-aside .hero-home-actions{margin:18px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:14px}
+.verse-feature-section{padding:48px 0;border:0;background:#0d0c0b}
+.verse-feature-section::before,.verse-feature-card::before,.verse-feature-card::after,.verse-feature-ornament{display:none}
+.verse-feature-wrap{max-width:900px}
+.verse-feature-card{padding:30px clamp(22px,4vw,44px);border:1px solid rgba(198,160,90,.26);border-radius:4px;box-shadow:none;background:#0d0c0b}
+.verse-feature-card .date{margin:8px 0 18px}
+.verse-feature-card .verse-text{font-style:normal;font-size:clamp(22px,2.3vw,30px);line-height:1.55;margin:0 auto 14px;max-width:760px;text-wrap:pretty}
+.verse-feature-card .verse-reference{margin:0 0 20px;line-height:1.5}
+.verse-feature-card .verse-actions{gap:8px 18px}
+.verse-feature-card .verse-actions .btn{width:auto;min-height:44px;background:transparent;border:0;border-radius:0;box-shadow:none;color:#e5d3af;text-decoration:underline;text-underline-offset:4px;padding:10px 4px;font-size:12px}
+.verse-feature-card .verse-actions .btn:hover{color:#fff;background:transparent}
+.verse-share-status:empty{display:none}
+@media(max-width:767px){
+ .hero .hero-grid{gap:22px}
+ .hero-copy>p:not(.eyebrow){margin-bottom:12px}
+ .hero-copy .eyebrow{margin-bottom:0}
+ .hero-brand-aside .hero-home-actions{margin:16px 0 0;gap:12px}
+ .verse-feature-section{padding:32px 0}
+ .verse-feature-card{padding:24px 18px}
+ .verse-feature-card .verse-text{font-size:22px;line-height:1.55}
+ .verse-feature-card .verse-actions{flex-direction:row;justify-content:center}
+}
+@media(max-width:767px){
+ .hero{min-height:0;padding-top:118px;padding-bottom:32px}
+ .hero .hero-grid{gap:22px}
+ .hero-copy h1{font-size:clamp(36px,10vw,44px);margin:0 0 16px;line-height:1.12}
+ .hero-copy>p:not(.eyebrow){max-width:34rem;margin:0 0 14px;font-size:16px;line-height:1.55}
+ .hero-copy .eyebrow{margin:0;font-size:10px;letter-spacing:.13em}
+ .today-dose-card{padding:24px;border-radius:4px}
+ .today-dose-card .eyebrow{margin:0 0 10px}
+ .today-dose-card .today-dose-date{margin-bottom:12px}
+ .today-dose-card h2{font-size:clamp(29px,8vw,34px);margin:0 0 12px;line-height:1.15}
+ .today-dose-card p:not(.eyebrow){margin:0 0 18px;line-height:1.5}
+ .today-dose-actions{display:flex;flex-wrap:wrap;gap:8px}
+ .today-dose-actions .btn{width:auto;font-size:11px;letter-spacing:.08em;padding:11px 13px}
+ .hero-brand-aside .hero-home-actions{justify-content:flex-start;gap:14px;margin:16px 0 0}
+ .home-screen-card{width:auto}
+ .verse-feature-section{padding:28px 0}
+ .verse-feature-card{padding:24px 20px}
+ .verse-feature-card .verse-text{font-size:21px;line-height:1.5}
+ .verse-feature-card .verse-actions{gap:4px 14px}
+ .verse-feature-card .verse-actions .btn{font-size:11px;letter-spacing:.07em}
+}

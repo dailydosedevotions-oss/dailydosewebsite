@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'daily-dose-pwa-v53-clickable-preview';
+const CACHE_VERSION = 'daily-dose-pwa-v54-home-refinement';
 const CORE_CACHE = `${CACHE_VERSION}-core`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -21,6 +21,7 @@ const CORE_ASSETS = [
   '/subscribe-health.html',
   '/offline',
   '/styles-brand-v4.css?v=home-spacing-fix-1',
+  '/daily-dose-home.css?v=20261122-1',
   '/analytics-consent.css?v=1',
   '/analytics-consent.js?v=1',
   '/script.js?v=dd-v9',
