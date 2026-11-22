@@ -1,0 +1,27 @@
+/* Shared Daily Dose identity. Reading surfaces and content intentionally unchanged. */
+:root{--primary:#d9bb73;--border:rgba(217,187,115,.25)}
+.navbar,.navbar.scrolled{background:#090e0a;border-bottom:1px solid #34372b;box-shadow:none;backdrop-filter:none}
+.navbar .nav-inner{max-width:1440px;min-height:98px;padding:14px 28px;gap:24px}
+.dd-identity{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-start}
+.navbar .brand{gap:10px;color:#f5f2e9;text-shadow:none;font-family:Georgia,serif;line-height:1.1;letter-spacing:.1em}
+.navbar .brand .brand-logo{display:block;width:40px;height:40px;object-fit:contain;border-radius:0;background:none;box-shadow:none;filter:none}
+.navbar .brand>span{font-size:19px;letter-spacing:.1em}
+.navbar .brand span::after{content:none}
+.navbar .brand .dd-brand-subtitle{display:block;font-family:Arial,sans-serif;font-size:10px;letter-spacing:.25em;margin-top:5px;color:#e1d7bf}
+.dd-ministry-credit{display:block;margin:5px 0 0 50px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#d9bb73;letter-spacing:0;text-transform:none}
+.dd-ministry-credit:hover,.dd-footer-credit:hover{text-decoration:underline;text-underline-offset:4px}
+.navbar .nav-links{display:flex;align-items:center;gap:18px}
+.navbar .nav-links a{font-family:Arial,sans-serif;font-size:12px;letter-spacing:0;text-transform:none;color:#eeeae0;white-space:nowrap}
+.navbar .nav-links a:hover{color:#d9bb73}
+.navbar .nav-links a:last-child{background:#d9bb73;color:#17241b;padding:10px 12px;border-radius:3px;font-weight:700}
+.navbar .menu-btn{color:#f5f2e9;border:1px solid #737668;border-radius:3px;min-width:44px;min-height:44px;font-size:25px}
+.mobile-menu{background:#090e0a;overflow-y:auto;gap:8px}
+.mobile-menu>a{font-size:20px;padding:7px 0;color:#f5f2e9}
+.mobile-menu .mobile-note{padding-top:16px}
+.btn.primary{background:#d9bb73;color:#17241b;border-color:#d9bb73;box-shadow:none;border-radius:3px}
+.btn.primary:hover{background:#e4cb91;filter:none}
+.btn.outline{border-color:#d9bb73;box-shadow:none;border-radius:3px}
+.dd-footer-credit{display:block;color:#d9bb73;font-size:14px;margin:5px 0 16px}
+@media(min-width:1251px){.navbar .menu-btn{display:none}}
+@media(max-width:1250px){.navbar .nav-links{display:none}.navbar .menu-btn{display:block}}
+@media(max-width:600px){.navbar .nav-inner{padding:12px 18px;min-height:94px}.navbar .brand>span{font-size:17px}.navbar .brand .brand-logo{width:36px;height:36px}.dd-ministry-credit{margin-left:46px}.devotion-shell{padding-top:122px}}

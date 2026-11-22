@@ -601,9 +601,11 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     ['Home', '/'],
     ['Start Here', '/start-here.html'],
     ['Devotions', '/devotions.html'],
-    ['Current Series', '/series.html'],
+    ['Series', '/series.html'],
     ['Verse Library', '/verse-library.html'],
     ['Prayer', '/prayer/'],
+    ['About', '/story.html'],
+    ['Contact', 'mailto:dailydosedevotions@gmail.com'],
     ['Send me Daily Dose', '/subscribe.html']
   ];
 
