@@ -208,7 +208,7 @@ export async function onRequest(context) {
           element.setAttribute('src', src.pathname + src.search);
         }
         if (src.origin === url.origin && /^\/(script|script-brand-share-v[56])\.js$/.test(src.pathname)) {
-          src.searchParams.set('v', 'identity-1');
+          src.searchParams.set('v', 'charcoal-20261122');
           element.setAttribute('src', src.pathname + src.search);
         }
       }
@@ -220,4 +220,5 @@ export async function onRequest(context) {
     })
     .transform(response);
 }
+
 
