@@ -597,27 +597,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 // EDITORIAL SITE SYSTEM V7
 (function () {
-  const navItems = [
-    ['Home', '/'],
-    ['Start Here', '/start-here.html'],
-    ['Devotions', '/devotions.html'],
-    ['Series', '/series.html'],
-    ['Verse Library', '/verse-library.html'],
-    ['Prayer', '/prayer/'],
-    ['About', '/story.html'],
-    ['Contact', 'mailto:dailydosedevotions@gmail.com'],
-    ['Send me Daily Dose', '/subscribe.html']
-  ];
-
-  const links = navItems.map(([label, href]) => `<a href="${href}">${label}</a>`).join('');
-  document.querySelectorAll('.nav-links').forEach(nav => { nav.innerHTML = links; });
-
-  document.querySelectorAll('.mobile-menu').forEach(mobile => {
-    mobile.querySelectorAll(':scope > a').forEach(link => link.remove());
-    const close = mobile.querySelector('.close-btn');
-    close?.insertAdjacentHTML('afterend', links);
-  });
-
+  // Navigation is rendered by the shared site shell.
   const article = document.querySelector('.devotion-article');
   const meta = article?.querySelector('.devotion-meta');
   if (article && meta && !article.querySelector('.devotion-byline')) {

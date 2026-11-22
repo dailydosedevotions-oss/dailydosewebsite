@@ -48,12 +48,13 @@
   <meta name="twitter:image:alt" content="Daily Dose Devotions gold DD and dove logo" />
   <link rel="stylesheet" href="/analytics-consent.css?v=1" />
 <link rel="stylesheet" href="/daily-dose-identity.css?v=1" />
+<link rel="stylesheet" href="/daily-dose-refinement.css?v=charcoal-20261122">
 </head>
-<body>
+<body class="dd-refined">
   <a class="skip-link" href="#main">Skip to content</a>
-  <nav class="navbar scrolled" id="navbar"><div class="nav-inner"><div class="dd-identity"><a class="brand" href="/"><img class="brand-logo" src="/icons/brand-mark-v3.png" width="44" height="44" alt="" aria-hidden="true"><span>DAILY DOSE<span class="dd-brand-subtitle">DEVOTIONS</span></span></a><a class="dd-ministry-credit" href="https://dailyministries.ie">By Daily Ministries</a></div><div class="nav-links"><a href="/">Home</a><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer/">Prayer</a><a href="/story.html">About</a><a href="mailto:dailydosedevotions@gmail.com">Contact</a><a href="/subscribe.html">Send me Daily Dose</a></div><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-controls="mobileMenu">&#9776;</button></div></nav>
+  <nav class="navbar scrolled" id="navbar" aria-label="Main navigation"><div class="nav-inner"><div class="dd-identity"><a class="brand" href="/"><img class="brand-logo" src="/icons/brand-mark-v3.png" width="40" height="40" alt="" aria-hidden="true"><span>DAILY DOSE<span class="dd-brand-subtitle">DEVOTIONS</span></span></a><a class="dd-ministry-credit" href="https://dailyministries.ie">By Daily Ministries</a></div><div class="nav-links"><a href="/" aria-current="page">Home</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer/">Prayer</a><a href="/story.html">About</a><a href="/subscribe.html">Send me Daily Dose</a></div><button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><span>Menu</span><span aria-hidden="true">&#9776;</span></button></div></nav>
 
-  <div class="mobile-menu" id="mobileMenu"><button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button><a href="/">Home</a><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer/">Prayer</a><a href="/story.html">About</a><a href="mailto:dailydosedevotions@gmail.com">Contact</a><a href="/subscribe.html">Send me Daily Dose</a><div class="mobile-note"><p>Daily Dose Devotions</p><span>Scripture &middot; Prayer &middot; Truth</span></div></div>
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation" hidden><div class="dd-menu-top"><span>Daily Dose Devotions</span><button class="close-btn" id="closeBtn" aria-label="Close menu">&times;</button></div><nav aria-label="Mobile navigation"><a href="/" aria-current="page">Home</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer/">Prayer</a><a href="/story.html">About</a><a href="/subscribe.html">Send me Daily Dose</a></nav><div class="mobile-note"><span>Scripture &bull; Prayer &bull; Truth</span></div></div>
 
   <main id="main">
     <section id="home" class="hero">
@@ -61,14 +62,25 @@
       <div class="hero-overlay"></div>
       <div class="container hero-grid">
         <div class="hero-copy reveal">
-          <h1>For the days you<br>need <span>God most.</span></h1>
+          <h1>For the days you<br> need <span>God most.</span></h1>
           <p>A moment to pause, turn to God and find encouragement for whatever today brings.</p>
           <p class="eyebrow">Scripture &middot; Prayer &middot; Truth</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="devotions.html" id="heroTodayDevotionLink">Read Today&rsquo;s Dose</a>
-            <a class="btn outline" href="subscribe.html">Send me Daily Dose</a>
-          </div>
-          <div class="hero-home-actions">
+          
+          
+        </div>
+
+        <div class="hero-brand-aside reveal"><article class="today-dose-card" id="todayDoseCard">
+            <h2 class="today-feature-heading">Today&rsquo;s Devotion</h2>
+            <div class="today-dose-date" id="todayDoseDate">Latest devotion</div>
+            <h3 id="todayDoseTitle">Find your next devotion</h3>
+            <p id="todayDoseExcerpt">Begin with today&rsquo;s Scripture-rooted reflection and take a few quiet minutes with God.</p>
+            <div class="today-dose-actions">
+              <a class="btn primary small" id="todayDoseLink" href="devotions.html">Browse devotions</a>
+              <a class="dd-text-link" href="devotions.html">Browse devotions</a>
+            </div>
+          </article>
+        </div>
+<div class="hero-home-actions">
             <button class="home-screen-card" type="button" data-install-app aria-label="Add Daily Dose to your home screen">
               <img width="1254" height="1254" class="home-screen-brand-mark" src="/icons/brand-mark-v3.png" alt="" aria-hidden="true">
               <span class="home-screen-copy">
@@ -77,79 +89,12 @@
             </button>
             <a class="hero-start-link" href="start-here.html">New here? <span>Start here</span></a>
           </div>
-        </div>
-
-        <div class="hero-brand-aside reveal"><article class="today-dose-card" id="todayDoseCard">
-            <p class="eyebrow">Today&rsquo;s Devotion</p>
-            <div class="today-dose-date" id="todayDoseDate">Latest devotion</div>
-            <h2 id="todayDoseTitle">Daily Dose Devotions</h2>
-            <p id="todayDoseExcerpt">Begin with today&rsquo;s Scripture-rooted reflection and take a few quiet minutes with God.</p>
-            <div class="today-dose-actions">
-              <a class="btn primary small" id="todayDoseLink" href="devotions.html">Read Today&rsquo;s Devotion</a>
-              <a class="btn outline small" href="devotions.html">View Archive</a>
-            </div>
-          </article>
-        </div>
       </div>
     </section>
 
-    <section class="milestone-strip-section" id="dailyDoseMilestone" hidden>
-      <div class="container">
-        <div class="milestone-strip reveal visible">
-          <div>
-            <p class="eyebrow" id="milestoneEyebrow">100 Days of Daily Dose</p>
-            <h2 id="milestoneTitle">Approaching 100 Days of Daily Dose</h2>
-            <p id="milestoneText">On Sunday, August 2, Daily Dose marks 100 days. One hundred days of Scripture, reflection, and real life. Thank You Lord for grace.</p>
-          </div>
-          <a class="btn outline small" id="milestoneLink" href="devotions.html">Read Today&rsquo;s Dose</a>
-        </div>
-      </div>
-    </section>
+    
 
-    <section class="section subscribe-band-section">
-      <div class="container">
-        <form class="subscribe-band reveal" id="subscribeForm" action="#" method="POST" novalidate>
-          <div class="subscribe-band-copy">
-            <p class="eyebrow">Send me Daily Dose</p>
-            <h2>A little encouragement, straight to your inbox.</h2>
-            <p>For the hard days, the hopeful days and everything in between. Receive Daily Dose by email, with Scripture, prayer and truth to help you draw near to God.</p>
-          </div>
-          <div class="subscribe-band-fields">
-            <input name="name" placeholder="First name (optional)" aria-label="First name">
-            <input name="email" type="email" placeholder="Email Address" aria-label="Email address" required>
-            <input type="hidden" name="form_type" value="Subscription request">
-            <input type="hidden" name="source" value="Homepage subscribe band">
-            <button class="btn primary full" type="submit">Send me Daily Dose</button>
-            <small id="subscribeStatus">Free, always. No payment details. Unsubscribe anytime.</small>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <section id="devotions" class="section editorial-paths-section">
-      <div class="container">
-        <div class="section-head reveal">
-          <h2>Ways to continue</h2>
-          <p>Read today, follow a series, or bring what you are carrying to prayer.</p>
-        </div>
-        <div class="editorial-paths">
-          <a href="devotions.html"><span>01</span><strong>Daily Devotions</strong><small>Scripture, prayer and truth for the day in front of you.</small></a>
-          <a href="series.html"><span>02</span><strong>Current Series</strong><small>Walk slowly through a connected collection of reflections.</small></a>
-          <a href="/prayer/"><span>03</span><strong>Prayer</strong><small>Share a request privately or pray with the wider community.</small></a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section about-preview-section">
-      <div class="container narrow">
-        <div class="about-preview reveal">
-          <p class="eyebrow">The Story Behind Daily Dose</p>
-          <h2>Why Daily Dose Exists</h2>
-          <p>Daily Dose began through recovery, Scripture, and the slow rebuilding work of God. These reflections exist to help people find hope, keep going, and turn back toward Christ one day at a time.</p>
-          <a class="btn outline small" href="story.html">Read the Story</a>
-        </div>
-      </div>
-    </section>
+    
 
     <section class="section verse-feature-section" id="verse-of-the-day" aria-labelledby="votdHeading">
       <div class="container verse-feature-wrap">
@@ -167,45 +112,50 @@
         </article>
       </div>
     </section>
-  </main>
+<section id="devotions" class="section editorial-paths-section">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Series and prayer</h2>
+          
+        </div>
+        <div class="editorial-paths">
+          
+          <a href="series.html"><strong>Read a series</strong><small>Explore the current and previous collections.</small></a>
+          <a href="/prayer/"><strong>Prayer</strong><small>Share a request privately or pray with the wider community.</small></a>
+        </div>
+      </div>
+    </section>
 
-  <footer>
-    <div class="container footer-grid">
-      <div class="footer-brand-block">
-        <h3>DAILY DOSE</h3><a class="dd-footer-credit" href="https://dailyministries.ie">By Daily Ministries</a>
-        <p>For the days you need God most.</p>
-        <small>Each devotion brings together Scripture, prayer and a truth to carry into your day. No perfect words or strong faith required—just come as you are.</small>
+    
+
+    
+  <section class="section subscribe-band-section">
+      <div class="container">
+        <form class="subscribe-band reveal" id="subscribeForm" action="#" method="POST" novalidate>
+          <div class="subscribe-band-copy">
+            
+            <h2>Receive Daily Dose by email.</h2>
+            <p>A daily devotion with Scripture and encouragement.</p>
+          </div>
+          <div class="subscribe-band-fields">
+            <input name="name" placeholder="First name (optional)" aria-label="First name">
+            <input name="email" type="email" placeholder="Email Address" aria-label="Email address" required>
+            <input type="hidden" name="form_type" value="Subscription request">
+            <input type="hidden" name="source" value="Homepage subscribe band">
+            <button class="btn primary full" type="submit">Send me Daily Dose</button>
+            <small id="subscribeStatus">Free. Unsubscribe at any time.</small>
+          </div>
+        </form>
       </div>
-      <div>
-        <h4>Quick Links</h4>
-        <a href="start-here.html">Start Here</a>
-        <a href="subscribe">Send me Daily Dose</a>
-        <a href="#devotions">Daily Devotions</a>
-        <a href="series.html">The Series</a>
-        <a href="/prayer">Prayer Requests</a>
-        <a href="story.html">About Daily Dose</a>
-        <a href="what-we-believe.html">What We Believe</a>
-        <a href="need-help-now.html">Need Help Now</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="mailto:dailydosedevotions@gmail.com">Contact</a>
-      </div>
-      <div>
-        <h4>Connect</h4>
-        <a href="mailto:dailydosedevotions@gmail.com">dailydosedevotions@gmail.com</a>
-        <a href="https://www.facebook.com/share/1CuVbMziM4/" target="_blank" rel="noopener">Facebook</a>
-        <a  href="https://www.instagram.com/daily_ministries_/" target="_blank" rel="noopener">@daily_ministries_</a>
-        <a href="https://www.tiktok.com/@dailydosedevotions" target="_blank" rel="noopener">TikTok</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <small>&copy; 2026 Daily Dose Devotions. All rights reserved.</small>
-      <small>SCRIPTURE &middot; PRAYER &middot; TRUTH</small>
-    </div>
-  </footer>
+    </section>
+</main>
+
+  <footer class="dd-footer"><div class="container dd-footer-grid"><div class="dd-footer-about"><div class="dd-identity"><a class="brand" href="/"><img class="brand-logo" src="/icons/brand-mark-v3.png" width="40" height="40" alt="" aria-hidden="true"><span>DAILY DOSE<span class="dd-brand-subtitle">DEVOTIONS</span></span></a><a class="dd-ministry-credit" href="https://dailyministries.ie">By Daily Ministries</a></div><p>Daily devotions by Shaun Loughlin.</p><p class="dd-strapline">Scripture &bull; Prayer &bull; Truth</p></div><nav aria-label="Footer navigation"><a href="/start-here.html">Start Here</a><a href="/devotions.html">Devotions</a><a href="/series.html">Series</a><a href="/verse-library.html">Verse Library</a><a href="/prayer/">Prayer</a><a href="/story.html">About</a><a href="/what-we-believe.html">What We Believe</a><a href="/need-help-now.html">Need Help Now</a><a href="/privacy.html">Privacy Policy</a><button type="button" class="dd-privacy-link">Privacy choices</button></nav><div class="dd-footer-contact"><h2>Contact</h2><a href="mailto:dailydosedevotions@gmail.com">dailydosedevotions@gmail.com</a><a href="https://www.instagram.com/daily_ministries_/" target="_blank" rel="noopener">@daily_ministries_</a><div class="dd-footer-social"><a href="https://www.facebook.com/share/1CuVbMziM4/" target="_blank" rel="noopener">Facebook</a><a href="https://www.tiktok.com/@dailydosedevotions" target="_blank" rel="noopener">TikTok</a></div></div></div><div class="container dd-copyright"><small>&copy; 2026 Daily Dose Devotions.</small></div></footer>
 
   <script src="script-brand-share-v6.js?v=send-me-dose-10"></script>
   <script src="/verse-of-the-day.js?v=date-search-1"></script>
   <script src="/pwa.js?v=add-to-home-3"></script>
   <script src="/analytics-consent.js?v=1"></script>
+<script src="/daily-dose-interface.js?v=charcoal-20261122" defer></script>
 </body>
 </html>

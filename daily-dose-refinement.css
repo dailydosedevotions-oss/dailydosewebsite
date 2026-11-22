@@ -1,0 +1,351 @@
+/* Daily Dose: calm shared interface. Devotional words and publishing remain untouched. */
+.dd-refined{--primary:#d9b86b;--foreground:#eeeae3;--border:#3c3b3c;--page-gutter:clamp(20px,4vw,48px);background:#19191b;color:#eeeae3;font-size:16px;line-height:1.75}
+.dd-refined [hidden]{display:none!important}
+.dd-refined .container{max-width:1120px;padding-inline:var(--page-gutter)}
+.dd-refined .narrow{max-width:800px}
+.dd-refined main{min-height:45vh}
+.dd-refined :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #947024;outline-offset:4px}
+.dd-refined h1{font-size:clamp(34px,4vw,48px);line-height:1.15;letter-spacing:-.025em;margin:0 0 18px}
+.dd-refined h2{font-size:clamp(27px,3vw,34px);line-height:1.25;letter-spacing:-.015em}
+.dd-refined h3{font-size:24px;line-height:1.3}
+.dd-refined .section{padding:42px 0;background:none}
+.dd-refined .page-hero{padding:136px 0 22px;background:none;border:0;text-align:left}
+.dd-refined .page-hero h1{font-size:clamp(34px,4vw,48px);color:#eeeae3}
+.dd-refined:has(#prayerForm) .page-hero .container,.dd-refined:has(.prose-panel) .page-hero .container{max-width:800px}
+.dd-refined:has(.dd-signup-section) .page-hero .container{max-width:700px}
+.dd-refined .page-hero p{color:#bdb8b0;font-size:17px;max-width:680px;margin:12px 0 0}
+.dd-refined .page-hero+.section{padding-top:16px}
+.dd-refined .eyebrow{color:#d9b86b!important;font-size:11px!important;letter-spacing:.1em;font-weight:600}
+.dd-refined .hero .eyebrow{color:#d9b86b!important}
+.dd-refined .section-head{max-width:none;text-align:left;margin:0 0 24px}
+.dd-refined .section-head h2{font-size:clamp(27px,3vw,34px)}
+.dd-refined .section-head p{color:#bdb8b0;font-size:16px;margin:12px 0;max-width:660px}
+.dd-refined .line,.dd-refined .verse-feature-ornament{display:none}
+.dd-refined .reveal{opacity:1;transform:none;transition:none}
+.dd-refined .btn{font-family:var(--font-body);font-size:14px;letter-spacing:0;text-transform:none;line-height:1.4;min-height:44px;padding:12px 19px;border-radius:3px;font-weight:600;box-shadow:none;transform:none}
+.dd-refined .btn.primary{background:#d9b86b;border-color:#d9b86b;color:#eeeae3}
+.dd-refined .btn.primary:hover{background:#e5ca8a;filter:none}
+.dd-refined .btn.outline{color:#eeeae3;border-color:#3c3b3c;background:transparent}
+.dd-refined .btn.outline:hover{background:#eeeae3}
+.dd-refined .btn.small{font-size:14px;padding:10px 16px}
+.dd-refined .dd-text-link,.dd-refined .dd-story-next a,.dd-refined .dd-start-about a{font-size:15px;text-decoration:underline;text-underline-offset:4px}
+/* Shared header and navigation */
+.dd-refined .navbar,.dd-refined .navbar.scrolled{background:#232326;box-shadow:none;border-bottom:1px solid #3c3b3c;backdrop-filter:none}
+.dd-refined .navbar .nav-inner{max-width:1200px;min-height:92px;padding:12px 28px;gap:24px}
+.dd-refined .dd-identity .brand{display:flex;align-items:center;gap:10px;color:#f4f1e8;line-height:1.15;text-shadow:none}
+.dd-refined .dd-identity .brand-logo{display:block!important;position:static;width:36px;height:36px;object-fit:contain;border-radius:0;box-shadow:none;filter:none;transform:none;background:none}
+.dd-refined .dd-identity .brand>span{font-family:Georgia,serif;font-size:18px;letter-spacing:.1em}
+.dd-refined .dd-identity .brand span::after{content:none}
+.dd-refined .dd-identity .dd-brand-subtitle{display:block;font:10px/1.3 Arial,sans-serif;letter-spacing:.2em;margin-top:4px;color:#ddd6c4}
+.dd-refined .dd-ministry-credit{font:13px/1.5 Arial,sans-serif;letter-spacing:0;color:#d9b86b;margin:4px 0 0 46px}
+.dd-refined .navbar .nav-links{display:flex;gap:22px}
+.dd-refined .navbar .nav-links a{font-size:14px;color:#e9e9e1;padding:8px 0;border-bottom:2px solid transparent;letter-spacing:0;text-transform:none}
+.dd-refined .navbar .nav-links a[aria-current]{border-bottom-color:#d9b86b;color:#d9b86b}
+.dd-refined .navbar .nav-links a:last-child{padding:11px 14px;color:#eeeae3;background:#d9b86b;border:0}
+.dd-refined .navbar .menu-btn{align-items:center;gap:10px;font:14px Arial,sans-serif;padding:10px 12px;color:#eee;border:1px solid #eeeae3;border-radius:3px}
+.dd-refined .mobile-menu{inset:0 0 0 auto;right:0;width:380px;max-width:100%;padding:24px;background:#232326;box-shadow:-30px 0 0 100vmax #0008;transition:none;gap:20px;overflow-y:auto;color:#f5f2e8}
+.dd-refined .dd-menu-top{display:flex;align-items:center;justify-content:space-between;font-size:15px}
+.dd-refined .mobile-menu .close-btn{font-size:30px;min-height:44px;min-width:44px;border:1px solid #eeeae3;border-radius:3px;color:#fff}
+.dd-refined .mobile-menu nav{display:flex;flex-direction:column;gap:4px}
+.dd-refined .mobile-menu nav a{padding:11px 4px;font:20px/1.4 var(--font-body);border:0;color:#eee}
+.dd-refined .mobile-menu nav a[aria-current]{color:#e1c480;text-decoration:underline;text-underline-offset:6px}
+.dd-refined .mobile-menu nav a:last-child{font-size:16px;background:#d9b86b;color:#eeeae3;padding:12px 16px;margin-top:16px;border-radius:3px;text-align:center}
+.dd-refined .mobile-note{font-size:11px;letter-spacing:.08em;line-height:1.6;padding:0;margin-top:auto;color:#d3ccbb}
+/* Black and gold welcome, followed by an uncluttered reading order. */
+.dd-refined .hero{background:#232326;min-height:0;padding:140px 0 46px;overflow:visible}
+.dd-refined .hero-bg,.dd-refined .hero-overlay{display:none}
+.dd-refined .hero-grid{grid-template-columns:1fr 1.05fr;gap:64px;align-items:center}
+.dd-refined .hero h1{font-size:clamp(38px,4.4vw,56px);line-height:1.1;color:#f6f3e9;margin-bottom:22px}
+.dd-refined .hero h1 span{color:#d9b86b}
+.dd-refined .hero-copy>p{font-size:16px;color:#bdb8b0;margin:14px 0;max-width:430px}
+.dd-refined .hero-copy>.eyebrow{color:#d9b86b;font-size:11px!important;margin:20px 0}
+.dd-refined .hero-home-actions{display:flex;gap:12px 22px;flex-wrap:wrap;margin:22px 0 0}
+.dd-refined .home-screen-card{display:inline-flex;width:auto;min-height:36px;border:0;background:none;padding:0;box-shadow:none;color:#bdb8b0;text-align:left}
+.dd-refined .home-screen-brand-mark{display:none}
+.dd-refined .home-screen-copy strong{font-size:12px;letter-spacing:0;text-transform:none;font-weight:400;text-decoration:underline;text-underline-offset:4px}
+.dd-refined .hero-start-link{font-size:13px;color:#e4e2d7}
+.dd-refined .today-dose-card{border:0;border-left:1px solid #3c3b3c;border-radius:0;background:none;box-shadow:none;padding:12px 0 12px 40px}
+.dd-refined .today-dose-card::before,.dd-refined .today-dose-card::after{display:none}
+.dd-refined .today-dose-card .eyebrow{color:#d9b86b;margin:0 0 14px}
+.dd-refined .today-dose-card h2{font-size:clamp(28px,3vw,39px);line-height:1.18;color:#f5f1e7;margin:12px 0;min-height:0}
+.dd-refined .today-dose-date{color:#bdb8b0;letter-spacing:.04em;font-size:12px}
+.dd-refined .today-dose-card p:not(.eyebrow){color:#bdb8b0;font-size:16px;line-height:1.6;margin:14px 0 22px;min-height:0}
+.dd-refined .today-dose-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dd-refined .today-dose-actions .dd-text-link{color:#e4e2d7;font-size:13px}
+.dd-refined .verse-feature-section{background:#19191b;padding:38px 0}
+.dd-refined .verse-feature-wrap{max-width:900px}
+.dd-refined .verse-feature-card{padding:0;border:0;border-radius:0;background:none;box-shadow:none;text-align:left}
+.dd-refined .verse-feature-card::before,.dd-refined .verse-feature-card::after{display:none}
+.dd-refined .verse-feature-card .eyebrow{margin:0 0 5px;color:#d9b86b}
+.dd-refined .verse-feature-card .date{color:#bdb8b0;font-size:12px;letter-spacing:.03em}
+.dd-refined .verse-text{font-size:clamp(23px,2.6vw,30px);line-height:1.5;margin:18px 0 12px;color:#eeeae3;max-width:790px}
+.dd-refined .verse-reference{font-size:13px;color:#d9b86b;letter-spacing:.04em;margin:0 0 20px}
+.dd-refined .verse-actions{justify-content:flex-start;gap:12px;margin:20px 0 0}
+.dd-refined .verse-actions .btn{font-size:13px;padding:9px 12px;min-height:40px}
+.dd-refined .verse-actions .btn.primary{background:transparent;color:#eeeae3;border-color:#3c3b3c}
+.dd-refined .verse-share-panel{border:0;background:none;padding:20px 0 0}
+.dd-refined .verse-share-options p,.dd-refined .verse-share-status{color:#eeeae3}
+.dd-refined .editorial-paths-section{padding:38px 0}
+.dd-refined .editorial-paths{grid-template-columns:1fr 1fr;border:0;gap:34px}
+.dd-refined .editorial-paths a,.dd-refined .editorial-paths a+a{padding:0 0 20px;border:0;border-bottom:1px solid #3c3b3c;gap:8px}
+.dd-refined .editorial-paths strong{font-size:25px;color:#eeeae3}
+.dd-refined .editorial-paths strong::after{content:' →';font-family:Arial,sans-serif;font-size:20px}
+.dd-refined .editorial-paths small{font-size:15px;color:#bdb8b0;max-width:none}
+.dd-refined .about-preview-section{padding:20px 0 38px}
+.dd-refined .about-preview-section .narrow{max-width:1120px}
+.dd-refined .about-preview{max-width:730px;text-align:left;margin:0;padding:0;border:0}
+.dd-refined .about-preview h2{color:#eeeae3}
+.dd-refined .about-preview p{color:#bdb8b0;font-size:17px;margin:15px 0;max-width:670px}
+.dd-refined .about-preview .btn{border:0;padding:0;color:#eeeae3;text-decoration:underline;text-underline-offset:4px;min-height:36px;background:none}
+.dd-refined .subscribe-band-section{padding:36px 0 42px;background:#19191b}
+.dd-refined .subscribe-band{padding:0;display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start;border:0;background:none;box-shadow:none}
+.dd-refined .subscribe-band h2{font-size:30px}
+.dd-refined .subscribe-band-copy p{font-size:16px;color:#bdb8b0;margin:14px 0}
+.dd-refined .subscribe-band-fields{display:grid;grid-template-columns:1fr;gap:12px}
+/* Forms retain their original fields, validation and privacy controls. */
+.dd-refined :is(input,textarea,select){font-family:var(--font-body);font-size:16px;color:#eeeae3;background:#19191b;border:1px solid #3c3b3c;border-radius:3px;box-shadow:none;padding:12px;min-height:46px}
+.dd-refined :is(input,textarea)::placeholder{color:#eeeae3;opacity:1}
+.dd-refined input[type=checkbox]{min-height:0;accent-color:#eeeae3}
+.dd-refined :is(.subscribe-card,.contact-card){background:none;border:0;box-shadow:none;border-radius:0;padding:0;max-width:100%;color:#eeeae3}
+.dd-refined .subscribe-page-card{display:grid;gap:14px;width:100%;margin:0}
+.dd-refined .dd-signup-section{padding-bottom:48px}
+.dd-refined .dd-signup-section .container{max-width:700px}
+.dd-refined .signup-invite{margin-top:32px!important;padding-top:20px!important;border-color:#3c3b3c!important}
+.dd-refined .signup-invite p{color:#bdb8b0;font-size:15px}
+.dd-refined #subscribeStatus{font-size:13px;color:#bdb8b0;line-height:1.6}
+.dd-refined .field-label{font-size:15px;font-weight:600;color:#eeeae3}
+.dd-refined #prayerForm{display:grid;gap:14px;margin-top:18px}
+.dd-refined #prayerForm textarea{min-height:145px}
+.dd-refined .check-row{display:flex;align-items:flex-start;gap:12px;color:#eeeae3;font-size:15px;line-height:1.6}
+.dd-refined .check-row input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:4px 0 0;padding:0}
+.dd-refined #prayerPrivacyNote{font-size:14px;color:#bdb8b0}
+.dd-refined .gentle-support-note{margin:0;padding:12px 16px;background:#19191b;border:0;border-left:3px solid #3c3b3c;border-radius:0;color:#bdb8b0;font-size:14px;line-height:1.6}
+.dd-refined .gentle-support-note a{color:#eeeae3;text-decoration:underline}
+.dd-refined .prayer-wall{margin-top:40px;border:0;background:none;padding:0}
+.dd-refined .prayer-wall-head{margin-bottom:20px}
+.dd-refined .prayer-item,.dd-refined .empty-state{border:1px solid #3c3b3c;box-shadow:none;background:none;color:#bdb8b0;border-radius:3px}
+.dd-refined .prayer-item p,.dd-refined .prayer-item span{color:#bdb8b0}
+/* Browsing and long-form reading */
+.dd-refined .archive-controls{margin:0 0 20px;padding:0;max-width:850px}
+.dd-refined .archive-controls label{color:#eeeae3;font-size:14px;letter-spacing:0;text-transform:none}
+.dd-refined #archiveCount,.dd-refined .search-hint{color:#bdb8b0;font-size:13px}
+.dd-refined .archive-grid{margin-top:12px}
+.dd-refined .dd-page-sharing{margin-top:28px;color:#eeeae3;font-size:15px}
+.dd-refined .dd-page-sharing summary{cursor:pointer;padding:12px 0}
+.dd-refined .dd-page-sharing .share-box{margin:0;padding:18px 0;border:0;background:none;box-shadow:none;color:#eeeae3}
+.dd-refined .dd-page-sharing .share-box h3{font-size:22px;color:#eeeae3}
+.dd-refined .dd-page-sharing .share-note{color:#bdb8b0}
+.dd-refined .devotion-card{padding:22px 0;border:0;border-bottom:1px solid #3c3b3c;background:none;border-radius:0;box-shadow:none;transform:none}
+.dd-refined .devotion-card:first-child{border-top:1px solid #3c3b3c}
+.dd-refined .devotion-card:hover{background:none}
+.dd-refined .devotion-card h3{font-size:25px;color:#eeeae3}
+.dd-refined .devotion-card p{color:#bdb8b0;font-size:15px;line-height:1.7}
+.dd-refined .date,.dd-refined .devotion-card .date{color:#d9b86b;font-size:13px;letter-spacing:.03em}
+.dd-refined .votd-month-heading{color:#eeeae3;font-size:25px;margin:26px 0 15px}
+.dd-refined .votd-library-card{background:none;border:0;border-bottom:1px solid #3c3b3c;border-radius:0;box-shadow:none;padding:20px 0}
+.dd-refined .votd-library-card p,.dd-refined .votd-library-card blockquote{color:#eeeae3}
+.dd-refined .votd-library-card .reference{color:#d9b86b}
+.dd-refined .verse-library-controls label{color:#eeeae3;font-size:14px;letter-spacing:0;text-transform:none}
+.dd-refined .verse-library-controls{margin:0 0 20px}
+.dd-refined .series-library-grid{max-width:none;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.dd-refined .series-collection-card{padding:0 0 25px;border:0;background:none;box-shadow:none;border-radius:0}
+.dd-refined .series-collection-card h3{font-size:34px;color:#eeeae3;margin:8px 0 14px}
+.dd-refined .series-collection-card p:not(.eyebrow){color:#bdb8b0;font-size:16px;max-width:510px}
+.dd-refined .series-grid{margin-top:0}
+.dd-refined .dd-start-links{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.dd-refined .dd-start-links li{padding:22px 0;border-bottom:1px solid #3c3b3c}
+.dd-refined .dd-start-links li:first-child{padding-top:0}
+.dd-refined .dd-start-links a{display:flex;justify-content:space-between;font:25px/1.35 var(--font-heading);color:#eeeae3}
+.dd-refined .dd-start-links p{font-size:16px;color:#bdb8b0;margin:10px 0 0}
+.dd-refined .dd-start-about{margin-top:24px}
+.dd-refined .prose-panel{background:none;border:0;box-shadow:none;border-radius:0;color:#eeeae3}
+.dd-refined .prose-panel p{color:#eeeae3;font-size:17px;line-height:1.85;max-width:720px}
+.dd-refined .prose-panel h2{margin:30px 0 12px;font-size:28px;color:#eeeae3}
+.dd-refined .prose-panel h2:first-child{margin-top:0}
+.dd-refined .prose-panel a:not(.btn){color:#eeeae3;text-decoration:underline;text-underline-offset:3px}
+.dd-refined .ministry-note{padding:20px 0;margin:24px 0 0;border:0;background:none;border-radius:0;text-align:left}
+.dd-refined .support-list{gap:16px}
+.dd-refined .support-item{padding:18px;background:#19191b;border:0;border-radius:3px}
+.dd-refined .privacy-intro{margin-bottom:24px}
+.dd-refined .privacy-detail{border-color:#3c3b3c;padding:14px 0}
+.dd-refined .privacy-contact{margin-top:24px}
+.dd-refined .devotion-shell{background:#19191b;padding:120px 0 44px}
+.dd-refined .devotion-shell>.container{max-width:850px}
+.dd-refined .back-link{font-size:14px;color:#bdb8b0;margin:0 0 24px}
+.dd-refined .devotion-article{background:none;border:0;box-shadow:none;border-radius:0;padding:0;color:#eeeae3;max-width:760px}
+.dd-refined .devotion-article h1{font-size:clamp(32px,4vw,46px);line-height:1.18;margin:12px 0 24px;color:#eeeae3}
+.dd-refined .devotion-meta{color:#d9b86b;font-size:13px;letter-spacing:.04em}
+.dd-refined .devotion-body{border:0;background:none;border-radius:0;padding:0;margin-top:28px;box-shadow:none}
+.dd-refined .devotion-body p{font-size:18px;line-height:1.85;color:#eeeae3;margin-bottom:23px}
+.dd-refined .scripture-box{background:#19191b;border:0;border-left:3px solid #b89a53;border-radius:0;padding:18px 22px;margin:24px 0}
+.dd-refined .scripture-box h3{font-size:13px;color:#d9b86b;margin:0 0 10px}
+.dd-refined .scripture-box p{font-size:18px;line-height:1.75;color:#eeeae3}
+.dd-refined .scripture-box strong,.dd-refined .devotion-body strong[style]{color:inherit!important;background:transparent!important;text-decoration:none!important;font-weight:600!important;font-style:normal!important}
+.dd-refined .scripture-inline,.dd-refined .scripture-quoted-line,.dd-refined .scripture-box p{color:#eeeae3!important;text-decoration:none!important;font-weight:500!important;font-style:italic!important}
+.dd-refined .scripture-reference-line{color:#d9b86b!important;font-weight:600!important}
+.dd-refined .devotion-nav{margin-top:28px}
+.dd-refined .thanks-note{border-color:#3c3b3c;color:#bdb8b0}
+/* One compact footer on all public pages. */
+.dd-refined .dd-footer{background:#232326;border:0;padding:36px 0 18px;color:#eeeae3;margin:0}
+.dd-refined .dd-footer-grid{display:grid;grid-template-columns:1.1fr 1.25fr 1fr;gap:36px;align-items:start}
+.dd-refined .dd-footer-about p{font-size:13px;color:#bdb8b0;margin:16px 0 0;line-height:1.6}
+.dd-refined .dd-footer-about .dd-strapline{font-size:11px;letter-spacing:.04em;margin-top:10px;color:#d9b86b}
+.dd-refined .dd-footer nav{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px}
+.dd-refined .dd-footer a,.dd-refined .dd-footer button{color:#eeeae3;font-size:13px;line-height:1.6;margin-bottom:0}
+.dd-refined .dd-footer a:hover,.dd-refined .dd-footer button:hover{text-decoration:underline;text-underline-offset:3px}
+.dd-refined .dd-footer .dd-ministry-credit{color:#d9b86b}
+.dd-refined .dd-footer-contact{display:flex;flex-direction:column;align-items:flex-start;gap:9px;overflow-wrap:anywhere}
+.dd-refined .dd-footer-contact h2{font:600 13px/1.6 var(--font-body);color:#f3f3ea;letter-spacing:0;margin:0 0 2px}
+.dd-refined .dd-footer-social{display:flex;gap:16px}
+.dd-refined .dd-privacy-link{padding:0;text-align:left;font-family:var(--font-body);background:none;border:0;cursor:pointer}
+.dd-refined .dd-copyright{font-size:11px;color:#bdb8b0;margin-top:24px}
+.dd-refined .dd-footer .analytics-privacy-choices{position:static;inset:auto;font-size:13px;background:none;border:0;padding:0;border-radius:0;color:#eeeae3;z-index:auto;box-shadow:none;text-transform:none;letter-spacing:0}
+@media(min-width:1081px){.dd-refined .navbar .menu-btn{display:none}}
+@media(max-width:1080px){.dd-refined .navbar .nav-links{display:none}.dd-refined .navbar .menu-btn{display:flex}.dd-refined .hero-grid{gap:30px}.dd-refined .dd-footer-grid{grid-template-columns:1fr 1fr}.dd-refined .dd-footer-contact{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:8px 24px}}
+@media(max-width:650px){
+ .dd-refined .navbar .nav-inner{padding:10px 20px;min-height:88px}.dd-refined .dd-identity .brand>span{font-size:16px}
+ .dd-refined .hero{padding:116px 0 32px}.dd-refined .hero-grid{display:block}.dd-refined .hero h1{font-size:36px;max-width:340px;margin:0 0 14px}.dd-refined .hero h1 br{display:none}
+ .dd-refined .hero-copy>p{font-size:15px;line-height:1.6;margin:12px 0}.dd-refined .hero-copy>.eyebrow{margin:14px 0}.dd-refined .hero-home-actions{margin:16px 0 26px}
+ .dd-refined .today-dose-card{padding:24px 0 0;border-left:0;border-top:1px solid #3c3b3c}.dd-refined .today-dose-card h2{font-size:29px}.dd-refined .today-dose-card p:not(.eyebrow){font-size:15px;margin:12px 0 18px}
+ .dd-refined .page-hero{padding:116px 0 20px}.dd-refined .page-hero h1{font-size:34px}.dd-refined .page-hero p{font-size:16px}.dd-refined .section{padding:30px 0}.dd-refined .page-hero+.section{padding-top:8px}
+ .dd-refined .verse-feature-section{padding:30px 0}.dd-refined .verse-text{font-size:23px}.dd-refined .verse-actions{gap:8px}.dd-refined .verse-actions .btn{font-size:12px;padding:9px 10px}
+ .dd-refined .editorial-paths{grid-template-columns:1fr;gap:20px}.dd-refined .editorial-paths strong{font-size:24px}.dd-refined .about-preview-section{padding-top:8px}
+ .dd-refined .subscribe-band{grid-template-columns:1fr;gap:20px}.dd-refined .subscribe-band h2{font-size:28px}.dd-refined .subscribe-band-copy p{margin:10px 0 0}
+ .dd-refined .series-library-grid{grid-template-columns:1fr;gap:28px}.dd-refined .series-collection-card h3{font-size:30px}.dd-refined .devotion-card{grid-template-columns:1fr;gap:12px}.dd-refined .devotion-card .btn{justify-self:start}.dd-refined .devotion-card h3{font-size:24px}
+ .dd-refined .archive-search-row{grid-template-columns:1fr;gap:8px}.dd-refined .prose-panel p{font-size:17px}.dd-refined .devotion-shell{padding-top:114px}.dd-refined .devotion-body p{font-size:18px;line-height:1.8}
+ .dd-refined .dd-footer-grid{grid-template-columns:1fr;gap:26px}.dd-refined .dd-footer-contact{grid-column:auto;display:flex}.dd-refined .dd-footer nav{gap:9px 20px}.dd-refined .dd-footer{padding-top:30px}
+}
+@media(prefers-reduced-motion:reduce){.dd-refined *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+/* Final detail pass: one Scripture surface, centred collections, compact navigation. */
+.dd-refined .hero-grid{display:grid;grid-template-areas:'intro today' 'utilities today';column-gap:48px;row-gap:0;align-items:start;grid-template-columns:1fr 1.15fr}
+.dd-refined .hero-copy{grid-area:intro}
+.dd-refined .hero-brand-aside{grid-area:today;width:100%;min-width:0}
+.dd-refined .hero-grid>.hero-home-actions{grid-area:utilities;margin:16px 0 0}
+.dd-refined .today-dose-card{background:#232326;border:0;border-radius:5px;padding:26px 30px}
+.dd-refined .today-dose-card .today-feature-heading{font:600 19px/1.4 var(--font-body);color:#d9b86b;margin:0 0 10px;letter-spacing:0}
+.dd-refined #todayDoseTitle{font-size:clamp(29px,3vw,39px);line-height:1.18;color:#f5f1e7;margin:12px 0}
+.dd-refined #todayDoseLink{font-size:15px;min-height:46px;padding:13px 20px}
+.dd-refined .verse-feature-section{background:#19191b;padding:42px 0}
+.dd-refined .dd-scripture-card{background:#232326;padding:32px 38px;border-radius:6px;color:#f6f0e2}
+.dd-refined .dd-scripture-card .eyebrow{font-size:17px!important;letter-spacing:.02em;color:#f6f0e2!important;text-transform:none}
+.dd-refined .dd-scripture-card .date{color:#bdb8b0;font-size:12px;margin:4px 0 0}
+.dd-refined .dd-scripture-card .verse-text{font-family:Georgia,serif;font-style:normal;font-weight:400;font-size:clamp(23px,2.4vw,29px);line-height:1.6;color:#f6f0e2;margin:16px 0 20px;max-width:45ch;white-space:normal;overflow-wrap:break-word}
+.dd-refined .dd-scripture-card .verse-text::before,.dd-refined .dd-scripture-card .verse-text::after{content:none}
+.dd-refined .dd-scripture-card .verse-reference{color:#d9b86b;margin:0;font-size:13px}
+.dd-refined .verse-actions{align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:6px 18px;margin-top:12px}
+.dd-refined .verse-actions a.btn{border:0;padding:8px 0;background:none;color:#eeeae3;text-decoration:underline;text-underline-offset:4px}
+.dd-refined .verse-actions #shareVerseToggle{margin-left:0;border:1px solid #3c3b3c;color:#eeeae3}
+.dd-refined .series-collection-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.dd-refined .series-collection-card::before,.dd-refined .series-collection-card::after,.dd-refined .verse-feature-section::before{display:none}
+.dd-refined .series-collection-card .btn{margin-top:auto}
+.dd-refined .series-collection-card p:not(.eyebrow){margin-bottom:24px}
+.dd-refined.menu-open{overflow:auto}
+.dd-refined .mobile-menu{position:fixed;inset:92px 0 auto;width:auto;max-width:none;height:auto;max-height:calc(100dvh - 92px);padding:12px max(20px,calc((100vw - 1064px)/2)) 20px;box-shadow:none;border-bottom:1px solid #3c3b3c;transform:none;gap:8px}
+.dd-refined .mobile-menu .dd-menu-top{justify-content:flex-end}
+.dd-refined .mobile-menu .dd-menu-top>span,.dd-refined .mobile-menu .mobile-note{display:none}
+.dd-refined .mobile-menu nav a{font-size:16px;padding:8px 4px}
+.dd-refined .mobile-menu nav a:last-child{margin-top:8px}
+.dd-refined .mobile-menu .close-btn{font-size:22px;min-height:32px;min-width:36px}
+@media(max-width:650px){
+ .dd-refined .hero-grid{display:grid;grid-template-columns:1fr;grid-template-areas:'intro' 'today' 'utilities';gap:16px}
+ .dd-refined .hero{padding-top:108px}
+ .dd-refined .hero h1{font-size:32px;margin-bottom:10px}
+ .dd-refined .hero-copy>.eyebrow{margin:10px 0 0}
+ .dd-refined .today-dose-card{padding:20px;border:0}
+ .dd-refined #todayDoseTitle{font-size:28px}
+ .dd-refined .hero-grid>.hero-home-actions{margin:0}
+ .dd-refined .mobile-menu{top:88px;max-height:calc(100dvh - 88px)}
+ .dd-refined .hero-home-actions{margin:8px 0 16px;gap:4px 18px;align-items:center;flex-direction:row;justify-content:flex-start}
+ .dd-refined .hero-home-actions>*{width:auto;flex:0 1 auto;margin:0}
+ .dd-refined .home-screen-card{min-height:32px}
+ .dd-refined .today-dose-card{padding-top:18px}
+ .dd-refined .verse-feature-section{padding:28px 0}
+ .dd-refined .dd-scripture-card{padding:24px 22px}
+ .dd-refined .dd-scripture-card .verse-text{font-size:23px;margin:12px 0 20px}
+ .dd-refined .verse-actions{gap:6px 18px;flex-direction:row;justify-content:flex-start}
+ .dd-refined .verse-actions .btn{width:auto}
+ .dd-refined .verse-actions #shareVerseToggle{margin-left:0}
+}
+
+/* Approved charcoal editorial. Original logo asset and publishing code unchanged. */
+.dd-refined{--dd-bg:#19191b;--dd-surface:#232326;--dd-text:#eeeae3;--dd-muted:#bdb8b0;--dd-gold:#d9b86b;--dd-rule:#3c3b3c;--primary:var(--dd-gold);--foreground:var(--dd-text);--border:var(--dd-rule);background:var(--dd-bg);color:var(--dd-text);color-scheme:dark}
+.dd-refined .navbar,.dd-refined .navbar.scrolled,.dd-refined .dd-footer,.dd-refined .mobile-menu{background:var(--dd-bg);border-color:var(--dd-rule)}
+.dd-refined .hero{background:var(--dd-bg);padding:142px 0 42px;min-height:0}
+.dd-refined .hero-bg,.dd-refined .hero-overlay{display:none}
+.dd-refined .hero-grid{grid-template-columns:1.05fr 1fr;grid-template-areas:'intro today' 'utilities today';align-items:center;gap:18px 56px}
+.dd-refined .hero-copy h1{font-family:Georgia,serif;font-size:clamp(34px,4.5vw,52px);line-height:1.14;letter-spacing:-.035em;max-width:530px;color:var(--dd-text)}
+.dd-refined .hero-copy h1 span{color:inherit}
+.dd-refined .hero-copy>p{color:var(--dd-muted);font-size:16px;max-width:430px;line-height:1.75}
+.dd-refined .hero-copy>.eyebrow{color:var(--dd-gold)!important;font-size:12px!important}
+.dd-refined .today-dose-card{background:var(--dd-surface);padding:30px;border:0;border-radius:0}
+.dd-refined .today-dose-card .today-feature-heading{font-size:16px;letter-spacing:.02em;color:var(--dd-gold)}
+.dd-refined #todayDoseTitle{font-family:Georgia,serif;font-size:clamp(29px,3vw,38px);line-height:1.22;color:var(--dd-text)}
+.dd-refined .today-dose-date{color:var(--dd-muted);font-size:13px}
+.dd-refined .today-dose-card p:not(.eyebrow){color:var(--dd-muted);font-size:16px}
+.dd-refined .btn.primary,.dd-refined .navbar .nav-links a:last-child,.dd-refined .mobile-menu nav a:last-child{background:var(--dd-gold);border-color:var(--dd-gold);color:#19191b}
+.dd-refined .btn.primary:hover{background:#e4c783;color:#19191b}
+.dd-refined .btn.outline{color:var(--dd-text);border-color:#77716a;background:transparent}
+.dd-refined .btn.outline:hover{background:var(--dd-surface)}
+.dd-refined .hero-grid>.hero-home-actions{margin:0;align-self:start}
+.dd-refined .home-screen-card,.dd-refined .hero-start-link{color:var(--dd-muted)}
+.dd-refined .verse-feature-section{background:var(--dd-bg);padding:36px 0 42px}
+.dd-refined .verse-feature-wrap{max-width:1120px}
+.dd-refined .verse-feature-card{border-top:1px solid var(--dd-rule);border-bottom:1px solid var(--dd-rule);padding:30px 0;text-align:left}
+.dd-refined .dd-scripture-card{background:transparent;padding:0;border-radius:0;color:var(--dd-text)}
+.dd-refined .dd-scripture-card .eyebrow{color:var(--dd-gold)!important;font:500 14px/1.5 var(--font-body)!important;letter-spacing:.06em;text-transform:none;margin:0 0 6px}
+.dd-refined .dd-scripture-card .date{color:var(--dd-muted);font-size:13px}
+.dd-refined .dd-scripture-card .verse-text{font-family:Georgia,serif;font-style:normal;font-weight:400;color:var(--dd-text);font-size:clamp(22px,2.3vw,28px);line-height:1.65;max-width:49ch;margin:18px 0}
+.dd-refined .dd-scripture-card .verse-reference{color:var(--dd-gold);font-size:14px;margin:0}
+.dd-refined .verse-actions{gap:8px 24px;margin:15px 0 0}
+.dd-refined .verse-actions a.btn{color:var(--dd-muted);background:transparent}
+.dd-refined .verse-actions #shareVerseToggle{color:var(--dd-text);border-color:#77716a;background:transparent}
+.dd-refined .editorial-paths-section{padding:0 0 42px}
+.dd-refined .editorial-paths strong,.dd-refined .section-head h2,.dd-refined .page-hero h1,.dd-refined h1,.dd-refined h2,.dd-refined h3{color:var(--dd-text)}
+.dd-refined .editorial-paths strong::after{content:none}
+.dd-refined .editorial-paths small,.dd-refined .section-head p,.dd-refined .page-hero p{color:var(--dd-muted)}
+.dd-refined .editorial-paths a{border-color:var(--dd-rule)}
+.dd-refined .subscribe-band-section{background:var(--dd-bg);padding:0 0 46px}
+.dd-refined .subscribe-band{background:var(--dd-surface);padding:30px;gap:36px}
+.dd-refined .subscribe-band-copy p,.dd-refined .subscribe-band small{color:var(--dd-muted)}
+.dd-refined :is(input,textarea,select){background:var(--dd-bg);color:var(--dd-text);border-color:#77716a}
+.dd-refined :is(input,textarea)::placeholder{color:var(--dd-muted)}
+.dd-refined :is(input,textarea,select):focus-visible{outline-color:var(--dd-gold)}
+.dd-refined input[type=checkbox]{accent-color:var(--dd-gold)}
+.dd-refined .field-label,.dd-refined .check-row{color:var(--dd-text)}
+.dd-refined .devotion-shell{background:var(--dd-bg)}
+.dd-refined .devotion-article,.dd-refined .prose-panel{color:var(--dd-text)}
+.dd-refined .devotion-body p,.dd-refined .prose-panel p{color:var(--dd-text)}
+.dd-refined .scripture-box{background:var(--dd-surface);border-left-color:var(--dd-gold)}
+.dd-refined .scripture-box p,.dd-refined .scripture-inline,.dd-refined .scripture-quoted-line{color:var(--dd-text)!important;font-style:normal!important}
+.dd-refined .scripture-reference-line{color:var(--dd-gold)!important}
+.dd-refined .devotion-meta,.dd-refined .date,.dd-refined .back-link,.dd-refined .search-hint,.dd-refined #archiveCount{color:var(--dd-muted)}
+.dd-refined .devotion-card h3,.dd-refined .series-collection-card h3,.dd-refined .votd-month-heading,.dd-refined .votd-library-card blockquote,.dd-refined .votd-library-card p{color:var(--dd-text)}
+.dd-refined .devotion-card p,.dd-refined .series-collection-card p:not(.eyebrow),.dd-refined .dd-start-links p,.dd-refined #prayerPrivacyNote,.dd-refined .prayer-item p,.dd-refined .prayer-item span{color:var(--dd-muted)}
+.dd-refined .votd-library-card .reference{color:var(--dd-gold)}
+.dd-refined .dd-start-links a,.dd-refined .prose-panel a:not(.btn),.dd-refined .dd-page-sharing,.dd-refined .dd-page-sharing .share-box,.dd-refined .dd-page-sharing .share-box h3{color:var(--dd-text)}
+.dd-refined .support-item,.dd-refined .gentle-support-note{background:var(--dd-surface);color:var(--dd-text);border-color:var(--dd-rule)}
+.dd-refined .gentle-support-note a{color:var(--dd-gold)}
+.dd-refined .dd-footer{border-top:1px solid var(--dd-rule)}
+.dd-refined .dd-footer-about p,.dd-refined .dd-footer a,.dd-refined .dd-footer button,.dd-refined .dd-copyright{color:var(--dd-muted)}
+.dd-refined .dd-footer .dd-ministry-credit,.dd-refined .dd-footer-about .dd-strapline{color:var(--dd-gold)}
+.dd-refined .dd-footer .brand>span,.dd-refined .dd-footer-contact h2{color:var(--dd-text)}
+.dd-refined .brand-logo{filter:none!important;opacity:1!important}
+@media(max-width:650px){
+ .dd-refined .hero{padding:116px 0 25px}
+ .dd-refined .hero-grid{grid-template-columns:1fr;grid-template-areas:'intro' 'today' 'utilities';gap:20px}
+ .dd-refined .hero-copy h1{font-size:34px;line-height:1.15;max-width:360px}
+ .dd-refined .hero-copy>p{font-size:16px}
+ .dd-refined .today-dose-card{padding:23px}
+ .dd-refined #todayDoseTitle{font-size:30px}
+ .dd-refined .today-dose-actions{gap:12px}
+ .dd-refined .today-dose-actions .dd-text-link{font-size:14px}
+ .dd-refined .hero-grid>.hero-home-actions{margin:0}
+ .dd-refined .verse-feature-section{padding:12px 0 30px}
+ .dd-refined .verse-feature-card{padding:25px 0}
+ .dd-refined .dd-scripture-card{padding:0}
+ .dd-refined .dd-scripture-card .verse-text{font-size:23px;margin:16px 0;line-height:1.65}
+ .dd-refined .subscribe-band{padding:24px 20px}
+ .dd-refined .subscribe-band-section{padding-bottom:30px}
+ .dd-refined .editorial-paths-section{padding-bottom:30px}
+}
+.dd-refined .scripture-box h3{color:var(--dd-gold)!important}.dd-refined .gentle-support-note,.dd-refined .gentle-support-note p{color:var(--dd-muted)!important}.dd-refined .devotion-body [style*="color:#8a5b00"],.dd-refined .devotion-body [style*="color: #8a5b00"]{color:var(--dd-gold)!important}
